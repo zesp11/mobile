@@ -13,7 +13,7 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   String _pokemonName = "Loading...";
   String _pokemonImageUrl = "";
-  List<String> _otherPokemonNames = [];
+  List<Map<String, dynamic>> _otherPokemonNames = [];
   int _currentPokemonId = 1;
 
   @override
@@ -54,9 +54,9 @@ class _GamePageState extends State<GamePage> {
         Flexible(
           flex: 2,
           child: Column(
-            children: _otherPokemonNames.asMap().entries.map((entry) {
-              final buttonLabel = entry.value;
-              final pokemonId = _currentPokemonId + entry.key + 1;
+            children: _otherPokemonData.map((data) {
+              final pokemonName = data['name'];
+              final pokemonId = data['id'];
 
               return Expanded(
                 child: SizedBox(
@@ -64,7 +64,7 @@ class _GamePageState extends State<GamePage> {
                   child: ElevatedButton(
                     onPressed: () => _fetchPokemon(pokemonId),
                     child: Text(
-                      buttonLabel,
+                      '$pokemonName (#$pokemonId)',
                       style: const TextStyle(fontSize: 20),
                     ),
                   ),
@@ -99,10 +99,37 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  void _populateOtherPokemonButtons() {
+  Future<void> _populateOtherPokemonButtons() async {
     final nextPokemons = List.generate(4, (i) => _currentPokemonId + i + 1);
+
+    // List to store the Future responses
+    // List to store the Future responses
+    final List<Future<Map<String, dynamic>?>> pokemonFutures =
+        nextPokemons.map((id) async {
+      final url = 'https://pokeapi.co/api/v2/pokemon/$id';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'id': data['id'],
+          'name': data['name'],
+        };
+      } else {
+        print('Failed to load pokemon with ID $id');
+        return null; // Return null if failed
+      }
+    }).toList();
+
+    // Wait for all requests to complete
+    final results = await Future.wait(pokemonFutures);
+
+    // Filter out any null results (failed requests)
+    final validResults = results.whereType<Map<String, dynamic>>().toList();
+
     setState(() {
-      _otherPokemonNames = nextPokemons.map((id) => "Pokemon $id").toList();
+      // Update _otherPokemonNames with valid results
+      _otherPokemonNames = validResults.toList();
     });
   }
 }
