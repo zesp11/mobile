@@ -77,6 +77,7 @@ class _BodyLayoutState extends State<BodyLayout> {
           ),
         ],
         currentIndex: _selectedIndex,
+        unselectedItemColor: Colors.blue,
         selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
       ),
