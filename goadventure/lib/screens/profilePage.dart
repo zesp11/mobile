@@ -1,7 +1,31 @@
 import 'package:flutter/material.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  // TODO: create Profile class that will be JSON serializable
+  // mock data
+  late String userName;
+  late int gamesPlayed;
+  late int gamesFinished;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // initialize mock data
+    userName = "John Doe";
+    gamesPlayed = 15;
+    gamesFinished = 10;
+
+    // TODO: in the future, replace this with an API call
+    // TODO: how to handle user own profile and different users profile?
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +51,9 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Text(
-              "User name",
-              style: TextStyle(
+            Text(
+              userName,
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
@@ -37,28 +61,27 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-
-            // Placeholder for stats
-            const Text(
-              "Games Played: 0",
-              style: TextStyle(
+            // Stats displayed with dynamic data
+            Text(
+              "Games Played: $gamesPlayed",
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.grey,
               ),
             ),
-
             const SizedBox(
               height: 5,
             ),
-
-            const Text(
-              'Games finished: 0',
-              style: TextStyle(
+            Text(
+              "Games Finished: $gamesFinished",
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.grey,
               ),
             ),
-
+            const SizedBox(
+              height: 20,
+            ),
             ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
