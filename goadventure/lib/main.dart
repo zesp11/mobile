@@ -1,89 +1,97 @@
 import 'package:flutter/material.dart';
-import 'package:goadventure/screens/gamePage.dart';
-import 'package:goadventure/screens/homePage.dart';
-import 'package:goadventure/screens/profilePage.dart';
-import 'package:goadventure/screens/searchPage.dart';
+import 'package:get/get.dart';
+import 'package:goadventure/app/screens/game_page.dart';
+import 'package:goadventure/app/screens/home_screen.dart';
+import 'package:goadventure/app/screens/profile_screen.dart';
+import 'package:goadventure/app/screens/search_page.dart';
+import 'package:goadventure/app/services/api_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  // Register ApiService globally in the main function
+  Get.put(ApiService());
+
+  runApp(const GoAdventure());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GoAdventure extends StatelessWidget {
+  const GoAdventure({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Go Adventure',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        useMaterial3: true,
-      ),
-      home: const BodyLayout(title: 'Go Adventure'),
+    return GetMaterialApp(
+      title: 'Gamebook App',
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/', page: () => LayoutController()),
+        GetPage(name: '/home', page: () => HomeScreen()),
+        GetPage(name: '/game', page: () => GameScreen()),
+        GetPage(name: '/search', page: () => SearchScreen()),
+        GetPage(name: '/profile', page: () => ProfileScreen()),
+      ],
     );
   }
 }
 
-class BodyLayout extends StatefulWidget {
-  const BodyLayout({super.key, required this.title});
-
-  final String title;
+class LayoutController extends StatelessWidget {
+  const LayoutController({super.key});
 
   @override
-  State<BodyLayout> createState() => _BodyLayoutState();
+  Widget build(BuildContext context) {
+    return GetBuilder<LayoutControllerLogic>(
+      init: LayoutControllerLogic(),
+      builder: (controller) {
+        return Scaffold(
+          body: controller.getSelectedScreen(), // Render the selected screen
+          bottomNavigationBar: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.play_arrow),
+                label: "Game",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: "Search",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: "Profile",
+              ),
+            ],
+            currentIndex: controller.selectedIndex,
+            type: BottomNavigationBarType.fixed,
+            unselectedItemColor: Colors.grey,
+            selectedItemColor: Colors.blue,
+            onTap: controller.onItemTapped,
+          ),
+        );
+      },
+    );
+  }
 }
 
-class _BodyLayoutState extends State<BodyLayout> {
-  int _selectedIndex = 0;
+class LayoutControllerLogic extends GetxController {
+  int selectedIndex = 0;
 
-  final List<Widget> _pages = <Widget>[
-    const HomePage(),
-    const GamePage(),
-    const SearchPage(),
-    const ProfilePage(),
+  // List of screens for each tab
+  final List<Widget> _screens = [
+    HomeScreen(),
+    GameScreen(),
+    SearchScreen(),
+    ProfileScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  // Update the selected index
+  void onItemTapped(int index) {
+    selectedIndex = index;
+    update(); // Notify the UI to rebuild
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.play_arrow),
-            label: "Game",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Search",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.blue,
-        selectedItemColor: Colors.blue,
-        onTap: _onItemTapped,
-      ),
-    );
+  // Get the current screen based on the selected index
+  Widget getSelectedScreen() {
+    return _screens[selectedIndex];
   }
 }
