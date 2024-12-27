@@ -36,7 +36,7 @@ class BodyLayout extends StatefulWidget {
 class _BodyLayoutState extends State<BodyLayout> {
   int _selectedIndex = 0;
 
-  final List<Widget> _widgetOptions = <Widget>[
+  final List<Widget> _pages = <Widget>[
     const HomePage(),
     const GamePage(),
     const SearchPage(),
@@ -56,7 +56,10 @@ class _BodyLayoutState extends State<BodyLayout> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: _widgetOptions.elementAt(_selectedIndex),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
