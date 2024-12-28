@@ -2,12 +2,14 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/home_controller.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/app/services/api_service/developmentApiService.dart';
+import 'package:goadventure/app/services/home_service.dart';
 
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    // Inject ApiService and GamebookController
+    // Inject HomeService
     Get.lazyPut<ApiService>(() => DevelopmentApiService());
-    Get.lazyPut<HomeController>(() => HomeController(apiService: Get.find()));
+    Get.lazyPut<HomeService>(() => HomeService(apiService: Get.find()));
+    Get.lazyPut<HomeController>(() => HomeController(homeService: Get.find()));
   }
 }
