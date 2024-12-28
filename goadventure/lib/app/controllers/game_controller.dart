@@ -27,6 +27,9 @@ class GameController extends GetxController {
 
   GameController({required this.gameService});
 
+// History to store the sequence of decisions and steps
+  var gameHistory = RxList<String>([]);
+
   @override
   void onInit() {
     super.onInit();
@@ -61,11 +64,18 @@ class GameController extends GetxController {
     fetchGamebookData(id);
   }
 
-  // Move to the next step after making a decision
   void makeDecision(Decision decision) {
-    // Find the next step based on the decision
+    // Add the current step text to the history
     // TODO: I think this should fetch from the remote server
     // TODO: adjust the developmentApiService then
+    if (currentStep.value != null) {
+      gameHistory.add("Step: ${currentStep.value!.text}");
+    }
+
+    // Add the decision text to the history
+    gameHistory.add("Decision: ${decision.text}");
+
+    // Find the next step based on the decision
     Step? nextStep = currentGamebook.value?.steps.firstWhere(
       (step) => step.id == decision.nextStepId,
       orElse: () => Step(
@@ -87,5 +97,14 @@ class GameController extends GetxController {
   // Check if a game is selected
   bool isGamebookSelected() {
     return currentGamebook.value != null;
+  }
+
+  // Get the game history as a string
+  String getGameHistory() {
+    if (gameHistory.isEmpty) {
+      return "There is no history yet, travel around the world to create your own...";
+    } else {
+      return gameHistory.join('\n'); // Join the history items with newline
+    }
   }
 }
