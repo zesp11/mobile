@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:goadventure/app/models/pokemon.dart';
-import 'package:goadventure/app/services/api_service.dart';
+import 'package:goadventure/app/services/api_service/api_service.dart';
 
 // This screen focuses on the active game session.
 // It manages the game logic, decisions, and interactions with other players.

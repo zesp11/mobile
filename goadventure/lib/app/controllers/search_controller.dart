@@ -1,7 +1,7 @@
 // This screen allows searching across different entities
 // like players, gamebooks, or cities.
 import 'package:get/get.dart';
-import 'package:goadventure/app/services/api_service.dart';
+import 'package:goadventure/app/services/api_service/api_service.dart';
 
 // class SearchController extends GetxController {
 //   final ApiService apiService = Get.find();
