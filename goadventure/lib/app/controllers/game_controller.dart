@@ -1,45 +1,22 @@
 import 'package:get/get.dart';
 import 'package:goadventure/app/models/pokemon.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:goadventure/app/services/game_service.dart';
 
 // This screen focuses on the active game session.
 // It manages the game logic, decisions, and interactions with other players.
-// class GameController extends GetxController {
-//   final ApiService apiService = Get.find();
-
-//   // Observables
-//   var currentGame = {}.obs; // Current game data
-//   var isWaitingForPlayers = false.obs;
-
-//   void loadGame(String gameId) async {
-//     currentGame.value = await apiService.getGameDetails(gameId);
-//   }
-
-//   void submitDecision(String decision) async {
-//     isWaitingForPlayers.value = true;
-//     await apiService.submitDecision(currentGame['id'], decision);
-
-//     // Wait for other players
-//     while (isWaitingForPlayers.value) {
-//       var status = await apiService.getDecisionStatus(currentGame['id']);
-//       if (status == 'complete') {
-//         isWaitingForPlayers.value = false;
-//         // Navigate to next step or results
-//       } else {
-//         await Future.delayed(Duration(seconds: 2));
-//       }
-//     }
-//   }
-// }
-
 class GameController extends GetxController {
-  final ApiService apiService;
+  final GameService gameService;
 
-  GameController({required this.apiService});
+  GameController({required this.gameService});
 
   var currentPokemonId = 1.obs;
   var currentPokemon = Rx<Pokemon?>(null);
   var otherPokemons = <Pokemon>[].obs;
+
+  // Loading indicators
+  var isCurrentPokemonLoading = true.obs;
+  var isOtherPokemonsLoading = true.obs;
 
   @override
   void onInit() {
@@ -47,42 +24,46 @@ class GameController extends GetxController {
     fetchPokemonData(currentPokemonId.value);
   }
 
-  // Fetch a single Pokémon
   Future<void> fetchPokemonData(int id) async {
-    final url = 'https://pokeapi.co/api/v2/pokemon/$id';
-
+    isCurrentPokemonLoading.value = true; // Start loading
     try {
-      final response = await apiService.getData(url);
+      // Start fetching both current Pokémon and other Pokémon concurrently
+      final currentPokemonFuture = gameService.fetchPokemon(id);
+      final otherPokemonsFuture = fetchOtherPokemons(id);
 
-      currentPokemon.value = Pokemon.fromJson(response);
-      fetchOtherPokemons(id); // Fetch other Pokemons once the current is loaded
+      // Wait for both futures to complete concurrently
+      final pokemon = await currentPokemonFuture;
+      currentPokemon.value = pokemon;
+
+      // Make sure otherPokemonsFuture completes, but its errors won't interrupt
+      await otherPokemonsFuture;
     } catch (e) {
-      throw Exception("Error: $e");
+      print("Error fetching Pokémon: $e");
+    } finally {
+      isCurrentPokemonLoading.value = false; // End loading
     }
   }
 
-  // Fetch other Pokémon
   Future<void> fetchOtherPokemons(int currentId) async {
-    final nextIds = List.generate(4, (i) => currentId + i + 1);
-    final futures = nextIds.map((id) => fetchSinglePokemon(id)).toList();
-
+    isOtherPokemonsLoading.value = true; // Start loading
     try {
-      final results = await Future.wait(futures);
-      otherPokemons.assignAll(results);
+      // Generate IDs of other Pokémon
+      final nextIds = List.generate(4, (i) => currentId + i + 1);
+
+      // Fetch Pokémon concurrently
+      final pokemons = await gameService.fetchMultiplePokemon(nextIds);
+
+      // Update the observable list
+      otherPokemons.assignAll(pokemons);
     } catch (e) {
-      throw Exception("Failed to load other Pokémon: $e");
+      print("Error fetching other Pokémon: $e");
+    } finally {
+      isOtherPokemonsLoading.value = false; // End loading
     }
   }
 
-  Future<Pokemon> fetchSinglePokemon(int id) async {
-    final url = 'https://pokeapi.co/api/v2/pokemon/$id';
-    final response = await apiService.getData(url);
-    return Pokemon.fromJson(response);
-  }
-
-  // Update the current Pokémon
   void updateCurrentPokemon(int id) {
     currentPokemonId.value = id;
-    fetchPokemonData(id); // Reload the Pokémon data
+    fetchPokemonData(id);
   }
 }

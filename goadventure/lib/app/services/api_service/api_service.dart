@@ -99,7 +99,5 @@ abstract class ApiService {
     }
   }
 
-  getData(String url) {
-    return "This is some kind of temporary data";
-  }
+  Future<Map<String, dynamic>> getData(String url);
 }

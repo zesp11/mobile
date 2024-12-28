@@ -1,15 +1,11 @@
 import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'dart:convert'; // For JSON decoding
+import 'package:http/http.dart' as http; // HTTP library
 
 class DevelopmentApiService implements ApiService {
   @override
   // TODO: implement baseUrl
   String get baseUrl => throw UnimplementedError();
-
-  @override
-  getData(String url) {
-    // TODO: implement getData
-    throw UnimplementedError();
-  }
 
   @override
   Future<String> getDecisionStatus(String gameId) async {
@@ -214,5 +210,24 @@ class DevelopmentApiService implements ApiService {
   Future<void> updateUserProfile(Map<String, dynamic> profile) {
     // TODO: implement updateUserProfile
     throw UnimplementedError();
+  }
+
+  Future<Map<String, dynamic>> getData(String url) async {
+    try {
+      await Future.delayed(Duration(seconds: 2));
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Decode the response JSON
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else {
+        // Handle non-200 responses
+        throw Exception(
+            'Failed to load data: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle any network or decoding errors
+      throw Exception('Error fetching data: $e');
+    }
   }
 }
