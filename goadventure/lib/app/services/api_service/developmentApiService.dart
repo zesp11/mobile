@@ -12,33 +12,148 @@ class DevelopmentApiService implements ApiService {
   }
 
   @override
-  Future<String> getDecisionStatus(String gameId) {
-    // TODO: implement getDecisionStatus
-    throw UnimplementedError();
+  Future<String> getDecisionStatus(String gameId) async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 1));
+
+    // Mock decision status
+    return "Waiting for response";
   }
 
   @override
-  Future<Map<String, dynamic>> getGameDetails(String gameId) {
-    // TODO: implement getGameDetails
-    throw UnimplementedError();
+  Future<Map<String, dynamic>> getGameDetails(String gameId) async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 1));
+
+    // Mock game details
+    return {
+      "title": "Dragon's Quest",
+      "description": "A thrilling adventure to save the kingdom from a dragon.",
+      "progress": "Chapter 2 - The Lava Caves"
+    };
   }
 
   @override
-  Future<List> getNearbyGamebooks(Map<String, double> location) {
-    // TODO: implement getNearbyGamebooks
-    throw UnimplementedError();
+  Future<List> getNearbyGamebooks(Map<String, double> location) async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 1));
+
+    // Mock nearby games with steps and decisions to match the Gamebook model
+    return [
+      {
+        "title": "Dragon's Quest",
+        "name": "Dragon's Quest",
+        "startDate": "2024-12-28T00:00:00Z",
+        "endDate": "2024-12-31T00:00:00Z",
+        "steps": [
+          {
+            "name": "Start Adventure",
+            "nextItem": "Dragon's Cave",
+            "decisions": [
+              {"text": "Enter the cave", "action": "start"},
+              {"text": "Turn back", "action": "exit"}
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Zombie Escape",
+        "name": "Zombie Escape",
+        "startDate": "2024-12-20T00:00:00Z",
+        "endDate": null,
+        "steps": [
+          {
+            "name": "Zombie Attack",
+            "nextItem": "Safehouse",
+            "decisions": [
+              {"text": "Fight zombies", "action": "fight"},
+              {"text": "Run away", "action": "run"}
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Mystery Mansion",
+        "name": "Mystery Mansion",
+        "startDate": "2024-12-25T00:00:00Z",
+        "endDate": null,
+        "steps": [
+          {
+            "name": "First Clue",
+            "nextItem": "Library",
+            "decisions": [
+              {"text": "Investigate", "action": "investigate"},
+              {"text": "Leave", "action": "leave"}
+            ]
+          }
+        ]
+      }
+    ];
   }
 
   @override
-  Future<List> getNewGamebooks() {
-    // TODO: implement getNewGamebooks
-    throw UnimplementedError();
+  Future<List> getNewGamebooks() async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 1));
+
+    // Mock data
+    return [
+      {
+        "title": "Space Odyssey",
+        "description": "Explore the galaxy in this sci-fi adventure."
+      },
+      {
+        "title": "Mystery Mansion",
+        "description": "Solve puzzles in a haunted mansion."
+      },
+      {
+        "title": "Alien Invasion",
+        "description": "Defend Earth from extraterrestrial forces."
+      }
+    ];
   }
 
   @override
-  Future<List> getResumeGames() {
-    // TODO: implement getResumeGames
-    throw UnimplementedError();
+  Future<List> getResumeGames() async {
+    // Simulate network delay for development
+    await Future.delayed(Duration(seconds: 1));
+
+    // Mock data to simulate the response with gamebook structure
+    // Mock data to simulate the response with the Gamebook structure
+    return [
+      {
+        "name": "Wizard's Journey",
+        "title": "Wizard's Journey",
+        "startDate": "2024-12-15T00:00:00Z",
+        "endDate": null,
+        "steps": [
+          {
+            "name": "Wizards' Meeting",
+            "nextItem": "The Mystic Forest",
+            "decisions": [
+              {"text": "Speak to the elder", "action": "talk"},
+              {"text": "Leave the meeting", "action": "exit"}
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Dragon's Quest",
+        "title": "Dragon's Quest",
+        "startDate": "2024-12-20T00:00:00Z",
+        "endDate": null,
+        "steps": [
+          {
+            "name": "Dragon Battle",
+            "nextItem": "The Lava Caves",
+            "decisions": [
+              {"text": "Attack the dragon", "action": "fight"},
+              {"text": "Wait for a better opportunity", "action": "wait"}
+            ]
+          }
+        ]
+      }
+    ];
   }
 
   @override
@@ -89,9 +204,10 @@ class DevelopmentApiService implements ApiService {
   }
 
   @override
-  Future<void> submitDecision(String gameId, String decision) {
-    // TODO: implement submitDecision
-    throw UnimplementedError();
+  Future<void> submitDecision(String gameId, String decision) async {
+    // Simulate a network request for submitting decisions
+    await Future.delayed(Duration(seconds: 1));
+    print('Decision "$decision" for game $gameId submitted.');
   }
 
   @override

@@ -5,7 +5,7 @@ import 'package:goadventure/app/controllers/home_controller.dart';
 class HomeScreen extends StatelessWidget {
   // Initialize the HomeController
   final HomeController controller =
-      Get.put(HomeController(apiService: Get.find()));
+      Get.put(HomeController(homeService: Get.find()));
 
   @override
   Widget build(BuildContext context) {
@@ -29,26 +29,46 @@ class HomeScreen extends StatelessWidget {
                       leading: const Icon(Icons.play_arrow,
                           size: 40, color: Colors.white),
                       title: Text(
-                        controller.lastGame.value!['title']!,
+                        controller.lastGame.value!.title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      subtitle: Text(
-                        "Continue: ${controller.lastGame.value!['progress']}",
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Started: ${controller.lastGame.value!.startDate.toLocal()}",
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                          if (controller.lastGame.value!.endDate != null)
+                            Text(
+                              "Ended: ${controller.lastGame.value!.endDate!.toLocal()}",
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                            ),
+                          Text(
+                            "Steps: ${controller.lastGame.value!.steps.length}",
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                       onTap: controller.resumeLastGame,
                     ),
                   ),
                 );
               } else {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
             }),
             const Divider(),
@@ -77,11 +97,44 @@ class HomeScreen extends StatelessWidget {
                       leading: const Icon(Icons.location_on,
                           color: Colors.redAccent, size: 30),
                       title: Text(
-                        game['title']!,
+                        game.title,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text("Distance: ${game['distance']}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Name: ${game.name}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          Text(
+                            "Started: ${game.startDate.toLocal()}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          if (game.endDate != null)
+                            Text(
+                              "Ended: ${game.endDate!.toLocal()}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          Text(
+                            "Steps: ${game.steps.length}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
                       onTap: () => controller.startNewGame(game),
                     ),
                   );
