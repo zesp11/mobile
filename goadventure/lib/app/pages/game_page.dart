@@ -163,9 +163,16 @@ class GameScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Obx(() {
-                        return Text(
-                          controller.getGameHistory(),
-                          style: const TextStyle(fontSize: 16),
+                        return Expanded(
+                          child: SingleChildScrollView(
+                            reverse: true, // Start scrolling from the bottom
+                            child: Text(
+                              controller.getGameHistory().isEmpty
+                                  ? "No history yet. Travel around the world and create your own adventure!"
+                                  : controller.getGameHistory(),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
                         );
                       }),
                     ],
