@@ -9,6 +9,6 @@ class SearchBinding extends Bindings {
     // Inject ApiService and SearchController
     Get.lazyPut<ApiService>(() => DevelopmentApiService());
     Get.lazyPut<SearchController>(
-        () => SearchController(apiService: Get.find()));
+        () => SearchController(searchService: Get.find()));
   }
 }

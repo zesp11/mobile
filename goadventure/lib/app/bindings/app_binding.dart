@@ -5,6 +5,7 @@ import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:goadventure/app/controllers/search_controller.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/app/services/api_service/developmentApiService.dart';
+import 'package:goadventure/app/services/search_service.dart';
 import 'package:goadventure/app/services/user_service.dart';
 
 class AppBindings extends Bindings {
@@ -22,7 +23,8 @@ class AppBindings extends Bindings {
     }
 
     // Register UserService using the injected ApiService
-    Get.lazyPut<UserService>(() => UserService(Get.find()));
+    Get.lazyPut<UserService>(() => UserService(apiService: Get.find()));
+    Get.lazyPut<SearchService>(() => SearchService(apiService: Get.find()));
 
     // Register controllers that need ApiService
     Get.lazyPut<ProfileController>(
@@ -30,6 +32,6 @@ class AppBindings extends Bindings {
     Get.lazyPut<HomeController>(() => HomeController(apiService: Get.find()));
     Get.lazyPut<GameController>(() => GameController(apiService: Get.find()));
     Get.lazyPut<SearchController>(
-        () => SearchController(apiService: Get.find()));
+        () => SearchController(searchService: Get.find()));
   }
 }

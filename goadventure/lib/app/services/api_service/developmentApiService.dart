@@ -64,9 +64,28 @@ class DevelopmentApiService implements ApiService {
   }
 
   @override
-  Future<List> search(String query, String category) {
-    // TODO: implement search
-    throw UnimplementedError();
+  Future<List> search(String query, String category) async {
+    // Example: Search across all items (you could adjust based on category)
+    // Simulating a search result from a local mock data
+    List<Map<String, String>> allItems = [
+      {'name': 'Alice', 'type': 'User'},
+      {'name': 'Bob', 'type': 'User'},
+      {'name': 'Chess Master', 'type': 'Game'},
+      {'name': 'Zombie Escape', 'type': 'Scenario'},
+      {'name': 'Charlie', 'type': 'User'},
+      {'name': 'Space Adventure', 'type': 'Game'},
+      {'name': 'Desert Survival', 'type': 'Scenario'},
+    ];
+
+    // Filter based on query and category (you can adjust the filtering logic here)
+    return allItems.where((item) {
+      bool matchesQuery =
+          item['name']!.toLowerCase().contains(query.toLowerCase());
+      if (category != 'all') {
+        return matchesQuery && item['type'] == category;
+      }
+      return matchesQuery;
+    }).toList();
   }
 
   @override

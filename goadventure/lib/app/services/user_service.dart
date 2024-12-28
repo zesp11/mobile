@@ -5,7 +5,7 @@ import 'package:goadventure/app/services/api_service/api_service.dart';
 class UserService {
   final ApiService apiService;
 
-  UserService(this.apiService);
+  UserService({required this.apiService});
 
   Future<UserProfile> fetchUserProfile() async {
     try {
