@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
-import 'package:goadventure/app/models/pokemon.dart';
-import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:goadventure/app/models/decision.dart';
+import 'package:goadventure/app/models/gamebook.dart';
+import 'package:goadventure/app/models/step.dart';
 import 'package:goadventure/app/services/game_service.dart';
 
 // This screen focuses on the active game session.
@@ -8,62 +9,83 @@ import 'package:goadventure/app/services/game_service.dart';
 class GameController extends GetxController {
   final GameService gameService;
 
+  // Rx to hold the selected gamebook ID, default to null (no game selected)
+  var currentGamebookId = Rx<int?>(null); // Default to null
+
+  // Reactive variable for the selected gamebook
+  Rx<Gamebook?> currentGamebook = Rx<Gamebook?>(null);
+
+  // Reactive variable for the current step of the gamebook
+  Rx<Step?> currentStep = Rx<Step?>(null);
+
+  // List of other gamebooks (optional, depending on your requirements)
+  var otherGamebooks = <Gamebook>[].obs;
+
+  // Loading indicators for the gamebook and other gamebooks
+  var isCurrentGamebookLoading = false.obs;
+  var isOtherGamebooksLoading = true.obs;
+
   GameController({required this.gameService});
-
-  var currentPokemonId = 1.obs;
-  var currentPokemon = Rx<Pokemon?>(null);
-  var otherPokemons = <Pokemon>[].obs;
-
-  // Loading indicators
-  var isCurrentPokemonLoading = true.obs;
-  var isOtherPokemonsLoading = true.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchPokemonData(currentPokemonId.value);
+    // Initialization logic if needed
   }
 
-  Future<void> fetchPokemonData(int id) async {
-    isCurrentPokemonLoading.value = true; // Start loading
+  // Fetch current gamebook data and the first step
+  Future<void> fetchGamebookData(int id) async {
+    isCurrentGamebookLoading.value = true;
     try {
-      // Start fetching both current Pokémon and other Pokémon concurrently
-      final currentPokemonFuture = gameService.fetchPokemon(id);
-      final otherPokemonsFuture = fetchOtherPokemons(id);
+      print("[DEV_DEBUG] Fetching gamebook with id=$id");
+      final gamebook = await gameService.fetchGamebook(id);
+      currentGamebook.value = gamebook;
 
-      // Wait for both futures to complete concurrently
-      final pokemon = await currentPokemonFuture;
-      currentPokemon.value = pokemon;
+      // Set the first step if available
+      if (gamebook.steps.isNotEmpty) {
+        currentStep.value = gamebook.steps.first; // Start with the first step
+      }
 
-      // Make sure otherPokemonsFuture completes, but its errors won't interrupt
-      await otherPokemonsFuture;
+      // Optionally, fetch other gamebooks concurrently (if needed)
+      // await fetchOtherGamebooks(id);
     } catch (e) {
-      print("Error fetching Pokémon: $e");
+      print("Error fetching gamebook: $e");
     } finally {
-      isCurrentPokemonLoading.value = false; // End loading
+      isCurrentGamebookLoading.value = false;
     }
   }
 
-  Future<void> fetchOtherPokemons(int currentId) async {
-    isOtherPokemonsLoading.value = true; // Start loading
-    try {
-      // Generate IDs of other Pokémon
-      final nextIds = List.generate(4, (i) => currentId + i + 1);
+  // Update the current gamebook and trigger a re-fetch
+  void updateCurrentGamebook(int id) {
+    currentGamebookId.value = id;
+    fetchGamebookData(id);
+  }
 
-      // Fetch Pokémon concurrently
-      final pokemons = await gameService.fetchMultiplePokemon(nextIds);
+  // Move to the next step after making a decision
+  void makeDecision(Decision decision) {
+    // Find the next step based on the decision
+    // TODO: I think this should fetch from the remote server
+    // TODO: adjust the developmentApiService then
+    Step? nextStep = currentGamebook.value?.steps.firstWhere(
+      (step) => step.id == decision.nextStepId,
+      orElse: () => Step(
+        id: decision.nextStepId,
+        title: "Next Step",
+        text: "This is the next step.",
+        latitude: 0.0,
+        longitude: 0.0,
+        decisions: [],
+      ),
+    );
 
-      // Update the observable list
-      otherPokemons.assignAll(pokemons);
-    } catch (e) {
-      print("Error fetching other Pokémon: $e");
-    } finally {
-      isOtherPokemonsLoading.value = false; // End loading
+    if (nextStep != null) {
+      // Update the current step to the next one
+      currentStep.value = nextStep;
     }
   }
 
-  void updateCurrentPokemon(int id) {
-    currentPokemonId.value = id;
-    fetchPokemonData(id);
+  // Check if a game is selected
+  bool isGamebookSelected() {
+    return currentGamebook.value != null;
   }
 }

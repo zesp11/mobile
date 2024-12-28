@@ -2,7 +2,72 @@ import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'dart:convert'; // For JSON decoding
 import 'package:http/http.dart' as http; // HTTP library
 
+// TODO: improve development service (maybe sqlite?)
 class DevelopmentApiService implements ApiService {
+  final Map<String, dynamic> gamebookJson = {
+    "name": "Forest Adventure",
+    "title": "Into the Enchanted Forest",
+    "description":
+        "Your choices determine the outcome of this magical journey.",
+    "startDate": "2024-12-28T00:00:00.000Z",
+    "endDate": null,
+    "steps": [
+      {
+        "id": 1,
+        "title": "The Clearing",
+        "text": "You wake up in a clearing surrounded by trees.",
+        "latitude": 45.0,
+        "longitude": -93.0,
+        "decisions": [
+          {"text": "Follow the path ahead.", "nextStepId": 2},
+          {"text": "Investigate the rustling bushes.", "nextStepId": 3}
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Deeper into the Forest",
+        "text": "You venture deeper into the forest, hearing strange sounds.",
+        "latitude": 45.01,
+        "longitude": -93.01,
+        "decisions": [
+          {"text": "Return to the clearing.", "nextStepId": 1},
+          {"text": "Keep going deeper.", "nextStepId": 4}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Rustling Bushes",
+        "text": "You find a small rabbit darting out of the bushes.",
+        "latitude": 45.02,
+        "longitude": -93.02,
+        "decisions": [
+          {"text": "Chase the rabbit.", "nextStepId": 4},
+          {"text": "Ignore the rabbit and follow the path.", "nextStepId": 2}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Mysterious Cave",
+        "text":
+            "You discover a mysterious cave with a faint glow coming from inside.",
+        "latitude": 45.03,
+        "longitude": -93.03,
+        "decisions": [
+          {"text": "Enter the cave.", "nextStepId": 5},
+          {"text": "Head back to the clearing.", "nextStepId": 1}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "The Treasure Room",
+        "text": "Inside the cave, you find a hidden treasure chest.",
+        "latitude": 45.04,
+        "longitude": -93.04,
+        "decisions": []
+      }
+    ]
+  };
+
   @override
   // TODO: implement baseUrl
   String get baseUrl => throw UnimplementedError();
@@ -18,13 +83,12 @@ class DevelopmentApiService implements ApiService {
 
   @override
   Future<Map<String, dynamic>> getGameDetails(String gameId) async {
-    // Simulate network delay
     await Future.delayed(Duration(seconds: 1));
 
-    // Mock game details
+    // Here, you could extract data specific to a gameId if needed
     return {
-      "title": "Dragon's Quest",
-      "description": "A thrilling adventure to save the kingdom from a dragon.",
+      "title": gamebookJson["title"],
+      "description": gamebookJson["description"],
       "progress": "Chapter 2 - The Lava Caves"
     };
   }
@@ -229,5 +293,23 @@ class DevelopmentApiService implements ApiService {
       // Handle any network or decoding errors
       throw Exception('Error fetching data: $e');
     }
+  }
+
+  // Helper function to retrieve the current gamebook's steps
+  Future<List<Map<String, dynamic>>> getGameSteps() async {
+    await Future.delayed(Duration(seconds: 1));
+    return gamebookJson['steps'];
+  }
+
+  // Helper function to get a specific step by its ID
+  Future<Map<String, dynamic>> getStepById(int stepId) async {
+    await Future.delayed(Duration(seconds: 1));
+    final steps = gamebookJson['steps'];
+    return steps.firstWhere((step) => step['id'] == stepId, orElse: () => {});
+  }
+
+  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId) async {
+    await Future.delayed(Duration(seconds: 1));
+    return gamebookJson;
   }
 }
