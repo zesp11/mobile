@@ -2,7 +2,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 // Centralized service for interacting with the backend.
-class ApiService {
+// TODO: this slowly should be transfered to be only interface
+// as base class for development ApiService and ProductionApiService
+abstract class ApiService {
   final String baseUrl = "https://api.example.com";
 
   // Fetch games that can be resumed
@@ -71,14 +73,7 @@ class ApiService {
   }
 
   // Fetch user profile details
-  Future<Map<String, dynamic>> getUserProfile() async {
-    var response = await http.get(Uri.parse('$baseUrl/user/profile'));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception("Failed to fetch user profile");
-    }
-  }
+  Future<Map<String, dynamic>> getUserProfile();
 
   // Update user profile details
   Future<void> updateUserProfile(Map<String, dynamic> profile) async {

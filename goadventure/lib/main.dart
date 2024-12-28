@@ -1,32 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goadventure/app/bindings/app_binding.dart';
+import 'package:goadventure/app/bindings/home_binding.dart';
+import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/screens/game_page.dart';
 import 'package:goadventure/app/screens/home_screen.dart';
 import 'package:goadventure/app/screens/profile_screen.dart';
 import 'package:goadventure/app/screens/search_page.dart';
-import 'package:goadventure/app/services/api_service.dart';
 
 void main() {
-  // Register ApiService globally in the main function
-  Get.put(ApiService());
+  final bool isProduction = const bool.fromEnvironment('dart.vm.product');
 
-  runApp(const GoAdventure());
+  runApp(GoAdventure(isProduction: isProduction));
 }
 
 class GoAdventure extends StatelessWidget {
-  const GoAdventure({super.key});
+  final bool isProduction;
+
+  const GoAdventure({super.key, required this.isProduction});
+
+  // For production, run with dart --define=dart.vm.product=true.
+  // For development, no additional flags are needed (default is false).
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Gamebook App',
       initialRoute: '/',
+      initialBinding: AppBindings(isProduction: isProduction),
       getPages: [
         GetPage(name: '/', page: () => LayoutController()),
-        GetPage(name: '/home', page: () => HomeScreen()),
+        GetPage(
+            name: '/home',
+            page: () => HomeScreen(),
+            binding: HomeBinding()), // Bindings for HomeScreen
         GetPage(name: '/game', page: () => GameScreen()),
         GetPage(name: '/search', page: () => SearchScreen()),
-        GetPage(name: '/profile', page: () => ProfileScreen()),
+        GetPage(
+            name: '/profile',
+            page: () => ProfileScreen(),
+            binding: ProfileBinding()), // Bindings for ProfileScreen
       ],
     );
   }

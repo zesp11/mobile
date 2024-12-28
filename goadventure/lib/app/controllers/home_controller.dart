@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../services/api_service.dart';
+import '../services/api_service/api_service.dart';
 
 class HomeController extends GetxController {
   final ApiService apiService; // Declare the ApiService dependency

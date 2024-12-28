@@ -1,6 +1,8 @@
 // Displays user information and allows profile editing.
 import 'package:get/get.dart';
-import 'package:goadventure/app/services/api_service.dart';
+import 'package:goadventure/app/models/user.dart';
+import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:goadventure/app/services/user_service.dart';
 
 // class ProfileController extends GetxController {
 //   final ApiService apiService = Get.find();
@@ -22,21 +24,36 @@ import 'package:goadventure/app/services/api_service.dart';
 //     loadUserProfile();
 //   }
 // }
+
+// Here we manage the state and logic for a specific page or feature.
+// It should use the types defined in the service layer, ensuring it knows what
+// kind of data it's dealing with
 class ProfileController extends GetxController {
-  final ApiService apiService; // Declare the ApiService dependency
+  final UserService userService; // Declare the UserService dependency
 
-  // Reactive variables
-  var userName = 'John Doe'.obs;
-  var gamesPlayed = 15.obs;
-  var gamesFinished = 10.obs;
+  ProfileController({required this.userService});
 
-  // Constructor accepting ApiService
-  ProfileController({required this.apiService});
+  var userProfile = Rx<UserProfile?>(null);
 
-  // TODO: Implement method to fetch actual profile data in the future
-  void updateProfile(String name, int played, int finished) {
-    userName.value = name;
-    gamesPlayed.value = played;
-    gamesFinished.value = finished;
+  @override
+  void onInit() {
+    super.onInit();
+    fetchUserProfile();
+  }
+
+  Future<void> fetchUserProfile() async {
+    try {
+      userProfile.value = await userService.fetchUserProfile();
+    } catch (e) {
+      print('Error fetching user profile: $e');
+    }
+  }
+
+  void updateProfile(String name, int gamesPlayed, int gamesFinished) {
+    // Add your logic for updating the profile
+    userProfile.value?.name = name;
+    userProfile.value?.bio = 'Updated bio';
+    userProfile.value?.preferences['gamesPlayed'] = gamesPlayed;
+    userProfile.value?.preferences['gamesFinished'] = gamesFinished;
   }
 }
