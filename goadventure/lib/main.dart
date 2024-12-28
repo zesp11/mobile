@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/bindings/app_binding.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
-import 'package:goadventure/app/screens/game_page.dart';
-import 'package:goadventure/app/screens/home_screen.dart';
-import 'package:goadventure/app/screens/profile_screen.dart';
-import 'package:goadventure/app/screens/search_page.dart';
+import 'package:goadventure/app/pages/game_page.dart';
+import 'package:goadventure/app/pages/home_screen.dart';
+import 'package:goadventure/app/pages/profile_screen.dart';
+import 'package:goadventure/app/pages/search_page.dart';
 
 void main() {
   final bool isProduction = const bool.fromEnvironment('dart.vm.product');

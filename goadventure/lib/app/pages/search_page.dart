@@ -3,10 +3,14 @@ import 'package:get/get.dart';
 import "package:goadventure/app/controllers/search_controller.dart"
     as customSearch;
 
+// TODO: screen for profile editing
+// TODO: screen for viewing other user profile
+
+// BUG: after switching screen the search query is cleared but the filtered items remain the same
 class SearchScreen extends StatelessWidget {
   // Get the controller instance
   final customSearch.SearchController controller =
-      Get.put(customSearch.SearchController(apiService: Get.find()));
+      Get.put(customSearch.SearchController(searchService: Get.find()));
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +34,8 @@ class SearchScreen extends StatelessWidget {
               ),
               onChanged: (value) {
                 // Update the query in the controller
-                print(value);
-                // controller.updateQuery(value);
+                // TODO: add debouncing to prevent network overhead
+                controller.updateQuery(value);
               },
             ),
           ),
@@ -41,7 +45,7 @@ class SearchScreen extends StatelessWidget {
           Expanded(
             child: Obx(() {
               // Get filtered items reactively
-              final filteredItems = controller.filteredItems;
+              final filteredItems = controller.filteredItems.value;
 
               return filteredItems.isEmpty
                   ? const Center(

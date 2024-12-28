@@ -4,10 +4,10 @@ import 'package:goadventure/app/bindings/game_binding.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
-import 'package:goadventure/app/screens/game_page.dart';
-import 'package:goadventure/app/screens/home_screen.dart';
-import 'package:goadventure/app/screens/profile_screen.dart';
-import 'package:goadventure/app/screens/search_page.dart';
+import 'package:goadventure/app/pages/game_page.dart';
+import 'package:goadventure/app/pages/home_screen.dart';
+import 'package:goadventure/app/pages/profile_screen.dart';
+import 'package:goadventure/app/pages/search_page.dart';
 
 class AppRoutes {
   static final routes = [

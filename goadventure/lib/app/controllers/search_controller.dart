@@ -1,7 +1,7 @@
 // This screen allows searching across different entities
 // like players, gamebooks, or cities.
 import 'package:get/get.dart';
-import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:goadventure/app/services/search_service.dart';
 
 // class SearchController extends GetxController {
 //   final ApiService apiService = Get.find();
@@ -15,35 +15,31 @@ import 'package:goadventure/app/services/api_service/api_service.dart';
 // }
 
 class SearchController extends GetxController {
-  final ApiService apiService; // Declare the ApiService dependency
+  final SearchService searchService; // Declare the SearchService dependency
 
-  // List of all items (this would be fetched from the database in a real app)
-  final List<Map<String, String>> _allItems = [
-    {'name': 'Alice', 'type': 'User'},
-    {'name': 'Bob', 'type': 'User'},
-    {'name': 'Chess Master', 'type': 'Game'},
-    {'name': 'Zombie Escape', 'type': 'Scenario'},
-    {'name': 'Charlie', 'type': 'User'},
-    {'name': 'Space Adventure', 'type': 'Game'},
-    {'name': 'Desert Survival', 'type': 'Scenario'},
-  ];
-
-  // Reactive query
+  // Reactive query for search
   var query = ''.obs;
 
-  // Filtered items based on query
-  List<Map<String, String>> get filteredItems {
-    return _allItems
-        .where((item) =>
-            item['name']!.toLowerCase().contains(query.value.toLowerCase()))
-        .toList();
-  }
+  // TODO: add types instead of Map<String, String>
+  // List of filtered items based on the query
+  Rx<List<Map<String, String>>> filteredItems =
+      Rx<List<Map<String, String>>>([]);
 
-  // Constructor accepting ApiService
-  SearchController({required this.apiService});
+  // Constructor accepting SearchService
+  SearchController({required this.searchService});
 
   // Update the query value
   void updateQuery(String value) {
     query.value = value;
+    searchItems(value); // Trigger search when query changes
+  }
+
+  // Perform the search by calling the SearchService
+  Future<void> searchItems(String query) async {
+    // Optionally: You can also pass a category as an argument
+    // TODO: make the categories enum
+    var results = await searchService.search(
+        query, 'all'); // Example: Search across all categories
+    filteredItems.value = results;
   }
 }
