@@ -1,4 +1,4 @@
-import 'package:goadventure/app/models/pokemon.dart';
+import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 
 class GameService {
@@ -6,24 +6,24 @@ class GameService {
 
   GameService({required this.apiService});
 
-  // Fetch a single Pokémon
-  Future<Pokemon> fetchPokemon(int id) async {
-    final url = 'https://pokeapi.co/api/v2/pokemon/$id';
+  // Fetch a single Gamebook
+  Future<Gamebook> fetchGamebook(int id) async {
     try {
-      final response = await apiService.getData(url);
-      return Pokemon.fromJson(response);
+      final response = await apiService.getGameBookWithId(id);
+      return Gamebook.fromJson(
+          response); // Assuming Gamebook has a fromJson method
     } catch (e) {
-      throw Exception("Error fetching Pokémon: $e");
+      throw Exception("Error fetching gamebook: $e");
     }
   }
 
-  // Fetch multiple Pokémon
-  Future<List<Pokemon>> fetchMultiplePokemon(List<int> ids) async {
+  // Fetch multiple Gamebooks
+  Future<List<Gamebook>> fetchMultipleGamebooks(List<int> ids) async {
     try {
-      // Fetch all Pokémon concurrently
-      return await Future.wait(ids.map((id) => fetchPokemon(id)));
+      // Fetch all Gamebooks concurrently
+      return await Future.wait(ids.map((id) => fetchGamebook(id)));
     } catch (e) {
-      throw Exception("Error fetching multiple Pokémon: $e");
+      throw Exception("Error fetching multiple gamebooks: $e");
     }
   }
 }
