@@ -58,6 +58,7 @@ class HomeService extends GetxService {
             [];
 
         return Gamebook(
+          id: data['id'],
           name: data['name'] ?? 'Unnamed Game',
           title: data['title'] ?? 'Untitled',
           description: data['description'] ??
@@ -120,6 +121,7 @@ class HomeService extends GetxService {
             [];
 
         return Gamebook(
+          id: data['id'],
           name: data['name'] ?? 'Unnamed Game',
           title: data['title'] ?? 'Untitled',
           description: data['description'] ??

@@ -101,4 +101,5 @@ abstract class ApiService {
 
   Future<Map<String, dynamic>> getData(String url);
   Future<Map<String, dynamic>> getGameBookWithId(int gamebookId);
+  Future<List<Map<String, dynamic>>> getAvailableGamebooks();
 }
