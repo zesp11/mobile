@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/bindings/app_binding.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
-import 'package:goadventure/app/pages/game_page.dart';
+import 'package:goadventure/app/pages/game_root_layout.dart';
 import 'package:goadventure/app/pages/home_screen.dart';
 import 'package:goadventure/app/pages/profile_screen.dart';
 import 'package:goadventure/app/pages/search_page.dart';
@@ -34,7 +34,7 @@ class GoAdventure extends StatelessWidget {
             name: '/home',
             page: () => HomeScreen(),
             binding: HomeBinding()), // Bindings for HomeScreen
-        GetPage(name: '/game', page: () => GameScreen()),
+        GetPage(name: '/game', page: () => GameRootLayout()),
         GetPage(name: '/search', page: () => SearchScreen()),
         GetPage(
             name: '/profile',
@@ -92,7 +92,7 @@ class LayoutControllerLogic extends GetxController {
   // List of screens for each tab
   final List<Widget> _screens = [
     HomeScreen(),
-    GameScreen(),
+    GameRootLayout(),
     SearchScreen(),
     ProfileScreen(),
   ];

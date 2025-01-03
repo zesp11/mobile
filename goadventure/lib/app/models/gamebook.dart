@@ -2,6 +2,7 @@
 import 'package:goadventure/app/models/step.dart';
 
 class Gamebook {
+  final int id;
   final String name;
   final String title;
   final String description; // Overview of the gamebook
@@ -10,6 +11,7 @@ class Gamebook {
   final List<Step> steps;
 
   Gamebook({
+    required this.id,
     required this.name,
     required this.title,
     required this.description,
@@ -21,6 +23,7 @@ class Gamebook {
   // From JSON constructor
   factory Gamebook.fromJson(Map<String, dynamic> json) {
     final game = Gamebook(
+      id: json['id'] ?? 0, // default to 0 if id is null
       name: json['name'],
       title: json['title'],
       description: json['description'],
@@ -37,6 +40,7 @@ class Gamebook {
   // To JSON method
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'title': title,
       'description': description,

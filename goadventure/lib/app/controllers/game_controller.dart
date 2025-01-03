@@ -19,7 +19,8 @@ class GameController extends GetxController {
   Rx<Step?> currentStep = Rx<Step?>(null);
 
   // List of other gamebooks (optional, depending on your requirements)
-  var otherGamebooks = <Gamebook>[].obs;
+  var availableGamebooks = <Gamebook>[].obs;
+  var isAvailableGamebooksLoading = false.obs;
 
   // Loading indicators for the gamebook and other gamebooks
   var isCurrentGamebookLoading = false.obs;
@@ -33,6 +34,8 @@ class GameController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    fetchAvailableGamebooks();
     // Initialization logic if needed
   }
 
@@ -40,7 +43,6 @@ class GameController extends GetxController {
   Future<void> fetchGamebookData(int id) async {
     isCurrentGamebookLoading.value = true;
     try {
-      print("[DEV_DEBUG] Fetching gamebook with id=$id");
       final gamebook = await gameService.fetchGamebook(id);
       currentGamebook.value = gamebook;
 
@@ -105,6 +107,21 @@ class GameController extends GetxController {
       return "There is no history yet, travel around the world to create your own...";
     } else {
       return gameHistory.join('\n'); // Join the history items with newline
+    }
+  }
+
+  // TODO: add error handling
+  Future<void> fetchAvailableGamebooks() async {
+    isAvailableGamebooksLoading.value = true;
+    try {
+      print("[DEV_DEBUG] Fetching available gamebooks");
+      final gamebooks = await gameService.fetchAvailableGamebooks();
+
+      availableGamebooks.assignAll(gamebooks);
+    } catch (e) {
+      print("Error fetching available gamebooks: $e");
+    } finally {
+      isAvailableGamebooksLoading.value = false;
     }
   }
 }
