@@ -5,6 +5,8 @@ import "package:goadventure/app/controllers/search_controller.dart"
 
 // TODO: screen for profile editing
 // TODO: screen for viewing other user profile
+// TODO: screen for detailed game listing
+// TODO: filters for search
 
 // BUG: after switching screen the search query is cleared but the filtered items remain the same
 class SearchScreen extends StatelessWidget {
