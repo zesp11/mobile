@@ -8,8 +8,8 @@ class HomeBinding extends Bindings {
   @override
   void dependencies() {
     // Inject HomeService
-    Get.lazyPut<ApiService>(() => DevelopmentApiService());
-    Get.lazyPut<HomeService>(() => HomeService(apiService: Get.find()));
-    Get.lazyPut<HomeController>(() => HomeController(homeService: Get.find()));
+    Get.put<ApiService>(DevelopmentApiService());
+    Get.put<HomeService>(HomeService(apiService: Get.find()));
+    Get.put<HomeController>(HomeController(homeService: Get.find()));
   }
 }

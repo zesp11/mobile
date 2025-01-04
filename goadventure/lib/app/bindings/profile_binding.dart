@@ -7,8 +7,7 @@ class ProfileBinding extends Bindings {
   @override
   void dependencies() {
     // Inject ApiService and UserProfileController
-    Get.lazyPut<ApiService>(() => DevelopmentApiService());
-    Get.lazyPut<ProfileController>(
-        () => ProfileController(userService: Get.find()));
+    Get.put<ApiService>(DevelopmentApiService());
+    Get.put<ProfileController>(ProfileController(userService: Get.find()));
   }
 }
