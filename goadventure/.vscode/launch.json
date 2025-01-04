@@ -1,0 +1,32 @@
+{
+  /*
+  TODO: adjust the configurations as following
+  - debug (locally test application [logging ON])
+  - debug production (test application with remote API [logging ON])
+  - production [logging OFF remote API]
+  */
+
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "goadventure",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "goadventure (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "goadventure (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    }
+  ]
+}
