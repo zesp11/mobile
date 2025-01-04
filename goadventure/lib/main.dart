@@ -7,6 +7,7 @@ import 'package:goadventure/app/pages/game_root_layout.dart';
 import 'package:goadventure/app/pages/home_screen.dart';
 import 'package:goadventure/app/pages/profile_screen.dart';
 import 'package:goadventure/app/pages/search_page.dart';
+import 'package:goadventure/app/routes/app_routes.dart';
 
 void main() {
   final bool isProduction = const bool.fromEnvironment('dart.vm.product');
@@ -28,19 +29,7 @@ class GoAdventure extends StatelessWidget {
       title: 'Gamebook App',
       initialRoute: '/',
       initialBinding: AppBindings(isProduction: isProduction),
-      getPages: [
-        GetPage(name: '/', page: () => LayoutController()),
-        GetPage(
-            name: '/home',
-            page: () => HomeScreen(),
-            binding: HomeBinding()), // Bindings for HomeScreen
-        GetPage(name: '/game', page: () => GameRootLayout()),
-        GetPage(name: '/search', page: () => SearchScreen()),
-        GetPage(
-            name: '/profile',
-            page: () => ProfileScreen(),
-            binding: ProfileBinding()), // Bindings for ProfileScreen
-      ],
+      getPages: AppRoutes.routes,
     );
   }
 }
