@@ -4,6 +4,7 @@ import 'package:goadventure/app/bindings/game_binding.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
+import 'package:goadventure/app/controllers/layout_controller.dart';
 import 'package:goadventure/app/pages/game_play_screen.dart';
 import 'package:goadventure/app/pages/game_root_layout.dart';
 import 'package:goadventure/app/pages/game_selection_screen.dart';

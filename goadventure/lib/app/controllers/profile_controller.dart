@@ -1,7 +1,6 @@
 // Displays user information and allows profile editing.
 import 'package:get/get.dart';
 import 'package:goadventure/app/models/user.dart';
-import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/app/services/user_service.dart';
 
 // class ProfileController extends GetxController {

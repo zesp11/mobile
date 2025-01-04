@@ -9,11 +9,10 @@ import 'package:goadventure/app/services/game_service.dart';
 import 'package:goadventure/app/services/home_service.dart';
 import 'package:goadventure/app/services/search_service.dart';
 import 'package:goadventure/app/services/user_service.dart';
+import 'package:goadventure/main.dart';
 
 class AppBindings extends Bindings {
-  final bool isProduction;
-
-  AppBindings({required this.isProduction});
+  AppBindings();
 
   @override
   void dependencies() {
