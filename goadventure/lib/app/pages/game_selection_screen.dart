@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:get/get.dart';
+import 'package:goadventure/app/routes/app_routes.dart';
 
 // card on click should redirect to main page of given gamebook
 class GameSelectionScreen extends StatelessWidget {
   final VoidCallback onGameSelected;
+  final VoidCallback onScenarioSelected;
   final GameController gameController = Get.find();
 
-  GameSelectionScreen({required this.onGameSelected});
+  GameSelectionScreen(
+      {required this.onGameSelected, required this.onScenarioSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -89,22 +92,51 @@ class GameSelectionScreen extends StatelessWidget {
                                       ),
                                   ],
                                 ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    gameController
-                                        .fetchGamebookData(gamebook.id);
-                                    onGameSelected();
-                                  },
-                                  child: const Text('Select'),
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 16,
+                                Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        print("Go to scenario ${gamebook.id}");
+                                        // TODO: span the statemanagement
+                                        // DRY...
+                                        Get.toNamed(
+                                            '${AppRoutes.scenario}/${gamebook.id}');
+                                        onScenarioSelected();
+                                      },
+                                      child: const Text('Desc'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                          horizontal: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                    SizedBox(
+                                      height: 4,
                                     ),
-                                  ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        gameController
+                                            .fetchGamebookData(gamebook.id);
+                                        onGameSelected();
+                                      },
+                                      child: const Text('Select'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                          horizontal: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

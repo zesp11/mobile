@@ -9,18 +9,22 @@ import 'package:goadventure/app/pages/game_root_layout.dart';
 import 'package:goadventure/app/pages/game_selection_screen.dart';
 import 'package:goadventure/app/pages/home_screen.dart';
 import 'package:goadventure/app/pages/profile_screen.dart';
+import 'package:goadventure/app/pages/scenario_screen.dart';
 import 'package:goadventure/app/pages/search_page.dart';
+import 'package:goadventure/main.dart';
 
 class AppRoutes {
   // Define route names as static constants for easier reference
   static const home = '/home';
   static const gameSelection = '/game-selection';
-  static const game = '/game';
-  static const gameRoot = '/game-root';
+  static const gameRoot = '/game';
   static const search = '/search';
   static const profile = '/profile';
+  static const scenario = '/scenario';
+  static const scenarioDynamic = '$scenario/:id';
 
   static final routes = [
+    GetPage(name: '/', page: () => LayoutController()),
     GetPage(
       name: home,
       page: () => HomeScreen(),
@@ -33,10 +37,13 @@ class AppRoutes {
         onGameSelected: () {
           // Handle game selected logic here
         },
+        onScenarioSelected: () {
+          // handle selection logic here
+        },
       ),
     ),
     GetPage(
-      name: game,
+      name: gameRoot,
       page: () => GamePlayScreen(onReturnToSelection: () {}),
     ),
     GetPage(
