@@ -15,10 +15,6 @@ class GameSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select a Gamebook'),
-        centerTitle: true,
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -120,9 +116,11 @@ class GameSelectionScreen extends StatelessWidget {
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
-                                        gameController
-                                            .fetchGamebookData(gamebook.id);
-                                        onGameSelected();
+                                        final gamebookRoute =
+                                            AppRoutes.gameDetail.replaceFirst(
+                                                ':id', gamebook.id.toString());
+                                        print("Going to '${gamebookRoute}'");
+                                        Get.toNamed(gamebookRoute);
                                       },
                                       child: const Text('Select'),
                                       style: ElevatedButton.styleFrom(

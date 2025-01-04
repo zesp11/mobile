@@ -16,50 +16,81 @@ import 'package:goadventure/main.dart';
 
 class AppRoutes {
   // Define route names as static constants for easier reference
+  //**************************************************************
+  // main navigation tabs
   static const home = '/home';
-  static const gameSelection = '/game-selection';
-  static const gameRoot = '/game';
+  static const game = '/game';
   static const search = '/search';
   static const profile = '/profile';
-  static const scenario = '/scenario';
-  static const scenarioDynamic = '$scenario/:id';
 
+  // nested game routes
+  static const gameSelection = '$game/select';
+  static const gameDetail = '$game/:id';
+  static const gameDecision = '$game/:id/decision';
+  static const gameHistory = '$game/:id/decision';
+  static const gameMap = '$game/:id/map';
+
+  // Scenario route (distinct but within game tab context)
+  static const scenario = '/scenario';
+  static const scenarioDetail = '$scenario/:id';
+  static const scenarioDynamic = '$scenario/:id';
+  //**************************************************************
+
+  /*
+  TODO: middleware to redirect
+  middlewares: [
+    AuthGuard(redirectTo: '/home'),
+  ],
+  */
   static final routes = [
-    GetPage(name: '/', page: () => LayoutController()),
     GetPage(
-      name: home,
-      page: () => HomeScreen(),
-      binding: HomeBinding(),
-    ),
-    GetPage(
-      name: gameSelection,
-      binding: GameBinding(),
-      page: () => GameSelectionScreen(
-        onGameSelected: () {
-          // Handle game selected logic here
-        },
-        onScenarioSelected: () {
-          // handle selection logic here
-        },
-      ),
-    ),
-    GetPage(
-      name: gameRoot,
-      page: () => GamePlayScreen(onReturnToSelection: () {}),
-    ),
-    GetPage(
-      name: gameRoot,
-      page: () => GameRootLayout(),
-    ),
-    GetPage(
-      name: search,
-      page: () => SearchScreen(),
-      binding: SearchBinding(),
-    ),
-    GetPage(
-      name: profile,
-      page: () => ProfileScreen(),
-      binding: ProfileBinding(),
+      name: '/',
+      page: () => const RootLayout(),
+      children: [
+        GetPage(
+          name: home,
+          page: () => HomeScreen(),
+          binding: HomeBinding(),
+        ),
+        GetPage(name: game, page: () => GameRootLayout(), children: [
+          GetPage(
+            name: "/select",
+            page: () => GameSelectionScreen(
+              onGameSelected: () {},
+              onScenarioSelected: () {},
+            ),
+          ),
+          GetPage(
+            name: "/:id",
+            page: () => GamePlayScreen(
+              onReturnToSelection: () {},
+            ),
+          ),
+
+          // GetPage(name: gameDecision, page: () => GameDecisionScreen()),
+          // GetPage(name: gameHistory, page: () => GameHistoryScreen()),
+          // GetPage(name: gameMap, page: () => GameMapScreen()),
+        ]),
+        // Distinct scenario route (but still within game tab bottom app bar context)
+        GetPage(
+          name: scenarioDetail,
+          page: () => ScenarioScreen(),
+        ),
+
+        // Search tab
+        GetPage(
+          name: search,
+          page: () => SearchScreen(),
+          binding: SearchBinding(),
+        ),
+
+        // Profile tab
+        GetPage(
+          name: profile,
+          page: () => ProfileScreen(),
+          binding: ProfileBinding(),
+        ),
+      ],
     ),
   ];
 }

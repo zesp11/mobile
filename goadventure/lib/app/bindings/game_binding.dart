@@ -7,7 +7,7 @@ class GameBinding extends Bindings {
   @override
   void dependencies() {
     // Inject ApiService and CurrentGameController
-    Get.lazyPut<ApiService>(() => DevelopmentApiService());
-    Get.lazyPut<GameController>(() => GameController(gameService: Get.find()));
+    Get.put<ApiService>(DevelopmentApiService());
+    Get.put<GameController>(GameController(gameService: Get.find()));
   }
 }
