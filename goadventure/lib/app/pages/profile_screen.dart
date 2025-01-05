@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ProfileScreen extends StatelessWidget {
-  // Get the controller instance
   final ProfileController controller =
       Get.put(ProfileController(userService: Get.find()));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Profile"),
+      ),
       body: Center(
         child: Obx(() {
           if (controller.userProfile.value == null) {
@@ -21,53 +23,35 @@ class ProfileScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Display a CircleAvatar with a placeholder if avatar is not available
               CircleAvatar(
                 radius: 60,
                 backgroundImage: userProfile.avatar.isNotEmpty
                     ? NetworkImage(userProfile.avatar)
-                    : null, // Only load image if avatar is not empty
+                    : null,
                 child: userProfile.avatar.isEmpty
-                    ? const Icon(Icons.person,
-                        size: 60,
-                        color: Colors.white) // Default icon if no avatar
-                    : null, // If avatar exists, no icon will be shown
+                    ? const Icon(Icons.person, size: 60, color: Colors.white)
+                    : null,
               ),
               const SizedBox(height: 20),
-              Text(
-                userProfile.name,
-                style:
-                    const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
+              Text(userProfile.name,
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              Text(
-                userProfile.email,
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+              Text(userProfile.email,
+                  style: const TextStyle(fontSize: 18, color: Colors.grey)),
               const SizedBox(height: 10),
-              Text(
-                userProfile.bio,
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
+              Text(userProfile.bio,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center),
               const SizedBox(height: 20),
-              Text(
-                "Games Played: ${userProfile.gamesPlayed}",
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+              Text("Games Played: ${userProfile.gamesPlayed}",
+                  style: const TextStyle(fontSize: 18, color: Colors.grey)),
               const SizedBox(height: 5),
-              Text(
-                "Games Finished: ${userProfile.gamesFinished}",
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+              Text("Games Finished: ${userProfile.gamesFinished}",
+                  style: const TextStyle(fontSize: 18, color: Colors.grey)),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  controller.updateProfile('Jane Doe', 20, 15);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Profile updated!")),
-                  );
-                },
+                onPressed: () => Get.toNamed('/profile/edit'),
                 child: const Text("Edit Profile"),
               ),
             ],

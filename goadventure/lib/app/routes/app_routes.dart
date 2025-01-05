@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
+import 'package:goadventure/app/pages/profile_edit_screen.dart';
 import 'package:goadventure/app/pages/root_layout.dart';
 import 'package:goadventure/app/pages/game_play_screen.dart';
 import 'package:goadventure/app/pages/game_root_layout.dart';
@@ -11,6 +12,7 @@ import 'package:goadventure/app/pages/home_screen.dart';
 import 'package:goadventure/app/pages/profile_screen.dart';
 import 'package:goadventure/app/pages/scenario_screen.dart';
 import 'package:goadventure/app/pages/search_page.dart';
+import 'package:goadventure/app/pages/user_profile_screen.dart';
 
 class AppRoutes {
   // Define route names as static constants for easier reference
@@ -49,27 +51,31 @@ class AppRoutes {
           page: () => HomeScreen(),
           binding: HomeBinding(),
         ),
-        GetPage(name: game, page: () => GameRootLayout(), children: [
-          GetPage(
-            name: "/select",
-            page: () => GameSelectionScreen(
-              onGameSelected: () {},
-              onScenarioSelected: () {},
+        GetPage(
+          name: game,
+          page: () => GameRootLayout(),
+          children: [
+            GetPage(
+              name: "/select",
+              page: () => GameSelectionScreen(
+                onGameSelected: () {},
+                onScenarioSelected: () {},
+              ),
             ),
-          ),
-          GetPage(
-            name: "/:id",
-            page: () => GamePlayScreen(
-              onReturnToSelection: () {
-                Get.toNamed('/');
-              },
+            GetPage(
+              name: "/:id",
+              page: () => GamePlayScreen(
+                onReturnToSelection: () {
+                  Get.toNamed('/');
+                },
+              ),
             ),
-          ),
 
-          // GetPage(name: gameDecision, page: () => GameDecisionScreen()),
-          // GetPage(name: gameHistory, page: () => GameHistoryScreen()),
-          // GetPage(name: gameMap, page: () => GameMapScreen()),
-        ]),
+            // GetPage(name: gameDecision, page: () => GameDecisionScreen()),
+            // GetPage(name: gameHistory, page: () => GameHistoryScreen()),
+            // GetPage(name: gameMap, page: () => GameMapScreen()),
+          ],
+        ),
         // Distinct scenario route (but still within game tab bottom app bar context)
         GetPage(
           name: scenarioDetail,
@@ -88,6 +94,12 @@ class AppRoutes {
           name: profile,
           page: () => ProfileScreen(),
           binding: ProfileBinding(),
+          children: [
+            // static routes first
+            GetPage(name: '/edit', page: () => ProfileEditScreen()),
+            // to prevent /edit being interpreted as dynamic segment
+            GetPage(name: '/:id', page: () => UserProfileScreen()),
+          ],
         ),
       ],
     ),
