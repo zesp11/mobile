@@ -19,6 +19,9 @@ class GamePlayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gamebookId = Get.parameters['id']!;
+    controller.fetchGamebookData(int.parse(gamebookId));
+
     return DefaultTabController(
       length: 3, // Three tabs: Decision, History, Map
       child: Scaffold(
@@ -26,7 +29,18 @@ class GamePlayScreen extends StatelessWidget {
           title: GestureDetector(
             onTap: () {
               print(
-                  "User wants to see /scenario/${controller.currentGamebookId}");
+                  "User wants to see /scenario/${controller.currentGamebook.value!.id}");
+              if (controller.currentGamebook.value == null) {
+                print(
+                    "[GamePlayScreen] controller.currentGamebook == null -> do nothing");
+                return;
+              }
+
+              final gameBookId = controller.currentGamebook.value!.id;
+              final scenarioLink = AppRoutes.scenarioDetail
+                  .replaceFirst(":id", gameBookId.toString());
+              Get.toNamed(scenarioLink,
+                  arguments: controller.currentGamebook.value);
             },
             child: const Text('Game Title'),
           ),
