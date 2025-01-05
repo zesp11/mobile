@@ -10,12 +10,14 @@ import "package:goadventure/app/controllers/search_controller.dart"
 
 // BUG: after switching screen the search query is cleared but the filtered items remain the same
 class SearchScreen extends StatelessWidget {
-  // Get the controller instance
   final customSearch.SearchController controller =
       Get.put(customSearch.SearchController(searchService: Get.find()));
 
   @override
   Widget build(BuildContext context) {
+    // Initially load all available items
+    controller.searchItems('');
+
     return Scaffold(
       body: Column(
         children: [
@@ -32,7 +34,6 @@ class SearchScreen extends StatelessWidget {
               ),
               onChanged: (value) {
                 // Update the query in the controller
-                // TODO: add debouncing to prevent network overhead
                 controller.updateQuery(value);
               },
             ),
@@ -42,20 +43,53 @@ class SearchScreen extends StatelessWidget {
           // Results Section
           Expanded(
             child: Obx(() {
-              // Get filtered items reactively
               final filteredItems = controller.filteredItems.value;
 
-              return filteredItems.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No results found',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+              // Group by 'type' field in the item (e.g., User, Game, Scenario)
+              Map<String, List<Map<String, String>>> groupedItems = {};
+
+              // Group the items based on their type
+              for (var item in filteredItems) {
+                final type = item['type']!;
+                if (!groupedItems.containsKey(type)) {
+                  groupedItems[type] = [];
+                }
+                groupedItems[type]?.add(item);
+              }
+
+              // If no results found
+              if (filteredItems.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No results found',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                );
+              }
+
+              // List all groups
+              return ListView(
+                children: groupedItems.entries.map((entry) {
+                  final type = entry.key;
+                  final items = entry.value;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Group Header
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          type,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredItems[index];
+                      // List of items in this group
+                      ...items.map((item) {
                         return ListTile(
                           leading: _getIconForType(item['type']!),
                           title: Text(
@@ -72,8 +106,11 @@ class SearchScreen extends StatelessWidget {
                             );
                           },
                         );
-                      },
-                    );
+                      }).toList(),
+                    ],
+                  );
+                }).toList(),
+              );
             }),
           ),
         ],
