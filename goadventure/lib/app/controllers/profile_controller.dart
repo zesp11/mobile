@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/models/user.dart';
 import 'package:goadventure/app/services/user_service.dart';
 
+// TODO: add logger library for logging
+
 // class ProfileController extends GetxController {
 //   final ApiService apiService = Get.find();
 

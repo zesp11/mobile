@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
 // card on click should redirect to main page of given gamebook
+
+// TODO: Make button that allows playing disabled, until user is logged in
+// TODO: specify in one place prodcted routes
 class GameSelectionScreen extends StatelessWidget {
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;

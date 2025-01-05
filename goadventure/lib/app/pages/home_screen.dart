@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/controllers/home_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
@@ -10,6 +11,7 @@ import 'package:goadventure/app/routes/app_routes.dart';
 class HomeScreen extends StatelessWidget {
   final HomeController controller =
       Get.put(HomeController(homeService: Get.find()));
+  final AuthController authController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +20,10 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            UserSummaryWidget(),
-            const Divider(),
+            if (authController.isAuthenticated) ...[
+              UserSummaryWidget(),
+              const Divider(),
+            ],
             const SearchGamesSection(),
             // const Divider(),
             // const LastGameWidget(),

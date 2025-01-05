@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/controllers/home_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
@@ -30,6 +31,7 @@ class AppBindings extends Bindings {
     Get.put<GameService>(GameService(apiService: Get.find()));
 
     // Register controllers that need ApiService
+    Get.put<AuthController>(AuthController(userService: Get.find()));
     Get.put<ProfileController>(ProfileController(userService: Get.find()));
     Get.put<HomeController>(HomeController(homeService: Get.find()));
     Get.put<GameController>(GameController(gameService: Get.find()));
