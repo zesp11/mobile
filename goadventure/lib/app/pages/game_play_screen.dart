@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
+import 'package:goadventure/app/routes/app_routes.dart';
 
 /*
 - TODO: the game should have in top left corner somekind of icon/title that is
@@ -22,7 +23,13 @@ class GamePlayScreen extends StatelessWidget {
       length: 3, // Three tabs: Decision, History, Map
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Game Title'),
+          title: GestureDetector(
+            onTap: () {
+              print(
+                  "User wants to see /scenario/${controller.currentGamebookId}");
+            },
+            child: const Text('Game Title'),
+          ),
           centerTitle: true,
           bottom: const TabBar(
             tabs: [

@@ -81,7 +81,7 @@ class RootLayout extends StatelessWidget {
             initialRoute: AppRoutes.home,
           ),
           bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _currentIndex(currentRoute?.location ?? ''),
+            currentIndex: _currentIndex(currentRoute?.uri.toString() ?? ''),
             onTap: (index) {
               switch (index) {
                 case 0:

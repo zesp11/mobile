@@ -14,6 +14,7 @@ class GameRootLayout extends StatelessWidget {
         return Scaffold(
           body: GetRouterOutlet(
             initialRoute:
+                // TODO: read if there should be /game or /game/select
                 AppRoutes.gameSelection, // Default to the game selection screen
           ),
         );
