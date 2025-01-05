@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
@@ -7,6 +8,7 @@ import 'package:goadventure/app/services/game_service.dart';
 
 class ScenarioScreen extends StatelessWidget {
   final GameService service = Get.find<GameService>();
+  final authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -169,29 +171,59 @@ class ScenarioScreen extends StatelessWidget {
                 ),
               ),
               bottomNavigationBar: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to the gameplay screen or start the game
-                    final gamebook_destination = AppRoutes.gameDetail
-                        .replaceFirst(":id", gamebook.id.toString());
-                    Get.toNamed(gamebook_destination);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Row with Expanded to make the button fill horizontal space
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: authController.isAuthenticated
+                                ? () {
+                                    // Navigate to the gameplay screen or start the game
+                                    final gamebook_destination =
+                                        AppRoutes.gameDetail.replaceFirst(
+                                            ":id", gamebook.id.toString());
+                                    Get.toNamed(gamebook_destination);
+                                  }
+                                : null, // Disable the button if the user is not authenticated
+                            style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              backgroundColor: authController.isAuthenticated
+                                  ? Colors.blue
+                                  : Colors.blue.withOpacity(
+                                      0.5), // Maintain the blue color with reduced opacity when disabled
+                            ),
+                            child: Text(
+                              'Play Game',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: Text(
-                    'Play Game',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                    if (!authController.isAuthenticated)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'You need to log in to play the game.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             );
