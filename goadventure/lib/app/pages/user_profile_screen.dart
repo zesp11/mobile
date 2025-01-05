@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:get/get.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final ProfileController controller =
       Get.put(ProfileController(userService: Get.find()));
+  final authController = Get.find<AuthController>();
 
-  // TODO: redirect to /profile if its user own profile
+  // TODO: redirect to /profile if its user own profile, but using middleware
   @override
   Widget build(BuildContext context) {
     final String userId = Get.parameters['id']!;
 
+    if (authController.userProfile.value?.id == userId) {
+      // redirect to the logged-in users' profile screen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.offNamed('/profile'); // Redirect to /profile if the IDs match
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("User Profile"),
