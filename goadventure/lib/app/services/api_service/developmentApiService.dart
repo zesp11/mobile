@@ -407,12 +407,26 @@ class DevelopmentApiService implements ApiService {
   Future<List> search(String query, String category) async {
     // Example: Search across all items (you could adjust based on category)
     // Simulating a search result from a local mock data
+
+    // TODO: keep that data inside one place (maybe sqlite db?)
     List<Map<String, String>> allItems = [
-      {'name': 'Alice', 'type': 'User'},
-      {'name': 'Bob', 'type': 'User'},
+      {
+        'name': 'Alice',
+        'type': 'User',
+        "id": "1",
+      },
+      {
+        'name': 'Bob',
+        'type': 'User',
+        "id": "2",
+      },
       {'name': 'Chess Master', 'type': 'Game'},
       {'name': 'Zombie Escape', 'type': 'Scenario'},
-      {'name': 'Charlie', 'type': 'User'},
+      {
+        'name': 'Charlie',
+        'type': 'User',
+        "id": "3",
+      },
       {'name': 'Space Adventure', 'type': 'Game'},
       {'name': 'Desert Survival', 'type': 'Scenario'},
     ];

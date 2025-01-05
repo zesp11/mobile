@@ -54,6 +54,7 @@ class SearchScreen extends StatelessWidget {
                 if (!groupedItems.containsKey(type)) {
                   groupedItems[type] = [];
                 }
+
                 groupedItems[type]?.add(item);
               }
 
@@ -99,11 +100,17 @@ class SearchScreen extends StatelessWidget {
                           subtitle: Text(item['type']!),
                           onTap: () {
                             // Action when an item is tapped
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Selected: ${item['name']}'),
-                              ),
-                            );
+                            if (item['type'] == 'User') {
+// TODO: switch to variable from appRoute.dart instead of hardcoded path
+                              print("Go to user with profile: ${item["id"]}");
+                              Get.toNamed('/profile/${item["id"]}');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Selected: ${item['name']}'),
+                                ),
+                              );
+                            }
                           },
                         );
                       }).toList(),
