@@ -8,7 +8,8 @@ import 'package:goadventure/app/routes/app_routes.dart';
   clickable and allows to see main page of given game
 - TODO: list players that participate in given game (only in version 3.0)
 - TODO: remember game after switching tabs.
-- TODO: fix clunky lag when switching game.
+- TODO: fix clunky lag when switching game 
+  -> show loading indicator ??? Maybe skeleton ???
  */
 class GamePlayScreen extends StatelessWidget {
   final GameController controller = Get.find();

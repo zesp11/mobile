@@ -15,4 +15,14 @@ class UserService {
       throw Exception('Failed to fetch user profile: $e');
     }
   }
+
+  Future<UserProfile> fetchCurrentUserProfile() async {
+    try {
+      // currently mock that the current user is 1
+      final response = await apiService.getUserProfile('1');
+      return UserProfile.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to fetch current user profile: $e');
+    }
+  }
 }
