@@ -45,7 +45,8 @@ class AuthController extends GetxController {
       // final token = await userService.login(username, password);
       // Store token in local storage
       // await storeAuthToken(token);
-      fetchUserProfile(); // Fetch user profile after login
+      await fetchUserProfile(); // Fetch user profile after login
+      print("[AUTH_DEBUG] logged in with userId=${userProfile.value!.id}");
     } catch (e) {
       print('Login failed: $e');
     }
@@ -56,6 +57,7 @@ class AuthController extends GetxController {
     // Clear stored token and reset user profile
     // await clearAuthToken();
     userProfile.value = null;
+    print("[AUTH_DEBUG] logged out");
   }
 
   // TODO: storage service (storing and retrieving auth token)

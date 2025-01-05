@@ -69,6 +69,7 @@ class HomeService extends GetxService {
               ? DateTime.tryParse(data['endDate']!)
               : null,
           steps: steps,
+          authorId: data['authorId'],
         );
       }).toList();
     } catch (e) {
@@ -132,6 +133,7 @@ class HomeService extends GetxService {
               ? DateTime.tryParse(data['endDate']!)
               : null,
           steps: steps,
+          authorId: data['authorId'],
         );
       }
       return null; // No games to resume

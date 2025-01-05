@@ -2,6 +2,7 @@
 import 'package:goadventure/app/models/step.dart';
 
 class Gamebook {
+  // TODO: consider if id's shouldn't be string anyway UUID? can check for number etc...
   final int id;
   final String name;
   final String title;
@@ -9,6 +10,7 @@ class Gamebook {
   final DateTime startDate;
   final DateTime? endDate;
   final List<Step> steps;
+  final int authorId;
 
   Gamebook({
     required this.id,
@@ -18,6 +20,7 @@ class Gamebook {
     required this.startDate,
     this.endDate,
     required this.steps,
+    required this.authorId,
   });
 
   // From JSON constructor
@@ -32,6 +35,7 @@ class Gamebook {
       steps: (json['steps'] as List)
           .map((stepJson) => Step.fromJson(stepJson))
           .toList(),
+      authorId: json['authorId'] ?? 0, // default to 0 if id is null
     );
 
     return game;
@@ -47,6 +51,7 @@ class Gamebook {
       'startDate': startDate.toIso8601String(),
       'endDate': endDate?.toIso8601String(),
       'steps': steps.map((step) => step.toJson()).toList(),
+      'authorId': authorId,
     };
   }
 }

@@ -15,6 +15,7 @@ class DevelopmentApiService implements ApiService {
           "Your choices determine the outcome of this magical journey.",
       "startDate": "2024-12-28T00:00:00.000Z",
       "endDate": null,
+      "authorId": 1,
       "steps": [
         {
           "id": 1,
@@ -79,6 +80,7 @@ class DevelopmentApiService implements ApiService {
           "Embark on a dangerous journey to discover an ancient city.",
       "startDate": "2024-12-30T00:00:00.000Z",
       "endDate": null,
+      "authorId": 2,
       "steps": [
         {
           "id": 1,
@@ -157,6 +159,7 @@ class DevelopmentApiService implements ApiService {
           "A pirate adventure filled with treasure hunts and perilous decisions.",
       "startDate": "2024-12-25T00:00:00.000Z",
       "endDate": null,
+      "authorId": 2,
       "steps": [
         {
           "id": 1,

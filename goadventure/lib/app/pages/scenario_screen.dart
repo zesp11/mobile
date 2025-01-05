@@ -48,12 +48,32 @@ class ScenarioScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        'ID: $id',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[700],
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'ID: $id',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // Navigate to the author's profile screen
+                              Get.toNamed('/profile/${gamebook.authorId}');
+                            },
+                            child: Text(
+                              'AuthorID: ${gamebook.authorId}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.blue,
+                                decoration: TextDecoration
+                                    .underline, // Underline to signify it's a link
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 16),
 
