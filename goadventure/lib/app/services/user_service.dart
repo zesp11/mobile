@@ -7,9 +7,9 @@ class UserService {
 
   UserService({required this.apiService});
 
-  Future<UserProfile> fetchUserProfile() async {
+  Future<UserProfile> fetchUserProfile(String id) async {
     try {
-      final response = await apiService.getUserProfile();
+      final response = await apiService.getUserProfile(id);
       return UserProfile.fromJson(response);
     } catch (e) {
       throw Exception('Failed to fetch user profile: $e');

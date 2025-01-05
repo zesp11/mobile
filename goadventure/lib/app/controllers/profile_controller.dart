@@ -38,13 +38,13 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     // TODO: change for fetching current user
-    fetchUserProfile(0);
+    // maybe create UserOwnProfileController
   }
 
   // TODO: don't ignore that parameter
-  Future<void> fetchUserProfile(int userId) async {
+  Future<void> fetchUserProfile(String id) async {
     try {
-      userProfile.value = await userService.fetchUserProfile();
+      userProfile.value = await userService.fetchUserProfile(id);
     } catch (e) {
       print('Error fetching user profile: $e');
     }
