@@ -76,6 +76,7 @@ class SearchController extends GetxController {
       results =
           await searchService.search(query, 'all'); // Filter based on the query
     }
+
     filteredItems.value = results;
   }
 }
