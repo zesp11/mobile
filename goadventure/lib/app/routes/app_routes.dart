@@ -1,6 +1,5 @@
 // Define all your routes in a central location
 import 'package:get/get.dart';
-import 'package:goadventure/app/bindings/game_binding.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
@@ -12,7 +11,6 @@ import 'package:goadventure/app/pages/home_screen.dart';
 import 'package:goadventure/app/pages/profile_screen.dart';
 import 'package:goadventure/app/pages/scenario_screen.dart';
 import 'package:goadventure/app/pages/search_page.dart';
-import 'package:goadventure/main.dart';
 
 class AppRoutes {
   // Define route names as static constants for easier reference
