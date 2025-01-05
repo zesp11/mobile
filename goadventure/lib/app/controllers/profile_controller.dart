@@ -39,6 +39,7 @@ class ProfileController extends GetxController {
     super.onInit();
     // TODO: change for fetching current user
     // maybe create UserOwnProfileController
+    fetchUserProfile('1');
   }
 
   // TODO: don't ignore that parameter
