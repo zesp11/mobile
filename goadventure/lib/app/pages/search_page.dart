@@ -6,12 +6,12 @@ import "package:goadventure/app/controllers/search_controller.dart"
 // TODO: screen for profile editing
 // TODO: screen for viewing other user profile
 // TODO: screen for detailed game listing
-// TODO: filters for search
-
-// BUG: after switching screen the search query is cleared but the filtered items remain the same
 class SearchScreen extends StatelessWidget {
   final customSearch.SearchController controller =
       Get.put(customSearch.SearchController(searchService: Get.find()));
+
+  // Track selected filters
+  RxList<String> selectedFilters = RxList<String>([]);
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,22 @@ class SearchScreen extends StatelessWidget {
               },
             ),
           ),
+
+          const SizedBox(height: 8),
+
+          // Filter Buttons Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildFilterButton("User"),
+                _buildFilterButton("Game"),
+                _buildFilterButton("Scenario"),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 8),
 
           // Results Section
@@ -101,7 +117,6 @@ class SearchScreen extends StatelessWidget {
                           onTap: () {
                             // Action when an item is tapped
                             if (item['type'] == 'User') {
-// TODO: switch to variable from appRoute.dart instead of hardcoded path
                               print("Go to user with profile: ${item["id"]}");
                               Get.toNamed('/profile/${item["id"]}');
                             } else {
@@ -137,5 +152,36 @@ class SearchScreen extends StatelessWidget {
       default:
         return const Icon(Icons.help_outline);
     }
+  }
+
+  // Filter button to toggle the selected filter state
+  Widget _buildFilterButton(String filterType) {
+    return Obx(() {
+      // Check if the filter is selected or not
+      bool isSelected = selectedFilters.contains(filterType);
+
+      return ElevatedButton(
+        onPressed: () {
+          // Toggle the filter in the list
+          if (isSelected) {
+            selectedFilters
+                .remove(filterType); // Remove filter if already selected
+          } else {
+            selectedFilters.add(filterType); // Add filter if not selected
+          }
+          // Notify the controller to update results
+          controller.filterItemsByTypes(selectedFilters);
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isSelected
+              ? Colors.blueAccent // Highlight selected filter
+              : Colors.grey, // Default color for unselected filter
+          foregroundColor: isSelected
+              ? Colors.white
+              : Colors.black, // Change text color based on selection
+        ),
+        child: Text(filterType),
+      );
+    });
   }
 }
