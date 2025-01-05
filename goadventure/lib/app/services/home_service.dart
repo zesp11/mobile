@@ -3,9 +3,11 @@ import 'package:goadventure/app/models/decision.dart';
 import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/models/step.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:logger/logger.dart';
 
 class HomeService extends GetxService {
   final ApiService apiService;
+  final logger = Get.find<Logger>();
 
   // Constructor for dependency injection
   HomeService({required this.apiService});
@@ -73,7 +75,7 @@ class HomeService extends GetxService {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching nearby games: $e');
+      logger.e('Error fetching nearby games: $e');
       return [];
     }
   }
@@ -138,7 +140,7 @@ class HomeService extends GetxService {
       }
       return null; // No games to resume
     } catch (e) {
-      print('Error fetching last game: $e');
+      logger.e('Error fetching last game: $e');
       return null;
     }
   }

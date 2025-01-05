@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
 import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/services/home_service.dart';
+import 'package:logger/logger.dart';
 
 class HomeController extends GetxController {
   final HomeService homeService;
+  final logger = Get.find<Logger>();
 
   // Observables for state management
   var nearbyGames = <Gamebook>[].obs;
@@ -33,11 +35,11 @@ class HomeController extends GetxController {
 
   void resumeLastGame() {
     if (lastGame.value != null) {
-      print("Resuming ${lastGame.value!.title}");
+      logger.i("Resuming ${lastGame.value!.title}");
     }
   }
 
   void startNewGame(Gamebook gamebook) {
-    print("Starting ${gamebook.title}");
+    logger.i("Starting ${gamebook.title}");
   }
 }

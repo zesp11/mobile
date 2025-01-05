@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:goadventure/app/models/user.dart';
 import 'package:goadventure/app/services/user_service.dart';
+import 'package:logger/logger.dart';
 
 // TODO: add logger library for logging
 
@@ -31,6 +32,7 @@ import 'package:goadventure/app/services/user_service.dart';
 // kind of data it's dealing with
 class ProfileController extends GetxController {
   final UserService userService; // Declare the UserService dependency
+  final logger = Get.find<Logger>();
 
   ProfileController({required this.userService});
 
@@ -49,7 +51,7 @@ class ProfileController extends GetxController {
     try {
       userProfile.value = await userService.fetchUserProfile(id);
     } catch (e) {
-      print('Error fetching user profile: $e');
+      logger.w('Error fetching user profile: $e');
     }
   }
 

@@ -1,8 +1,11 @@
+import 'package:get/get.dart';
 import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:logger/web.dart';
 
 class GameService {
   final ApiService apiService;
+  final logger = Get.find<Logger>();
 
   GameService({required this.apiService});
 
@@ -38,7 +41,7 @@ class GameService {
       return gamebooksJson.map((json) => Gamebook.fromJson(json)).toList();
     } catch (e) {
       // Handle errors gracefully
-      print("gameServiceError fetching gamebooks: $e");
+      logger.e("gameServiceError fetching gamebooks: $e");
       return [];
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
+import 'package:logger/web.dart';
 
 /*
 - TODO: the game should have in top left corner somekind of icon/title that is
@@ -13,6 +14,7 @@ import 'package:goadventure/app/routes/app_routes.dart';
  */
 class GamePlayScreen extends StatelessWidget {
   final GameController controller = Get.find();
+  final logger = Get.find<Logger>();
   final VoidCallback
       onReturnToSelection; // Callback to go back to selection screen
 
@@ -29,10 +31,10 @@ class GamePlayScreen extends StatelessWidget {
         appBar: AppBar(
           title: GestureDetector(
             onTap: () {
-              print(
+              logger.i(
                   "User wants to see /scenario/${controller.currentGamebook.value!.id}");
               if (controller.currentGamebook.value == null) {
-                print(
+                logger.d(
                     "[GamePlayScreen] controller.currentGamebook == null -> do nothing");
                 return;
               }
