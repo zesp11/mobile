@@ -73,7 +73,7 @@ abstract class ApiService {
   }
 
   // Fetch user profile details
-  Future<Map<String, dynamic>> getUserProfile();
+  Future<Map<String, dynamic>> getUserProfile(String id);
 
   // Update user profile details
   Future<void> updateUserProfile(Map<String, dynamic> profile) async {

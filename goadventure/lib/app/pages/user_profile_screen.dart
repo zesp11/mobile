@@ -18,7 +18,7 @@ class UserProfileScreen extends StatelessWidget {
       body: Center(
         child: FutureBuilder(
           // Assume this method fetches profile by ID
-          future: controller.fetchUserProfile(int.parse((userId))),
+          future: controller.fetchUserProfile(userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();

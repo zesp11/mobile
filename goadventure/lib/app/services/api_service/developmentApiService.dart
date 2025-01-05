@@ -1,3 +1,4 @@
+import 'package:goadventure/app/models/user.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'dart:convert'; // For JSON decoding
 import 'package:http/http.dart' as http; // HTTP library
@@ -234,6 +235,39 @@ class DevelopmentApiService implements ApiService {
     }
   ];
 
+  List<UserProfile> mockUsers = [
+    UserProfile(
+      id: '1',
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+      bio: 'A passionate gamer and tech enthusiast.',
+      gamesPlayed: 120,
+      gamesFinished: 90,
+      preferences: {'theme': 'dark', 'notifications': 'enabled'},
+    ),
+    UserProfile(
+      id: '2',
+      name: 'Jane Smith',
+      email: 'janesmith@example.com',
+      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+      bio: 'Lover of adventure games and puzzle challenges.',
+      gamesPlayed: 75,
+      gamesFinished: 60,
+      preferences: {'theme': 'light', 'notifications': 'disabled'},
+    ),
+    UserProfile(
+      id: '3',
+      name: 'Alex Johnson',
+      email: 'alexjohnson@example.com',
+      avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+      bio: 'Casual gamer with a focus on strategy games.',
+      gamesPlayed: 50,
+      gamesFinished: 30,
+      preferences: {'theme': 'dark', 'notifications': 'enabled'},
+    ),
+  ];
+
   @override
   // TODO: implement baseUrl
   String get baseUrl => throw UnimplementedError();
@@ -382,25 +416,26 @@ class DevelopmentApiService implements ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getUserProfile() async {
+  Future<Map<String, dynamic>> getUserProfile(String id) async {
     // TODO: (should we in development API?)
     // Simulate a network delay
     await Future.delayed(Duration(milliseconds: 500));
 
     // Returning mock user profile data
-    return {
-      "id": "12345",
-      "name": "John Doe",
-      "email": "johndoe@example.com",
-      "avatar": "", // No avatar provided
-      "bio": "Just a mock user for development purposes.",
-      "gamesPlayed": 50, // Example data
-      "gamesFinished": 30, // Example data
-      "preferences": {
-        "theme": "dark",
-        "notifications": true,
-      },
-    };
+    // TODO: check if id is in range
+    // to check in future if production returned 404
+    try {
+      // Try to find the user with the given id
+      var result = mockUsers.firstWhere((user) => user.id == id);
+
+      // Return the user's profile as a map
+      return result
+          .toJson(); // Assuming your UserProfile class has toJson method
+    } catch (e) {
+      // Print the error and return a custom error message
+      print('User with id $id not found.');
+      throw Exception('User not found');
+    }
   }
 
   @override
@@ -411,21 +446,21 @@ class DevelopmentApiService implements ApiService {
     // TODO: keep that data inside one place (maybe sqlite db?)
     List<Map<String, String>> allItems = [
       {
-        'name': 'Alice',
+        'name': mockUsers[0].name,
         'type': 'User',
-        "id": "1",
+        "id": mockUsers[0].id,
       },
       {
-        'name': 'Bob',
+        'name': mockUsers[1].name,
         'type': 'User',
-        "id": "2",
+        "id": mockUsers[1].id,
       },
       {'name': 'Chess Master', 'type': 'Game'},
       {'name': 'Zombie Escape', 'type': 'Scenario'},
       {
-        'name': 'Charlie',
+        'name': mockUsers[2].name,
         'type': 'User',
-        "id": "3",
+        "id": mockUsers[2].id,
       },
       {'name': 'Space Adventure', 'type': 'Game'},
       {'name': 'Desert Survival', 'type': 'Scenario'},
