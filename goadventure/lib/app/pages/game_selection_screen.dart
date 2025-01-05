@@ -92,12 +92,9 @@ class GameSelectionScreen extends StatelessWidget {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        print("Go to scenario ${gamebook.id}");
-                                        // TODO: span the statemanagement
-                                        // DRY...
                                         Get.toNamed(
-                                            '${AppRoutes.scenario}/${gamebook.id}');
-                                        onScenarioSelected();
+                                            '${AppRoutes.scenario}/${gamebook.id}',
+                                            arguments: gamebook);
                                       },
                                       child: const Text('Desc'),
                                       style: ElevatedButton.styleFrom(

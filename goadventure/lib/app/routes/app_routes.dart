@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
-import 'package:goadventure/app/controllers/layout_controller.dart';
+import 'package:goadventure/app/pages/root_layout.dart';
 import 'package:goadventure/app/pages/game_play_screen.dart';
 import 'package:goadventure/app/pages/game_root_layout.dart';
 import 'package:goadventure/app/pages/game_selection_screen.dart';
@@ -31,7 +31,6 @@ class AppRoutes {
   // Scenario route (distinct but within game tab context)
   static const scenario = '/scenario';
   static const scenarioDetail = '$scenario/:id';
-  static const scenarioDynamic = '$scenario/:id';
   //**************************************************************
 
   /*
@@ -61,7 +60,9 @@ class AppRoutes {
           GetPage(
             name: "/:id",
             page: () => GamePlayScreen(
-              onReturnToSelection: () {},
+              onReturnToSelection: () {
+                Get.toNamed('/');
+              },
             ),
           ),
 
