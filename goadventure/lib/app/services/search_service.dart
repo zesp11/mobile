@@ -13,18 +13,11 @@ class SearchService {
 
       List<Map<String, String>> results = [];
       for (var item in response) {
-        if (item['type'] == 'User') {
-          results.add({
-            'name': item['name'],
-            'type': item['type'],
-            'id': item['id'],
-          });
-        } else {
-          results.add({
-            'name': item['name'],
-            'type': item['type'],
-          });
-        }
+        results.add({
+          'name': item['name'],
+          'type': item['type'],
+          'id': item['id'],
+        });
       }
 
       return results;

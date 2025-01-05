@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http; // HTTP library
 // TODO: improve development service (maybe sqlite?)
 class DevelopmentApiService implements ApiService {
   final int id = 0; // default gamebook index
-  final List<Map<String, dynamic>> gamebooksJson = [
+  final List<Map<String, dynamic>> mockGamebooksJson = [
     {
       "id": 0,
       "name": "Forest Adventure",
@@ -286,8 +286,8 @@ class DevelopmentApiService implements ApiService {
     await Future.delayed(Duration(seconds: 1));
     // Here, you could extract data specific to a gameId if needed
     return {
-      "title": gamebooksJson[id]["title"],
-      "description": gamebooksJson[id]["description"],
+      "title": mockGamebooksJson[id]["title"],
+      "description": mockGamebooksJson[id]["description"],
       "progress": "Chapter 2 - The Lava Caves"
     };
   }
@@ -444,27 +444,24 @@ class DevelopmentApiService implements ApiService {
     // Simulating a search result from a local mock data
 
     // TODO: keep that data inside one place (maybe sqlite db?)
-    List<Map<String, String>> allItems = [
-      {
-        'name': mockUsers[0].name,
+    List<Map<String, String>> allItems = [];
+
+    // Loop through mockUsers and add items to allItems
+    for (var user in mockUsers) {
+      allItems.add({
+        'name': user.name,
         'type': 'User',
-        "id": mockUsers[0].id,
-      },
-      {
-        'name': mockUsers[1].name,
-        'type': 'User',
-        "id": mockUsers[1].id,
-      },
-      {'name': 'Chess Master', 'type': 'Game'},
-      {'name': 'Zombie Escape', 'type': 'Scenario'},
-      {
-        'name': mockUsers[2].name,
-        'type': 'User',
-        "id": mockUsers[2].id,
-      },
-      {'name': 'Space Adventure', 'type': 'Game'},
-      {'name': 'Desert Survival', 'type': 'Scenario'},
-    ];
+        'id': user.id,
+      });
+    }
+    // Loop through mockGamebooksJson and add items to allItems
+    for (var gamebook in mockGamebooksJson) {
+      allItems.add({
+        'name': gamebook["title"],
+        'type': 'Scenario',
+        'id': gamebook["id"].toString(),
+      });
+    }
 
     // Filter based on query and category (you can adjust the filtering logic here)
     return allItems.where((item) {
@@ -512,24 +509,24 @@ class DevelopmentApiService implements ApiService {
   // Helper function to retrieve the current gamebook's steps
   Future<List<Map<String, dynamic>>> getGameSteps() async {
     await Future.delayed(Duration(seconds: 1));
-    return gamebooksJson[id]['steps'];
+    return mockGamebooksJson[id]['steps'];
   }
 
   // Helper function to get a specific step by its ID
   Future<Map<String, dynamic>> getStepById(int stepId) async {
     await Future.delayed(Duration(seconds: 1));
-    final steps = gamebooksJson[id]['steps'];
+    final steps = mockGamebooksJson[id]['steps'];
     return steps.firstWhere((step) => step['id'] == stepId, orElse: () => {});
   }
 
   Future<Map<String, dynamic>> getGameBookWithId(int id) async {
     print("[DEV_DEBUG] Fetching gamebook with id=$id");
     await Future.delayed(Duration(seconds: 1));
-    return gamebooksJson[id];
+    return mockGamebooksJson[id];
   }
 
   Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
     await Future.delayed(Duration(seconds: 1));
-    return gamebooksJson;
+    return mockGamebooksJson;
   }
 }

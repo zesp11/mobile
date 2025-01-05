@@ -116,9 +116,12 @@ class SearchScreen extends StatelessWidget {
                           subtitle: Text(item['type']!),
                           onTap: () {
                             // Action when an item is tapped
+                            // TODO: change hard coded links to those from AppRoutes
                             if (item['type'] == 'User') {
-                              print("Go to user with profile: ${item["id"]}");
                               Get.toNamed('/profile/${item["id"]}');
+                            } else if (item['type'] == 'Scenario') {
+                              print(item);
+                              Get.toNamed('/scenario/${item["id"]}');
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
