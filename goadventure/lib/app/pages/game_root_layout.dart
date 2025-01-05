@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/pages/game_play_screen.dart';
-import 'package:goadventure/app/pages/game_selection_screen.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
 class GameRootLayout extends StatelessWidget {

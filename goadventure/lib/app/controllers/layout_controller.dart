@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/pages/game_root_layout.dart';
-import 'package:goadventure/app/pages/home_screen.dart';
-import 'package:goadventure/app/pages/profile_screen.dart';
-import 'package:goadventure/app/pages/search_page.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
 // class RootLayout extends StatelessWidget {

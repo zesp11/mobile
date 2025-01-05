@@ -1,6 +1,4 @@
-import 'package:goadventure/app/models/decision.dart';
 import 'package:goadventure/app/models/gamebook.dart';
-import 'package:goadventure/app/models/step.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 
 class GameService {
