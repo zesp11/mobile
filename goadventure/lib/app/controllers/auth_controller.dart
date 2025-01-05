@@ -1,12 +1,14 @@
 import 'package:get/get.dart';
 import 'package:goadventure/app/models/user.dart';
 import 'package:goadventure/app/services/user_service.dart';
+import 'package:logger/logger.dart';
 
 // TODO: implement that class fully
 // currently it only mocks user
 class AuthController extends GetxController {
   // To fetch user data after authentication
   final UserService userService;
+  final logger = Get.find<Logger>();
   // userProfile is null if user is not logged in
   var userProfile = Rx<UserProfile?>(null);
   bool get isAuthenticated => userProfile.value != null;
@@ -35,7 +37,7 @@ class AuthController extends GetxController {
     try {
       userProfile.value = await userService.fetchCurrentUserProfile();
     } catch (e) {
-      print('Error fetching user profile: $e');
+      logger.w('Error fetching user profile: $e');
     }
   }
 
@@ -46,9 +48,9 @@ class AuthController extends GetxController {
       // Store token in local storage
       // await storeAuthToken(token);
       await fetchUserProfile(); // Fetch user profile after login
-      print("[AUTH_DEBUG] logged in with userId=${userProfile.value!.id}");
+      logger.i("[AUTH_DEBUG] logged in with userId=${userProfile.value!.id}");
     } catch (e) {
-      print('Login failed: $e');
+      logger.e('Login failed: $e');
     }
   }
 
@@ -57,7 +59,7 @@ class AuthController extends GetxController {
     // Clear stored token and reset user profile
     // await clearAuthToken();
     userProfile.value = null;
-    print("[AUTH_DEBUG] logged out");
+    logger.i("[AUTH_DEBUG] logged out");
   }
 
   // TODO: storage service (storing and retrieving auth token)

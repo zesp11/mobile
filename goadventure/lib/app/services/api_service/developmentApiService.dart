@@ -1,10 +1,14 @@
+import 'package:get/get.dart';
 import 'package:goadventure/app/models/user.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'dart:convert'; // For JSON decoding
-import 'package:http/http.dart' as http; // HTTP library
+import 'package:http/http.dart' as http;
+import 'package:logger/web.dart'; // HTTP library
 
 // TODO: improve development service (maybe sqlite?)
 class DevelopmentApiService implements ApiService {
+  final logger = Get.find<Logger>();
+
   final int id = 0; // default gamebook index
   final List<Map<String, dynamic>> mockGamebooksJson = [
     {
@@ -436,7 +440,7 @@ class DevelopmentApiService implements ApiService {
           .toJson(); // Assuming your UserProfile class has toJson method
     } catch (e) {
       // Print the error and return a custom error message
-      print('User with id $id not found.');
+      logger.w('User with id $id not found.');
       throw Exception('User not found');
     }
   }
@@ -481,7 +485,7 @@ class DevelopmentApiService implements ApiService {
   Future<void> submitDecision(String gameId, String decision) async {
     // Simulate a network request for submitting decisions
     await Future.delayed(Duration(seconds: 1));
-    print('Decision "$decision" for game $gameId submitted.');
+    logger.d('Decision "$decision" for game $gameId submitted.');
   }
 
   @override
@@ -523,7 +527,7 @@ class DevelopmentApiService implements ApiService {
   }
 
   Future<Map<String, dynamic>> getGameBookWithId(int id) async {
-    print("[DEV_DEBUG] Fetching gamebook with id=$id");
+    logger.d("Fetching gamebook with id=$id");
     await Future.delayed(Duration(seconds: 1));
     return mockGamebooksJson[id];
   }

@@ -1,7 +1,10 @@
+import 'package:get/get.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:logger/web.dart';
 
 class SearchService {
   final ApiService apiService;
+  final logger = Get.find<Logger>();
 
   SearchService({required this.apiService});
 
@@ -22,7 +25,7 @@ class SearchService {
 
       return results;
     } catch (error) {
-      print("Search error: $error");
+      logger.e("Search error: $error");
       return [];
     }
   }

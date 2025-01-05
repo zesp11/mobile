@@ -120,7 +120,6 @@ class SearchScreen extends StatelessWidget {
                             if (item['type'] == 'User') {
                               Get.toNamed('/profile/${item["id"]}');
                             } else if (item['type'] == 'Scenario') {
-                              print(item);
                               Get.toNamed('/scenario/${item["id"]}');
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(

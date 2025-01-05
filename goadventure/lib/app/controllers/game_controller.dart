@@ -3,11 +3,13 @@ import 'package:goadventure/app/models/decision.dart';
 import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/models/step.dart';
 import 'package:goadventure/app/services/game_service.dart';
+import 'package:logger/logger.dart';
 
 // This screen focuses on the active game session.
 // It manages the game logic, decisions, and interactions with other players.
 class GameController extends GetxController {
   final GameService gameService;
+  final logger = Get.find<Logger>();
 
   // Rx to hold the selected gamebook ID, default to null (no game selected)
   var currentGamebookId = Rx<int?>(null); // Default to null
@@ -54,7 +56,7 @@ class GameController extends GetxController {
       // Optionally, fetch other gamebooks concurrently (if needed)
       // await fetchOtherGamebooks(id);
     } catch (e) {
-      print("Error fetching gamebook: $e");
+      logger.e("Error fetching gamebook: $e");
     } finally {
       isCurrentGamebookLoading.value = false;
     }
@@ -114,12 +116,12 @@ class GameController extends GetxController {
   Future<void> fetchAvailableGamebooks() async {
     isAvailableGamebooksLoading.value = true;
     try {
-      print("[DEV_DEBUG] Fetching available gamebooks");
+      logger.i("[DEV_DEBUG] Fetching available gamebooks");
       final gamebooks = await gameService.fetchAvailableGamebooks();
 
       availableGamebooks.assignAll(gamebooks);
     } catch (e) {
-      print("Error fetching available gamebooks: $e");
+      logger.e("Error fetching available gamebooks: $e");
     } finally {
       isAvailableGamebooksLoading.value = false;
     }
