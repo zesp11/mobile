@@ -424,13 +424,12 @@ class DevelopmentApiService implements ApiService {
 
   @override
   Future<Map<String, dynamic>> getUserProfile(String id) async {
-    // TODO: (should we in development API?)
+    // TODO: (should we in development API? maybe create configuration for that)
     // Simulate a network delay
     await Future.delayed(Duration(milliseconds: 500));
 
     // Returning mock user profile data
-    // TODO: check if id is in range
-    // to check in future if production returned 404
+    // TODO: check if id is in range and check in future if production returned 404
     try {
       // Try to find the user with the given id
       var result = mockUsers.firstWhere((user) => user.id == id);

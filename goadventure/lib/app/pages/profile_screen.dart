@@ -2,6 +2,8 @@ import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goadventure/app/pages/widgets/user_profile.dart';
+import 'package:goadventure/app/pages/widgets/user_profile_actions.dart';
 
 class ProfileScreen extends StatelessWidget {
   final AuthController authController = Get.find();
@@ -14,77 +16,34 @@ class ProfileScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (authController.isAuthenticated) {
-          // User is authenticated, show the profile
-          if (authController.userProfile.value != null) {
-            final userProfile = authController.userProfile.value!;
+          final userProfile = authController.userProfile.value;
+          if (userProfile != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: userProfile.avatar.isNotEmpty
-                        ? NetworkImage(userProfile.avatar)
-                        : null,
-                    child: userProfile.avatar.isEmpty
-                        ? const Icon(Icons.person,
-                            size: 60, color: Colors.white)
-                        : null,
-                  ),
+                  UserProfileWidget(userProfile: userProfile),
                   const SizedBox(height: 20),
-                  Text(userProfile.name,
-                      style: const TextStyle(
-                          fontSize: 28, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Text(userProfile.email,
-                      style: const TextStyle(fontSize: 18, color: Colors.grey)),
-                  const SizedBox(height: 10),
-                  Text(userProfile.bio,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed('/profile/edit'),
-                    child: const Text("Edit Profile"),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  ElevatedButton(
-                    onPressed: () => authController.logout(),
-                    child: const Text("Logout"),
+                  UserActionsWidget(
+                    onEditProfile: () => Get.toNamed('/profile/edit'),
+                    onLogout: () => authController.logout(),
                   ),
                 ],
               ),
             );
           } else {
-            return const CircularProgressIndicator(); // Show loading spinner while fetching user profile
+            return const CircularProgressIndicator();
           }
         } else {
-          // Show login screen or message if not authenticated
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "Not Logged in",
-                  style: TextStyle(
-                    fontSize: 22,
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
+                const Text("Not Logged In", style: TextStyle(fontSize: 22)),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: there should be middleware instead that causes redirect to /login
-                    // Navigate to login page if not authenticated
-                    // currently mock login
-                    authController.login(
-                        "this always work", "credentials dont matter");
-                    // Get.toNamed(
-                    //     '/login');
+                    authController.login("mock", "credentials");
                   },
                   child: const Text("Login"),
                 ),
