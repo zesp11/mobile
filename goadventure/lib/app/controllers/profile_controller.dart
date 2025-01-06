@@ -43,12 +43,12 @@ class ProfileController extends GetxController with StateMixin<UserProfile> {
     super.onInit();
     // Initialize the state with loading
     change(null, status: RxStatus.loading());
-    fetchUserProfile('1');
   }
 
   // Fetch the user profile by ID
   Future<void> fetchUserProfile(String id) async {
     try {
+      change(null, status: RxStatus.loading());
       // Fetch the profile and update the state with success
       userProfile.value = await userService.fetchUserProfile(id);
       change(userProfile.value, status: RxStatus.success());
