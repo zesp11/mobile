@@ -2,6 +2,7 @@
 // like players, gamebooks, or cities.
 import 'package:get/get.dart';
 import 'package:goadventure/app/services/search_service.dart';
+import 'package:goadventure/main.dart';
 
 // class SearchController extends GetxController {
 //   final ApiService apiService = Get.find();
@@ -79,6 +80,10 @@ class SearchController extends GetxController
       } else {
         results = await searchService.search(
             query, 'all'); // Filter based on the query
+      }
+
+      if (!isProduction && query == 'error') {
+        throw Exception("Error invoked");
       }
 
       // Update filteredItems and set success status
