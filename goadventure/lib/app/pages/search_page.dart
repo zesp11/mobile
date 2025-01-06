@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:goadventure/app/controllers/search_controller.dart"
     as goAdventureSearch;
+import 'package:lottie/lottie.dart';
 
 /* TODO: getx documentation
 RouteSettings redirect(String route) {
@@ -28,130 +29,206 @@ class SearchScreen extends GetView<goAdventureSearch.SearchController> {
       body: Column(
         children: [
           // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search for users, games, scenarios...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onChanged: (value) {
-                controller.updateQuery(value); // Update the query
-              },
-            ),
-          ),
+          SearchBar(controller: controller),
 
           const SizedBox(height: 8),
 
           // Filter Buttons Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildFilterButton("User"),
-                _buildFilterButton("Game"),
-                _buildFilterButton("Scenario"),
-              ],
-            ),
-          ),
+          FilterButtons(
+              selectedFilters: selectedFilters, controller: controller),
 
           const SizedBox(height: 8),
 
           // Results Section
-          Expanded(
-            child: Stack(
-              children: [
-                // Search Results
-                controller.obx(
-                  (state) {
-                    // If no results found
-                    if (state == null || state.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No results found',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
-                        ),
-                      );
-                    }
-
-                    // Group by 'type' field in the item
-                    Map<String, List<Map<String, String>>> groupedItems = {};
-
-                    for (var item in state) {
-                      final type = item['type']!;
-                      groupedItems.putIfAbsent(type, () => []).add(item);
-                    }
-
-                    // Render grouped results
-                    return ListView(
-                      children: groupedItems.entries.map((entry) {
-                        final type = entry.key;
-                        final items = entry.value;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Group Header
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                type,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blueAccent,
-                                ),
-                              ),
-                            ),
-                            // List of items in this group
-                            ...items.map((item) {
-                              return ListTile(
-                                leading: _getIconForType(item['type']!),
-                                title: Text(
-                                  item['name']!,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                subtitle: Text(item['type']!),
-                                onTap: () {
-                                  if (item['type'] == 'User') {
-                                    Get.toNamed('/profile/${item["id"]}');
-                                  } else if (item['type'] == 'Scenario') {
-                                    Get.toNamed('/scenario/${item["id"]}');
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content:
-                                            Text('Selected: ${item['name']}'),
-                                      ),
-                                    );
-                                  }
-                                },
-                              );
-                            }).toList(),
-                          ],
-                        );
-                      }).toList(),
-                    );
-                  },
-                  onLoading: const Center(
-                    child: CircularProgressIndicator(), // Show loading spinner
-                  ),
-                  onError: (error) => Center(
-                    child: Text(
-                      error ?? 'Error loading results',
-                      style: const TextStyle(fontSize: 18, color: Colors.red),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: SearchResults(controller: controller)),
         ],
       ),
+    );
+  }
+}
+
+class SearchBar extends StatelessWidget {
+  final goAdventureSearch.SearchController controller;
+
+  SearchBar({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search for users, games, scenarios...',
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onChanged: (value) {
+          controller.updateQuery(value); // Update the query
+        },
+      ),
+    );
+  }
+}
+
+class FilterButtons extends StatelessWidget {
+  final RxList<String> selectedFilters;
+  final goAdventureSearch.SearchController controller;
+
+  FilterButtons({required this.selectedFilters, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _buildFilterButton("User"),
+          const SizedBox(width: 8), // Add spacing between buttons
+          _buildFilterButton("Game"),
+          const SizedBox(width: 8), // Add spacing between buttons
+          _buildFilterButton("Scenario"),
+        ],
+      ),
+    );
+  }
+
+  // Filter button to toggle the selected filter state
+  Widget _buildFilterButton(String filterType) {
+    return Obx(() {
+      // Check if the filter is selected or not
+      bool isSelected = selectedFilters.contains(filterType);
+
+      return Expanded(
+        child: ElevatedButton(
+          onPressed: () {
+            // Only toggle filter if it's not visually "disabled"
+            if (isSelected) {
+              selectedFilters
+                  .remove(filterType); // Remove filter if already selected
+            } else {
+              selectedFilters.add(filterType); // Add filter if not selected
+            }
+            // Notify the controller to update results
+            controller.filterItemsByTypes(selectedFilters);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isSelected
+                ? Colors.blueAccent // Highlight selected filter
+                : Colors.white60, // Light gray for unselected filter
+            foregroundColor: isSelected
+                ? Colors.white
+                : Colors.grey.shade600, // Darker text for "disabled" appearance
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            side: BorderSide(
+              color: isSelected
+                  ? Colors.blueAccent
+                  : Colors.grey.shade400, // Border color
+            ),
+          ),
+          child: Text(
+            filterType,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.normal, // Regular font weight
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
+class SearchResults extends StatelessWidget {
+  final goAdventureSearch.SearchController controller;
+
+  SearchResults({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        controller.obx(
+          (state) {
+            // If no results found
+            if (state == null || state.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No results found',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              );
+            }
+
+            // Group by 'type' field in the item
+            Map<String, List<Map<String, String>>> groupedItems = {};
+
+            for (var item in state) {
+              final type = item['type']!;
+              groupedItems.putIfAbsent(type, () => []).add(item);
+            }
+
+            // Render grouped results
+            return ListView(
+              children: groupedItems.entries.map((entry) {
+                final type = entry.key;
+                final items = entry.value;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Group Header
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        type,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ),
+                    // List of items in this group
+                    ...items.map((item) {
+                      return ListTile(
+                        leading: _getIconForType(item['type']!),
+                        title: Text(
+                          item['name']!,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        subtitle: Text(item['type']!),
+                        onTap: () {
+                          if (item['type'] == 'User') {
+                            Get.toNamed('/profile/${item["id"]}');
+                          } else if (item['type'] == 'Scenario') {
+                            Get.toNamed('/scenario/${item["id"]}');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Selected: ${item['name']}'),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ],
+                );
+              }).toList(),
+            );
+          },
+          onLoading: const Center(
+            child: CircularProgressIndicator(), // Show loading spinner
+          ),
+          onError: (error) => ErrorScreen(controller: controller, error: error),
+        ),
+      ],
     );
   }
 
@@ -168,35 +245,83 @@ class SearchScreen extends GetView<goAdventureSearch.SearchController> {
         return const Icon(Icons.help_outline);
     }
   }
+}
 
-  // Filter button to toggle the selected filter state
-  Widget _buildFilterButton(String filterType) {
-    return Obx(() {
-      // Check if the filter is selected or not
-      bool isSelected = selectedFilters.contains(filterType);
+class ErrorScreen extends StatelessWidget {
+  final goAdventureSearch.SearchController controller;
+  final String? error;
 
-      return ElevatedButton(
-        onPressed: () {
-          // Toggle the filter in the list
-          if (isSelected) {
-            selectedFilters
-                .remove(filterType); // Remove filter if already selected
-          } else {
-            selectedFilters.add(filterType); // Add filter if not selected
-          }
-          // Notify the controller to update results
-          controller.filterItemsByTypes(selectedFilters);
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isSelected
-              ? Colors.blueAccent // Highlight selected filter
-              : Colors.grey, // Default color for unselected filter
-          foregroundColor: isSelected
-              ? Colors.white
-              : Colors.black, // Change text color based on selection
-        ),
-        child: Text(filterType),
-      );
-    });
+  ErrorScreen({required this.controller, required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Lottie Animation for Error
+          SizedBox(
+            height: 150,
+            width: 150,
+            child: Lottie.asset(
+              'lib/assets/animations/error.json', // Add your Lottie file here
+              repeat: true,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              // Error Icon
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.redAccent,
+                  size: 36,
+                ),
+                const SizedBox(height: 8),
+                // Error Text
+                Text(
+                  error ?? 'Something went wrong!',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.redAccent,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Hint to Retry
+                const Text(
+                  'Please try again later or check your internet connection.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Retry Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Trigger a retry action (depends on your controller setup)
+                    controller.searchItems(controller.query.value);
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
