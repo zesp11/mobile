@@ -44,7 +44,8 @@ import 'package:goadventure/app/services/search_service.dart';
 //   }
 // }
 
-class SearchController extends GetxController {
+class SearchController extends GetxController
+    with StateMixin<List<Map<String, String>>> {
   final SearchService searchService;
 
   var query = ''.obs; // Reactive query for search
@@ -66,18 +67,27 @@ class SearchController extends GetxController {
 
   // Fetch all items or filter based on the query
   Future<void> searchItems(String query) async {
-    List<Map<String, String>> results;
+    try {
+      change(null, status: RxStatus.loading()); // Set loading status
 
-    // If the query is empty, fetch all items
-    if (query.isEmpty) {
-      results = await searchService.search('', 'all'); // Fetch all items
-      allItems.value = results;
-    } else {
-      results =
-          await searchService.search(query, 'all'); // Filter based on the query
+      List<Map<String, String>> results;
+
+      // If the query is empty, fetch all items
+      if (query.isEmpty) {
+        results = await searchService.search('', 'all'); // Fetch all items
+        allItems.value = results;
+      } else {
+        results = await searchService.search(
+            query, 'all'); // Filter based on the query
+      }
+
+      // Update filteredItems and set success status
+      filteredItems.value = results;
+      change(results, status: RxStatus.success());
+    } catch (e) {
+      // Handle errors and set error status
+      change(null, status: RxStatus.error("Failed to load items: $e"));
     }
-
-    filteredItems.value = results;
   }
 
   // Filter items based on the selected filters (e.g., 'User', 'Game', 'Scenario')
@@ -94,5 +104,8 @@ class SearchController extends GetxController {
 
     // Update filteredItems with the result of filtering
     filteredItems.value = filteredList;
+
+    // Reflect the change in the state
+    change(filteredList, status: RxStatus.success());
   }
 }
