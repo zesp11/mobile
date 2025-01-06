@@ -19,6 +19,10 @@ class UserProfileScreen extends GetView<ProfileController> {
       });
     }
 
+    if (controller.userProfile.value?.id != userId) {
+      controller.fetchUserProfile(userId);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("User Profile"),
