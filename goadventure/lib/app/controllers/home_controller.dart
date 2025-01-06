@@ -8,7 +8,6 @@ class HomeController extends GetxController {
   final logger = Get.find<Logger>();
 
   // Observables for state management
-  var nearbyGames = <Gamebook>[].obs;
   var lastGame = Rx<Gamebook?>(null);
 
   // Constructor accepting HomeService
@@ -25,21 +24,13 @@ class HomeController extends GetxController {
 
   // Method to fetch nearby games
   void fetchNearbyGames() async {
-    nearbyGames.value = await homeService.fetchNearbyGames();
+    // TODO:
+    // nearbyGames.value = await homeService.fetchNearbyGames();
   }
 
   // Method to fetch last game
   void fetchLastGame() async {
-    lastGame.value = await homeService.fetchLastGame();
-  }
-
-  void resumeLastGame() {
-    if (lastGame.value != null) {
-      logger.i("Resuming ${lastGame.value!.title}");
-    }
-  }
-
-  void startNewGame(Gamebook gamebook) {
-    logger.i("Starting ${gamebook.title}");
+    // TODO:
+    // lastGame.value = await homeService.fetchLastGame();
   }
 }
