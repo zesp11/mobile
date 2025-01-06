@@ -30,7 +30,7 @@ import 'package:logger/logger.dart';
 // Here we manage the state and logic for a specific page or feature.
 // It should use the types defined in the service layer, ensuring it knows what
 // kind of data it's dealing with
-class ProfileController extends GetxController {
+class ProfileController extends GetxController with StateMixin<UserProfile> {
   final UserService userService; // Declare the UserService dependency
   final logger = Get.find<Logger>();
 
@@ -41,16 +41,20 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // TODO: change for fetching current user
-    // maybe create UserOwnProfileController
+    // Initialize the state with loading
+    change(null, status: RxStatus.loading());
     fetchUserProfile('1');
   }
 
-  // TODO: don't ignore that parameter
+  // Fetch the user profile by ID
   Future<void> fetchUserProfile(String id) async {
     try {
+      // Fetch the profile and update the state with success
       userProfile.value = await userService.fetchUserProfile(id);
+      change(userProfile.value, status: RxStatus.success());
     } catch (e) {
+      // If an error occurs, change the state to error
+      change(null, status: RxStatus.error('Error fetching user profile: $e'));
       logger.w('Error fetching user profile: $e');
     }
   }
@@ -61,5 +65,7 @@ class ProfileController extends GetxController {
     userProfile.value?.bio = 'Updated bio';
     userProfile.value?.preferences['gamesPlayed'] = gamesPlayed;
     userProfile.value?.preferences['gamesFinished'] = gamesFinished;
+    // Trigger the update by notifying the state
+    change(userProfile.value, status: RxStatus.success());
   }
 }

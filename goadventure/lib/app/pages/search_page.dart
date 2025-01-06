@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:goadventure/app/controllers/search_controller.dart"
     as goAdventureSearch;
+import 'package:goadventure/app/pages/error_screen.dart';
 import 'package:lottie/lottie.dart';
 
 /* TODO: getx documentation
@@ -226,7 +227,11 @@ class SearchResults extends StatelessWidget {
           onLoading: const Center(
             child: CircularProgressIndicator(), // Show loading spinner
           ),
-          onError: (error) => ErrorScreen(controller: controller, error: error),
+          onError: (error) => ErrorScreen(
+              onRetry: () {
+                controller.searchItems(controller.query.value);
+              },
+              error: error),
         ),
       ],
     );
@@ -244,84 +249,5 @@ class SearchResults extends StatelessWidget {
       default:
         return const Icon(Icons.help_outline);
     }
-  }
-}
-
-class ErrorScreen extends StatelessWidget {
-  final goAdventureSearch.SearchController controller;
-  final String? error;
-
-  ErrorScreen({required this.controller, required this.error});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Lottie Animation for Error
-          SizedBox(
-            height: 150,
-            width: 150,
-            child: Lottie.asset(
-              'lib/assets/animations/error.json', // Add your Lottie file here
-              repeat: true,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              // Error Icon
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.redAccent,
-                  size: 36,
-                ),
-                const SizedBox(height: 8),
-                // Error Text
-                Text(
-                  error ?? 'Something went wrong!',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.redAccent,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                // Hint to Retry
-                const Text(
-                  'Please try again later or check your internet connection.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Retry Button
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Trigger a retry action (depends on your controller setup)
-                    controller.searchItems(controller.query.value);
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
