@@ -2,56 +2,54 @@ import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goadventure/app/pages/login_screen.dart';
 import 'package:goadventure/app/pages/widgets/user_profile.dart';
 import 'package:goadventure/app/pages/widgets/user_profile_actions.dart';
 
-class ProfileScreen extends StatelessWidget {
-  final AuthController authController = Get.find();
-
+class ProfileScreen extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
       ),
-      body: Obx(() {
-        if (authController.isAuthenticated) {
-          final userProfile = authController.userProfile.value;
-          if (userProfile != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  UserProfileWidget(userProfile: userProfile),
-                  const SizedBox(height: 20),
-                  UserActionsWidget(
-                    onEditProfile: () => Get.toNamed('/profile/edit'),
-                    onLogout: () => authController.logout(),
-                  ),
-                ],
+      body: controller.obx(
+        // Success state
+        (userProfile) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              UserProfileWidget(userProfile: userProfile!),
+              const SizedBox(height: 20),
+              UserActionsWidget(
+                onEditProfile: () => Get.toNamed('/profile/edit'),
+                onLogout: () => controller.logout(),
               ),
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        } else {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Not Logged In", style: TextStyle(fontSize: 22)),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    authController.login("mock", "credentials");
-                  },
-                  child: const Text("Login"),
-                ),
-              ],
-            ),
-          );
-        }
-      }),
+            ],
+          ),
+        ),
+        // Loading state
+        onLoading: const Center(child: CircularProgressIndicator()),
+        // Empty state (e.g., not logged in)
+        onEmpty: LoginScreen(),
+        // Error state
+        onError: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error ?? "Something went wrong",
+                  style: const TextStyle(fontSize: 18, color: Colors.red)),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  controller.checkAuthStatus();
+                },
+                child: const Text("Retry"),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

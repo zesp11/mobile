@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
+import 'package:goadventure/app/pages/login_screen.dart';
 import 'package:goadventure/app/pages/profile_edit_screen.dart';
 import 'package:goadventure/app/pages/root_layout.dart';
 import 'package:goadventure/app/pages/game_play_screen.dart';
@@ -33,6 +34,9 @@ class AppRoutes {
   // Scenario route (distinct but within game tab context)
   static const scenario = '/scenario';
   static const scenarioDetail = '$scenario/:id';
+
+  static const login = '/login';
+  static const register = '/register';
   //**************************************************************
 
   /*
@@ -102,6 +106,10 @@ class AppRoutes {
           ],
         ),
       ],
+    ),
+    GetPage(
+      name: login,
+      page: () => LoginScreen(),
     ),
   ];
 }
