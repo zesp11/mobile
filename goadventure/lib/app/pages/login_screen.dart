@@ -94,12 +94,6 @@ class LoginScreen extends GetView<AuthController> {
                 child: const Text('Login'),
               ),
             ),
-            if (!isProduction) ...[
-              const SizedBox(height: 16),
-              const Text('Test Credentials:'),
-              const Text('Username: testUsername'),
-              const Text('Password: testPassword'),
-            ]
           ],
         ),
       ),
