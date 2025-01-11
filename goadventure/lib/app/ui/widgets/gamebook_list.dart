@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/models/gamebook.dart';
-import 'package:goadventure/app/pages/widgets/gamebook_card.dart';
+import 'package:goadventure/app/ui/widgets/gamebook_card.dart';
 
 class GamebookListView extends StatelessWidget {
   final List<Gamebook> gamebooks;

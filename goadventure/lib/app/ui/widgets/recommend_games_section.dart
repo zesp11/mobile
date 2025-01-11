@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
-import 'package:goadventure/app/pages/widgets/section_widget.dart';
+import 'package:goadventure/app/ui/widgets/section_widget.dart';
 
 class RecommendedGamesWidget extends StatelessWidget {
   final GameController controller = Get.find();

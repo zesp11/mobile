@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/pages/widgets/gamebook_list.dart';
+import 'package:goadventure/app/ui/widgets/gamebook_list.dart';
 
 class GameSelectionScreen extends StatelessWidget {
   final VoidCallback onGameSelected;

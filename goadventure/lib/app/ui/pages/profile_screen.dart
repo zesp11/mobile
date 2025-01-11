@@ -1,9 +1,9 @@
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/pages/login_screen.dart';
-import 'package:goadventure/app/pages/widgets/user_profile.dart';
-import 'package:goadventure/app/pages/widgets/user_profile_actions.dart';
+import 'package:goadventure/app/ui/pages/login_screen.dart';
+import 'package:goadventure/app/ui/widgets/user_profile.dart';
+import 'package:goadventure/app/ui/widgets/user_profile_actions.dart';
 
 class ProfileScreen extends GetView<AuthController> {
   @override

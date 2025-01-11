@@ -1,7 +1,7 @@
 // New Section with Button for Navigating to Search Games Page
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/pages/widgets/section_widget.dart';
+import 'package:goadventure/app/ui/widgets/section_widget.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
 class SearchGamesSection extends StatelessWidget {

@@ -1,6 +1,6 @@
 // Displays details of the last game played by the user.
 import 'package:flutter/material.dart';
-import 'package:goadventure/app/pages/widgets/section_widget.dart';
+import 'package:goadventure/app/ui/widgets/section_widget.dart';
 
 class LastGameWidget extends StatelessWidget {
   const LastGameWidget({Key? key}) : super(key: key);

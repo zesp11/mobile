@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:goadventure/app/controllers/search_controller.dart"
     as goAdventureSearch;
-import 'package:goadventure/app/pages/error_screen.dart';
+import 'package:goadventure/app/ui/pages/error_screen.dart';
 
 /* TODO: getx documentation
 RouteSettings redirect(String route) {
