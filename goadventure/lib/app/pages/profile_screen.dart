@@ -1,5 +1,4 @@
 import 'package:goadventure/app/controllers/auth_controller.dart';
-import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/pages/login_screen.dart';
