@@ -46,6 +46,7 @@ class SettingsController extends GetxController {
   void updateLanguage(String newLanguage) {
     language.value = newLanguage;
     settingService.saveLanguage(newLanguage);
+    Get.updateLocale(Locale(newLanguage));
     logger.i("Language updated to: $newLanguage");
   }
 
