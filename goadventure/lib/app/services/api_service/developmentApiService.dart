@@ -32,7 +32,7 @@ class DevelopmentApiService implements ApiService {
 
   @override
   Future<List> search(String query, String category) async {
-    await Future.delayed(delay); // delay for development
+    await Future.delayed(delay);
 
     // TODO: keep that data inside one place (maybe sqlite db?)
     List<Map<String, String>> allItems = [];
@@ -81,7 +81,6 @@ class DevelopmentApiService implements ApiService {
   }
 
   Future<Map<String, dynamic>> getGameBookWithId(int id) async {
-    logger.d("Fetching gamebook with id=$id");
     await Future.delayed(delay); // delay for development
 
     return mockGamebooksJson[id];
