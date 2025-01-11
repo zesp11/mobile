@@ -26,12 +26,32 @@ abstract class ApiService {
   Future<void> updateUserProfile(Map<String, dynamic> profile);
   */
 
-  // Fetch user profile details
+  /* Authentication endpoints */
+  // TODO: Future<void> registerUser();
+  // TODO: Future<void> login();
+  // TODO: Future<void> logout();
+  // TODO: Future<void> refreshToken();
+
+  /* User endpoints */
   Future<Map<String, dynamic>> getUserProfile(String id);
+  // TODO: Future<void> getCurrentUserProfile();
+  // TODO: updateProfile();
+  // TODO: getUsersList;
+  // TODO: removeAccount;
+
+  /* Scenario endpoints */
+  // INFO: the mobile app doesn't allow for scenario creation
+  Future<List<Map<String, dynamic>>> getAvailableGamebooks();
+  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId);
+  // TODO: removeScenario();
+
+  /* Game endpoints */
+  // Future<void> createGame();
+  // Future<void> getGameWithId(int id);
+  // Future<void> getNearbyGames(int id);
+  // Future<void> getStep(int id);
+  // Future<void> makeStep(int id);
 
   // Search functionality for players, gamebooks, and cities
   Future<List<dynamic>> search(String query, String category);
-
-  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId);
-  Future<List<Map<String, dynamic>>> getAvailableGamebooks();
 }

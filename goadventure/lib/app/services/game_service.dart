@@ -12,7 +12,7 @@ class GameService {
   // Fetch a single Gamebook
   Future<Gamebook> fetchGamebook(int id) async {
     try {
-      // TODO: handlde/display it if game not found
+      // TODO: handle/display it if game not found
       final response = await apiService.getGameBookWithId(id);
       return Gamebook.fromJson(
           response); // Assuming Gamebook has a fromJson method
