@@ -61,13 +61,13 @@ class AppBindings extends Bindings {
 
   void _registerApiService(Logger logger) {
     if (isProduction) {
-      logger.w("Production API service is not implemented yet.");
       logger.e("Production API service is not implemented yet.");
       throw UnimplementedError("There is no production API yet");
       // Get.lazyPut<ApiService>(() => ProductionApiService("https://api.example.com"));
     } else {
       logger.d("Registering development API service.");
-      Get.lazyPut<ApiService>(() => DevelopmentApiService());
+      Get.lazyPut<ApiService>(
+          () => DevelopmentApiService(delay: Duration(seconds: 2)));
     }
   }
 }
