@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/home_controller.dart';
-import 'package:goadventure/app/pages/widgets/recommend_games_section.dart';
-import 'package:goadventure/app/pages/widgets/search_game_section.dart';
-import 'package:goadventure/app/pages/widgets/user_summary.dart';
+import 'package:goadventure/app/ui/widgets/recommend_games_section.dart';
+import 'package:goadventure/app/ui/widgets/search_game_section.dart';
+import 'package:goadventure/app/ui/widgets/user_summary.dart';
 
 // TODO: split it into multiple files
 // TODO: use data from controllers instead of mock ups

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
-import 'package:goadventure/app/pages/widgets/section_widget.dart';
+import 'package:goadventure/app/ui/widgets/section_widget.dart';
 
 class UserSummaryWidget extends StatelessWidget {
   final ProfileController profile = Get.find<ProfileController>();

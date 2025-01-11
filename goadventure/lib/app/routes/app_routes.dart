@@ -3,17 +3,17 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/bindings/home_binding.dart';
 import 'package:goadventure/app/bindings/profile_binding.dart';
 import 'package:goadventure/app/bindings/search_binding.dart';
-import 'package:goadventure/app/pages/login_screen.dart';
-import 'package:goadventure/app/pages/profile_edit_screen.dart';
-import 'package:goadventure/app/pages/root_layout.dart';
-import 'package:goadventure/app/pages/game_play_screen.dart';
-import 'package:goadventure/app/pages/game_root_layout.dart';
-import 'package:goadventure/app/pages/game_selection_screen.dart';
-import 'package:goadventure/app/pages/home_screen.dart';
-import 'package:goadventure/app/pages/profile_screen.dart';
-import 'package:goadventure/app/pages/scenario_screen.dart';
-import 'package:goadventure/app/pages/search_page.dart';
-import 'package:goadventure/app/pages/user_profile_screen.dart';
+import 'package:goadventure/app/ui/pages/home_screen.dart';
+import 'package:goadventure/app/ui/pages/login_screen.dart';
+import 'package:goadventure/app/ui/pages/profile_edit_screen.dart';
+import 'package:goadventure/app/ui/layouts/root_layout.dart';
+import 'package:goadventure/app/ui/pages/game_play_screen.dart';
+import 'package:goadventure/app/ui/layouts/game_root_layout.dart';
+import 'package:goadventure/app/ui/pages/game_selection_screen.dart';
+import 'package:goadventure/app/ui/pages/profile_screen.dart';
+import 'package:goadventure/app/ui/pages/scenario_screen.dart';
+import 'package:goadventure/app/ui/pages/search_page.dart';
+import 'package:goadventure/app/ui/pages/user_profile_screen.dart';
 
 class AppRoutes {
   // Define route names as static constants for easier reference

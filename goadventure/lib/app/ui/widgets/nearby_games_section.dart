@@ -1,6 +1,6 @@
 // Lists games near the user's location.
 import 'package:flutter/material.dart';
-import 'package:goadventure/app/pages/widgets/section_widget.dart';
+import 'package:goadventure/app/ui/widgets/section_widget.dart';
 
 class NearbyGamesWidget extends StatelessWidget {
   const NearbyGamesWidget({Key? key}) : super(key: key);

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/pages/error_screen.dart';
-import 'package:goadventure/app/pages/widgets/user_profile.dart';
+import 'package:goadventure/app/ui/pages/error_screen.dart';
+import 'package:goadventure/app/ui/widgets/user_profile.dart';
 
 // TODO: redirect to /profile if its user own profile, but using middleware
 class UserProfileScreen extends GetView<ProfileController> {
