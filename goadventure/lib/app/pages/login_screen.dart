@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
-import 'package:goadventure/main.dart';
 
 /*
  BUG: the problem with LoginScreen showing retry button, is 

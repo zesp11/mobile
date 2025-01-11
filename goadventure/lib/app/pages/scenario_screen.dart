@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
-import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/models/gamebook.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 import 'package:goadventure/app/services/game_service.dart';

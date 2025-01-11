@@ -39,7 +39,7 @@ class UserProfileWidget extends StatelessWidget {
             style: const TextStyle(fontSize: 18, color: Colors.grey)),
         const SizedBox(height: 5),
         Text(
-          "Games Finished: ${userProfile.gamesFinished ?? 'N/A'}",
+          "Games Finished: ${userProfile.gamesFinished}",
           style: const TextStyle(fontSize: 18, color: Colors.grey),
         ),
       ],
