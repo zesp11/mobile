@@ -13,6 +13,7 @@ import 'package:goadventure/app/ui/pages/game_selection_screen.dart';
 import 'package:goadventure/app/ui/pages/profile_screen.dart';
 import 'package:goadventure/app/ui/pages/scenario_screen.dart';
 import 'package:goadventure/app/ui/pages/search_page.dart';
+import 'package:goadventure/app/ui/pages/settings_screen.dart';
 import 'package:goadventure/app/ui/pages/user_profile_screen.dart';
 
 class AppRoutes {
@@ -23,6 +24,7 @@ class AppRoutes {
   static const game = '/game';
   static const search = '/search';
   static const profile = '/profile';
+  static const settings = '/settings';
 
   // nested game routes
   static const gameSelection = '$game/select';
@@ -104,6 +106,12 @@ class AppRoutes {
             // to prevent /edit being interpreted as dynamic segment
             GetPage(name: '/:id', page: () => UserProfileScreen()),
           ],
+        ),
+
+        // Settings tab
+        GetPage(
+          name: settings,
+          page: () => SettingsScreen(),
         ),
       ],
     ),

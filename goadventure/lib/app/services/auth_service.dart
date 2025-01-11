@@ -3,6 +3,7 @@ import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/main.dart';
 import 'package:logger/logger.dart';
 
+// TODO: add services should inherit from GetxService
 class AuthService {
   final ApiService apiService;
   final logger = Get.find<Logger>();

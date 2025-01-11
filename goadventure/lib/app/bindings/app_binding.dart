@@ -4,12 +4,14 @@ import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/controllers/home_controller.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:goadventure/app/controllers/search_controller.dart';
+import 'package:goadventure/app/controllers/settings_controller.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/app/services/api_service/developmentApiService.dart';
 import 'package:goadventure/app/services/auth_service.dart';
 import 'package:goadventure/app/services/game_service.dart';
 import 'package:goadventure/app/services/home_service.dart';
 import 'package:goadventure/app/services/search_service.dart';
+import 'package:goadventure/app/services/settings_service.dart';
 import 'package:goadventure/app/services/user_service.dart';
 import 'package:goadventure/main.dart';
 import 'package:logger/logger.dart';
@@ -27,6 +29,8 @@ class AppBindings extends Bindings {
     // Register the API service
     _registerApiService(logger);
 
+    // register settings service
+    Get.put<SettingsService>(SettingsService());
     // Register services using the injected ApiService
     Get.put<UserService>(UserService(apiService: Get.find()));
     Get.put<SearchService>(SearchService(apiService: Get.find()));
@@ -35,6 +39,7 @@ class AppBindings extends Bindings {
     Get.put<AuthService>(AuthService(apiService: Get.find()));
 
     // Register controllers that need services
+    Get.put<SettingsController>(SettingsController(settingService: Get.find()));
     Get.put<AuthController>(AuthController(
       userService: Get.find(),
       authService: Get.find(),

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
 class GameRootLayout extends StatelessWidget {
-  const GameRootLayout({Key? key}) : super(key: key);
+  const GameRootLayout({super.key});
 
   @override
   Widget build(BuildContext context) {

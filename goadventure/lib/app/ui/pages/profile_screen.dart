@@ -49,6 +49,12 @@ class ProfileScreen extends GetView<AuthController> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'profile_settings_fab',
+        onPressed: () => Get.toNamed('/settings'),
+        child: const Icon(Icons.settings),
+        tooltip: 'Settings',
+      ),
     );
   }
 }

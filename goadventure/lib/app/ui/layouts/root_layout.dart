@@ -2,73 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
-// class RootLayout extends StatelessWidget {
-//   const RootLayout({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: GetRouterOutlet
-//       bottomNavigationBar: GetBuilder<RootLayoutController>(
-//         init: RootLayoutController(),
-//         builder: (controller) {
-//           return BottomNavigationBar(
-//             items: const <BottomNavigationBarItem>[
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.home),
-//                 label: "Home",
-//               ),
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.play_arrow),
-//                 label: "Game",
-//               ),
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.search),
-//                 label: "Search",
-//               ),
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.person),
-//                 label: "Profile",
-//               ),
-//             ],
-//             currentIndex: controller.selectedIndex,
-//             type: BottomNavigationBarType.fixed,
-//             unselectedItemColor: Colors.grey,
-//             selectedItemColor: Colors.blue,
-//             onTap: (index) => controller.onItemTapped(index),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
-// class RootLayoutController extends GetxController {
-//   int selectedIndex = 0;
-
-//   // Map of tab indexes to their routes
-//   final List<String> _routes = [
-//     AppRoutes.home,
-//     AppRoutes.game,
-//     AppRoutes.search,
-//     AppRoutes.profile,
-//   ];
-
-//   // Update the selected index and navigate to the corresponding route
-//   void onItemTapped(int index) {
-//     if (index != selectedIndex) {
-//       selectedIndex = index;
-//       update(); // Notify the UI to rebuild
-//       Get.toNamed(
-//         _routes[index],
-//         id: 1, // Use the nested navigator key
-//       );
-//     }
-//   }
-// }
-
 class RootLayout extends StatelessWidget {
-  const RootLayout({Key? key}) : super(key: key);
+  const RootLayout({super.key});
 
   @override
   Widget build(BuildContext context) {

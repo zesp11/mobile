@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 
 // TODO: implement that class fully
 // currently it only mocks user
+// TODO: use flutter_secure_storage
 class AuthController extends GetxController with StateMixin<UserProfile> {
   final UserService userService;
   final AuthService authService;
