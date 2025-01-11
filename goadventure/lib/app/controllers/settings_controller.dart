@@ -58,12 +58,13 @@ class SettingsController extends GetxController {
 
   // Reset all settings to default
   void resetSettings() {
+    // TODO: dry
+    updateTheme(ThemeMode.system);
     themeMode.value = ThemeMode.system;
-    layoutStyle.value = 'buttons';
-    language.value = 'en';
-    notifications.value = true;
+    updateLayoutStyle('stacked');
+    updateLanguage('en');
+    toggleNotifications(true);
 
-    settingService.resetSettings();
     logger.d("Settings reset to defaults");
   }
 }

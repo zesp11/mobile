@@ -42,6 +42,7 @@ class SettingsService extends GetxService {
 
   // Get layout style
   String getLayoutStyle() {
+    _storage.erase();
     return _storage.read(_layoutKey) ?? defaultLayoutStyle;
   }
 
@@ -63,13 +64,5 @@ class SettingsService extends GetxService {
   // Get notifications
   bool getNotifications() {
     return _storage.read(_notificationsKey) ?? defaultNotifications;
-  }
-
-  // Reset all settings to default
-  void resetSettings() {
-    saveTheme(ThemeMode.system);
-    saveLayoutStyle('buttons');
-    saveLanguage('en');
-    saveNotifications(true);
   }
 }
