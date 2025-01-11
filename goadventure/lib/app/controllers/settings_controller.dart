@@ -11,7 +11,7 @@ class SettingsController extends GetxController {
 
   // Reactive values for theme, layout style, language, and notifications
   var themeMode = ThemeMode.system.obs;
-  var layoutStyle = 'buttons'.obs;
+  var layoutStyle = 'stacked'.obs;
   var language = 'en'.obs;
   var notifications = true.obs;
 

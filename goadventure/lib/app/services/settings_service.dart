@@ -13,7 +13,7 @@ class SettingsService extends GetxService {
 
   // Default values
   final ThemeMode defaultTheme = ThemeMode.system;
-  final String defaultLayoutStyle = 'buttons';
+  final String defaultLayoutStyle = 'stacked';
   final String defaultLanguage = 'en';
   final bool defaultNotifications = true;
 

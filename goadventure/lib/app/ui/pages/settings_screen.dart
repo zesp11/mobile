@@ -81,17 +81,17 @@ class SettingsScreen extends StatelessWidget {
           // Layout Style Selection
           ListTile(
             title: Text('Decision Layout Style'),
-            trailing: Obx(
-              () => DropdownButton<String>(
+            trailing: Obx(() {
+              return DropdownButton<String>(
                 value: settingsController.layoutStyle.value,
                 items: [
                   DropdownMenuItem(
-                    value: 'buttons',
-                    child: Text('4 Buttons'),
+                    value: 'stacked',
+                    child: Text('vertical'),
                   ),
                   DropdownMenuItem(
-                    value: 'circle',
-                    child: Text('Circle with 4 Parts'),
+                    value: 'horizontal',
+                    child: Text('horizontal'),
                   ),
                 ],
                 onChanged: (value) {
@@ -99,8 +99,8 @@ class SettingsScreen extends StatelessWidget {
                     settingsController.updateLayoutStyle(value);
                   }
                 },
-              ),
-            ),
+              );
+            }),
           ),
 
           // Reset Settings Button

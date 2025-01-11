@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
+import 'package:goadventure/app/controllers/settings_controller.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
+import 'package:goadventure/app/ui/widgets/decision_buttons.dart';
 import 'package:logger/web.dart';
 
 /*
@@ -15,8 +17,7 @@ import 'package:logger/web.dart';
 class GamePlayScreen extends StatelessWidget {
   final GameController controller = Get.find();
   final logger = Get.find<Logger>();
-  final VoidCallback
-      onReturnToSelection; // Callback to go back to selection screen
+  final VoidCallback onReturnToSelection;
 
   GamePlayScreen({required this.onReturnToSelection});
 
@@ -26,7 +27,7 @@ class GamePlayScreen extends StatelessWidget {
     controller.fetchGamebookData(int.parse(gamebookId));
 
     return DefaultTabController(
-      length: 3, // Three tabs: Decision, History, Map
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: GestureDetector(
@@ -38,7 +39,6 @@ class GamePlayScreen extends StatelessWidget {
                     "[GamePlayScreen] controller.currentGamebook == null -> do nothing");
                 return;
               }
-
               final gameBookId = controller.currentGamebook.value!.id;
               final scenarioLink = AppRoutes.scenarioDetail
                   .replaceFirst(":id", gameBookId.toString());
@@ -67,7 +67,6 @@ class GamePlayScreen extends StatelessWidget {
             // Decision Tab
             Obx(() {
               final currentStep = controller.currentStep;
-
               if (currentStep.value == null) {
                 return const Center(
                     child:
@@ -75,6 +74,9 @@ class GamePlayScreen extends StatelessWidget {
               }
 
               final decisions = currentStep.value!.decisions;
+              final buttonLayout = Get.find<SettingsController>()
+                  .layoutStyle
+                  .value; // Get button layout from settings
 
               if (decisions.isEmpty) {
                 return Center(
@@ -124,57 +126,19 @@ class GamePlayScreen extends StatelessWidget {
                     flex: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: List.generate(
-                          decisions.length,
-                          (index) {
-                            final decision = decisions[index];
-                            return ElevatedButton(
-                              onPressed: () {
-                                controller.makeDecision(decision);
-                              },
-                              child: Text(decision.text),
-                            );
-                          },
-                        ),
+                      child: DecisionButtonLayout(
+                        decisions: decisions,
+                        layoutStyle: buttonLayout,
+                        onDecisionMade: controller.makeDecision,
                       ),
                     ),
                   ),
                 ],
               );
             }),
-
             // History Tab
-            Center(
-              child: Card(
-                margin: const EdgeInsets.all(16.0),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Obx(() {
-                        return Expanded(
-                          child: SingleChildScrollView(
-                            reverse: true,
-                            child: Text(
-                              controller.getGameHistory().isEmpty
-                                  ? "No history yet. Travel around the world and create your own adventure!"
-                                  : controller.getGameHistory(),
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Map Tab (just a placeholder for now)
+            const Center(child: Text("History functionality will go here")),
+            // Map Tab
             const Center(child: Text("Map functionality will go here")),
           ],
         ),
