@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:goadventure/app/bindings/app_binding.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
 
@@ -9,7 +10,9 @@ import 'package:goadventure/app/routes/app_routes.dart';
 // For development, no additional flags are needed (default is false).
 const bool isProduction = bool.fromEnvironment('dart.vm.product');
 
-void main() {
+void main() async {
+  await GetStorage.init();
+
   runApp(const GoAdventure());
 }
 
