@@ -10,7 +10,7 @@ class SearchGamesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionWidget(
-      title: "Search Games",
+      title: "search_games".tr,
       child: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
