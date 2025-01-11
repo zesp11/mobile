@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:get/get.dart';
-import 'package:goadventure/app/routes/app_routes.dart';
+import 'package:goadventure/app/pages/widgets/gamebook_list.dart';
 
-// card on click should redirect to main page of given gamebook
-
-// TODO: Make button that allows playing disabled, until user is logged in
-// TODO: specify in one place prodcted routes
 class GameSelectionScreen extends StatelessWidget {
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
@@ -45,146 +41,15 @@ class GameSelectionScreen extends StatelessWidget {
                   );
                 }
 
-                return ListView.builder(
-                  itemCount: gameController.availableGamebooks.length,
-                  itemBuilder: (context, index) {
-                    final gamebook = gameController.availableGamebooks[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              gamebook.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              gamebook.description,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // The "Desc" button should always be accessible
-                                    Get.toNamed(
-                                        '${AppRoutes.scenario}/${gamebook.id}',
-                                        arguments: gamebook);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, // Smaller vertical padding
-                                      horizontal:
-                                          16.0, // Smaller horizontal padding
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    backgroundColor: Colors.blue,
-                                  ),
-                                  child: Text(
-                                    'Desc',
-                                    style: const TextStyle(
-                                      fontSize: 14, // Smaller font size
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                ElevatedButton(
-                                  onPressed: authController.isAuthenticated
-                                      ? () {
-                                          final gamebookRoute =
-                                              AppRoutes.gameDetail.replaceFirst(
-                                                  ':id',
-                                                  gamebook.id.toString());
-                                          Get.toNamed(gamebookRoute);
-                                        }
-                                      : () => _showLoginDialog(context),
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, // Smaller vertical padding
-                                      horizontal:
-                                          16.0, // Smaller horizontal padding
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    backgroundColor: authController
-                                            .isAuthenticated
-                                        ? Colors.blue
-                                        : Colors.blue.withOpacity(
-                                            0.5), // Maintain blue color with reduced opacity
-                                  ),
-                                  child: Text(
-                                    'Select',
-                                    style: const TextStyle(
-                                      fontSize: 14, // Smaller font size
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                return GamebookListView(
+                  gamebooks: gameController.availableGamebooks,
+                  authController: authController,
                 );
               }),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  // Function to show a login dialog
-  void _showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Please Log In'),
-          content: const Text('You need to log in to play the game.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back();
-                // Optionally, you can navigate to the login screen here
-                Get.toNamed(AppRoutes.profile);
-              },
-              child: const Text('Log In'),
-            ),
-            TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
