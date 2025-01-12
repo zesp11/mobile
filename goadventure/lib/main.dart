@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:goadventure/app/bindings/app_binding.dart';
 import 'package:goadventure/app/controllers/settings_controller.dart';
 import 'package:goadventure/app/routes/app_routes.dart';
+import 'package:goadventure/app/themes/app_theme.dart';
 import 'package:goadventure/utils/translations.dart';
 
 // top-level constant for production flag
@@ -32,6 +33,10 @@ class GoAdventure extends StatelessWidget {
       locale: null,
       fallbackLocale: Locale('en'),
       debugShowCheckedModeBanner: !isProduction,
+
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.light, // Default to system theme (light or dark)
     );
   }
 }
