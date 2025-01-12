@@ -32,6 +32,12 @@ class SettingsController extends GetxController {
   void updateTheme(ThemeMode newTheme) {
     themeMode.value = newTheme;
     logger.i("Theme updated to: $newTheme");
+
+    // Convert ThemeMode to ThemeData
+    ThemeData themeData =
+        newTheme == ThemeMode.dark ? ThemeData.dark() : ThemeData.light();
+    // Change the theme using Get.changeTheme() with ThemeData
+    Get.changeTheme(themeData);
     settingService.saveTheme(newTheme);
   }
 
