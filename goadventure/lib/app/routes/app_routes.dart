@@ -11,6 +11,7 @@ import 'package:goadventure/app/ui/pages/game_play_screen.dart';
 import 'package:goadventure/app/ui/layouts/game_root_layout.dart';
 import 'package:goadventure/app/ui/pages/game_selection_screen.dart';
 import 'package:goadventure/app/ui/pages/profile_screen.dart';
+import 'package:goadventure/app/ui/pages/register_screen.dart';
 import 'package:goadventure/app/ui/pages/scenario_screen.dart';
 import 'package:goadventure/app/ui/pages/search_page.dart';
 import 'package:goadventure/app/ui/pages/settings_screen.dart';
@@ -118,6 +119,10 @@ class AppRoutes {
     GetPage(
       name: login,
       page: () => LoginScreen(),
+    ),
+    GetPage(
+      name: register,
+      page: () => RegisterScreen(),
     ),
   ];
 }

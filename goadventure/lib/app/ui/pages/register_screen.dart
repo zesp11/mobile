@@ -2,30 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 
-/*
- BUG: the problem with LoginScreen showing retry button, is 
- because it's wrapped in ProfileScreen onEmpty if user is not 
- authenticated yet, but on failed login the LoginScreen throws 
- error, which causes parent to show ErrorScreen,
- because both (LoginScreen, ProfileScreen) share authController
- and manage one state.
- TODO: fix above but
- */
-class LoginScreen extends GetView<AuthController> {
+class RegisterScreen extends GetView<AuthController> {
+  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Register'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Name input
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             // Email input
             TextField(
               controller: emailController,
@@ -45,76 +47,86 @@ class LoginScreen extends GetView<AuthController> {
               ),
               obscureText: true,
             ),
+            const SizedBox(height: 16),
+            // Confirm Password input
+            TextField(
+              controller: confirmPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Confirm Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
             const SizedBox(height: 24),
-            // StateMixin's onLoading, onError, onEmpty for handling states
+            // StateMixin handling states
             controller.obx(
               onLoading: const Center(child: CircularProgressIndicator()),
               onError: (error) => Column(
                 children: [
                   Text(
-                    'Login failed: $error',
+                    'Registration failed: $error',
                     style: TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
                 ],
               ),
-              onEmpty: Padding(
-                padding: EdgeInsets.only(bottom: 16.0),
-                child: const Center(
-                  child: Text('No user authenticated'),
-                ),
-              ),
-              // Default UI when login succeeds (or controller state changes)
+              onEmpty: SizedBox.shrink(),
               (state) {
-                return SizedBox
-                    .shrink(); // Return nothing, as we already have the button
+                return SizedBox.shrink();
               },
             ),
-            // Submit button (only displayed once)
+            // Submit button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  final name = nameController.text.trim();
                   final email = emailController.text.trim();
                   final password = passwordController.text.trim();
+                  final confirmPassword = confirmPasswordController.text.trim();
 
-                  if (email.isEmpty || password.isEmpty) {
+                  if (name.isEmpty ||
+                      email.isEmpty ||
+                      password.isEmpty ||
+                      confirmPassword.isEmpty) {
                     Get.snackbar(
                       'Error',
-                      'Email and password are required.',
+                      'All fields are required.',
                       snackPosition: SnackPosition.BOTTOM,
                     );
                     return;
                   }
 
-                  // Trigger login using AuthController
-                  await controller.login(email, password);
+                  if (password != confirmPassword) {
+                    Get.snackbar(
+                      'Error',
+                      'Passwords do not match.',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                    return;
+                  }
+
+                  await controller.register(name, email, password);
                 },
-                child: const Text('Login'),
+                child: const Text('Register'),
               ),
             ),
             const SizedBox(height: 16),
-            // Link to Register page
+            // Link to Login Screen if user already has an account
             Center(
-              child: GestureDetector(
-                onTap: () => Get.toNamed('/register'),
-                child: Text(
-                  'Don’t have an account? Register here.',
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    decoration: TextDecoration.underline,
-                  ),
+              child: TextButton(
+                onPressed: () {
+                  // Navigate to login screen
+                  Get.toNamed('/login');
+                },
+                child: const Text(
+                  'Already have an account? Login',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'login_settings_fab',
-        onPressed: () => Get.toNamed('/settings'),
-        child: const Icon(Icons.settings),
-        tooltip: 'Settings',
       ),
     );
   }
