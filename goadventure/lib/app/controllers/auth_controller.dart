@@ -99,6 +99,12 @@ class AuthController extends GetxController with StateMixin<UserProfile> {
     }
   }
 
+  Future<void> register(String name, String email, String password) async {
+    // TODO:
+    await Future.delayed(Duration(seconds: 2));
+    print("User registered successfully");
+  }
+
   // Step 4: Logout method to clear user session
   Future<void> logout() async {
     try {
