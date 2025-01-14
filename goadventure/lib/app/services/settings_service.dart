@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 class SettingsService extends GetxService {
   final _storage = GetStorage();
+  final logger = Get.find<Logger>();
 
   // Keys for storing preferences
   static const String _themeKey = 'theme';
@@ -27,10 +29,13 @@ class SettingsService extends GetxService {
     final themeString = _storage.read(_themeKey) ?? defaultTheme.toString();
     switch (themeString) {
       case 'ThemeMode.dark':
+        logger.d("Return dark mode");
         return ThemeMode.dark;
       case 'ThemeMode.light':
+        logger.d("Return light mode");
         return ThemeMode.light;
       default:
+        logger.d("Return system mode ${ThemeMode.system.toString()}");
         return ThemeMode.system;
     }
   }
@@ -42,7 +47,7 @@ class SettingsService extends GetxService {
 
   // Get layout style
   String getLayoutStyle() {
-    _storage.erase();
+    // _storage.erase();
     return _storage.read(_layoutKey) ?? defaultLayoutStyle;
   }
 

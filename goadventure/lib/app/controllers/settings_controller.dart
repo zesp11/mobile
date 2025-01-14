@@ -33,11 +33,6 @@ class SettingsController extends GetxController {
     themeMode.value = newTheme;
     logger.i("Theme updated to: $newTheme");
 
-    // Convert ThemeMode to ThemeData
-    ThemeData themeData =
-        newTheme == ThemeMode.dark ? ThemeData.dark() : ThemeData.light();
-    // Change the theme using Get.changeTheme() with ThemeData
-    Get.changeTheme(themeData);
     settingService.saveTheme(newTheme);
   }
 
@@ -66,8 +61,8 @@ class SettingsController extends GetxController {
   // Reset all settings to default
   void resetSettings() {
     // TODO: dry
+    // TODO: change those hardcoded values
     updateTheme(ThemeMode.system);
-    themeMode.value = ThemeMode.system;
     updateLayoutStyle('stacked');
     updateLanguage('en');
     toggleNotifications(true);
