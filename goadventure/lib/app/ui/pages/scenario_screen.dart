@@ -80,7 +80,7 @@ class ScenarioScreen extends StatelessWidget {
 
                       // Description Section
                       Text(
-                        'Description',
+                        'description'.tr,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -98,7 +98,7 @@ class ScenarioScreen extends StatelessWidget {
 
                       // Date Section
                       Text(
-                        'Dates',
+                        'dates'.tr,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -111,7 +111,7 @@ class ScenarioScreen extends StatelessWidget {
                               size: 18, color: Colors.blue),
                           SizedBox(width: 8),
                           Text(
-                            'Start Date: ${gamebook.startDate.toLocal().toString().split(' ')[0]}',
+                            '${"start_date".tr}: ${gamebook.startDate.toLocal().toString().split(' ')[0]}',
                             style: TextStyle(fontSize: 16),
                           ),
                         ],
@@ -123,7 +123,7 @@ class ScenarioScreen extends StatelessWidget {
                             Icon(Icons.event, size: 18, color: Colors.green),
                             SizedBox(width: 8),
                             Text(
-                              'End Date: ${gamebook.endDate!.toLocal().toString().split(' ')[0]}',
+                              '${"end_date".tr}: ${gamebook.endDate!.toLocal().toString().split(' ')[0]}',
                               style: TextStyle(fontSize: 16),
                             ),
                           ],
@@ -132,7 +132,7 @@ class ScenarioScreen extends StatelessWidget {
 
                       // Steps Section
                       Text(
-                        'Steps',
+                        'steps'.tr,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -200,7 +200,7 @@ class ScenarioScreen extends StatelessWidget {
                                       0.5), // Maintain the blue color with reduced opacity when disabled
                             ),
                             child: Text(
-                              'Play Game',
+                              'play_game'.tr,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -215,7 +215,7 @@ class ScenarioScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          'You need to log in to play the game.',
+                          'login_needed'.tr,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.red,

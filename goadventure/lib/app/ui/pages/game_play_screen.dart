@@ -48,11 +48,11 @@ class GamePlayScreen extends StatelessWidget {
             child: const Text('Game Title'),
           ),
           centerTitle: true,
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Decision'),
-              Tab(text: 'History'),
-              Tab(text: 'Map'),
+              Tab(text: 'decision'.tr),
+              Tab(text: 'history'.tr),
+              Tab(text: 'map'.tr),
             ],
           ),
           actions: [

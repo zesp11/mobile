@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class UserActionsWidget extends StatelessWidget {
   final VoidCallback onEditProfile;
@@ -16,12 +17,12 @@ class UserActionsWidget extends StatelessWidget {
       children: [
         ElevatedButton(
           onPressed: onEditProfile,
-          child: const Text("Edit Profile"),
+          child: Text("edit_profile".tr),
         ),
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: onLogout,
-          child: const Text("Logout"),
+          child: Text("logout".tr),
         ),
       ],
     );

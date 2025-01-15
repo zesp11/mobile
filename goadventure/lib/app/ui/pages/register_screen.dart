@@ -12,7 +12,7 @@ class RegisterScreen extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register'),
+        title: Text('register'.tr),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,8 +22,8 @@ class RegisterScreen extends GetView<AuthController> {
             // Name input
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
+              decoration: InputDecoration(
+                labelText: 'name'.tr,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -31,8 +31,8 @@ class RegisterScreen extends GetView<AuthController> {
             // Email input
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
+              decoration: InputDecoration(
+                labelText: 'email'.tr,
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
@@ -41,8 +41,8 @@ class RegisterScreen extends GetView<AuthController> {
             // Password input
             TextField(
               controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
+              decoration: InputDecoration(
+                labelText: 'password'.tr,
                 border: OutlineInputBorder(),
               ),
               obscureText: true,
@@ -51,8 +51,8 @@ class RegisterScreen extends GetView<AuthController> {
             // Confirm Password input
             TextField(
               controller: confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirm Password',
+              decoration: InputDecoration(
+                labelText: 'confirm_password'.tr,
                 border: OutlineInputBorder(),
               ),
               obscureText: true,
@@ -108,7 +108,7 @@ class RegisterScreen extends GetView<AuthController> {
 
                   await controller.register(name, email, password);
                 },
-                child: const Text('Register'),
+                child: Text('register'.tr),
               ),
             ),
             const SizedBox(height: 16),
@@ -119,8 +119,8 @@ class RegisterScreen extends GetView<AuthController> {
                   // Navigate to login screen
                   Get.toNamed('/login');
                 },
-                child: const Text(
-                  'Already have an account? Login',
+                child: Text(
+                  '${"already_registered".tr} ${"login".tr}!',
                   style: TextStyle(fontSize: 16),
                 ),
               ),

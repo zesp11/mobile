@@ -38,8 +38,8 @@ class SearchGamesSection extends StatelessWidget {
               size: 60,
             ),
             const SizedBox(height: 10),
-            const Text(
-              "Discover New Adventures!",
+            Text(
+              "discover_adventures".tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
@@ -48,8 +48,8 @@ class SearchGamesSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              "Explore a vast collection of games and scenarios. Dive into unique storylines and find your next favorite game.",
+            Text(
+              "explore_games".tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -63,8 +63,8 @@ class SearchGamesSection extends StatelessWidget {
                 Get.rootDelegate.toNamed(AppRoutes.search);
               },
               icon: const Icon(Icons.search, size: 24),
-              label: const Text(
-                "Find Games",
+              label: Text(
+                "find_games".tr,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(

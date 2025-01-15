@@ -12,7 +12,7 @@ class RecommendedGamesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionWidget(
-      title: "Recommended Games",
+      title: "recommended_games".tr,
       child: Obx(() {
         if (controller.isAvailableGamebooksLoading.value) {
           return const Center(

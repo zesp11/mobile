@@ -8,12 +8,12 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
+      appBar: AppBar(title: Text('settings'.tr)),
       body: Column(
         children: [
           // Language Selection
           ListTile(
-            title: Text('Language'),
+            title: Text('language'.tr),
             trailing: Obx(
               () => DropdownButton<String>(
                 value: settingsController.language.value,
@@ -24,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   DropdownMenuItem(
                     value: 'pl',
-                    child: Text('Polish'),
+                    child: Text('Polski'),
                   ),
                 ],
                 onChanged: (value) {
@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
 
           // Notifications Toggle
           ListTile(
-            title: Text('Notifications'),
+            title: Text('notifications'.tr),
             trailing: Obx(
               () => Switch(
                 value: settingsController.notifications.value,
@@ -51,22 +51,22 @@ class SettingsScreen extends StatelessWidget {
 
           // Theme Toggle
           ListTile(
-            title: Text('Theme'),
+            title: Text('theme'),
             trailing: Obx(
               () => DropdownButton<ThemeMode>(
                 value: settingsController.themeMode.value,
                 items: [
                   DropdownMenuItem(
                     value: ThemeMode.light,
-                    child: Text('Light'),
+                    child: Text('light'.tr),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.dark,
-                    child: Text('Dark'),
+                    child: Text('dark'.tr),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.system,
-                    child: Text('System Default'),
+                    child: Text('system'.tr),
                   ),
                 ],
                 onChanged: (value) {
@@ -80,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
 
           // Layout Style Selection
           ListTile(
-            title: Text('Decision Layout Style'),
+            title: Text('decision_layout_style'.tr),
             trailing: Obx(() {
               return DropdownButton<String>(
                 value: settingsController.layoutStyle.value,
@@ -110,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
               onPressed: () {
                 settingsController.resetSettings();
               },
-              child: const Text('Reset Settings'),
+              child: Text('reset_settings'.tr),
             ),
           ),
         ],
