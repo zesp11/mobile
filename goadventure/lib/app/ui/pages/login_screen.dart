@@ -18,9 +18,6 @@ class LoginScreen extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -29,8 +26,8 @@ class LoginScreen extends GetView<AuthController> {
             // Email input
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
+              decoration: InputDecoration(
+                labelText: 'email'.tr,
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
@@ -39,8 +36,8 @@ class LoginScreen extends GetView<AuthController> {
             // Password input
             TextField(
               controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
+              decoration: InputDecoration(
+                labelText: 'password'.tr,
                 border: OutlineInputBorder(),
               ),
               obscureText: true,
@@ -52,7 +49,7 @@ class LoginScreen extends GetView<AuthController> {
               onError: (error) => Column(
                 children: [
                   Text(
-                    'Login failed: $error',
+                    'login_failed'.tr,
                     style: TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -60,8 +57,8 @@ class LoginScreen extends GetView<AuthController> {
               ),
               onEmpty: Padding(
                 padding: EdgeInsets.only(bottom: 16.0),
-                child: const Center(
-                  child: Text('No user authenticated'),
+                child: Center(
+                  child: Text('not_logged_in'.tr),
                 ),
               ),
               // Default UI when login succeeds (or controller state changes)
@@ -90,7 +87,7 @@ class LoginScreen extends GetView<AuthController> {
                   // Trigger login using AuthController
                   await controller.login(email, password);
                 },
-                child: const Text('Login'),
+                child: Text('login'.tr),
               ),
             ),
             const SizedBox(height: 16),
@@ -99,7 +96,7 @@ class LoginScreen extends GetView<AuthController> {
               child: GestureDetector(
                 onTap: () => Get.toNamed('/register'),
                 child: Text(
-                  'Don’t have an account? Register here.',
+                  '${'no_account_question'.tr} ${'register'.tr}',
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     decoration: TextDecoration.underline,

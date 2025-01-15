@@ -58,7 +58,7 @@ class SearchBar extends StatelessWidget {
       padding: const EdgeInsets.all(12.0),
       child: TextField(
         decoration: InputDecoration(
-          hintText: 'Search for users, games, scenarios...',
+          hintText: 'search_hint'.tr,
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -85,11 +85,11 @@ class FilterButtons extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          _buildFilterButton("User"),
+          _buildFilterButton("user".tr),
           const SizedBox(width: 8), // Add spacing between buttons
-          _buildFilterButton("Game"),
+          _buildFilterButton("game".tr),
           const SizedBox(width: 8), // Add spacing between buttons
-          _buildFilterButton("Scenario"),
+          _buildFilterButton("scenario".tr),
         ],
       ),
     );
@@ -157,9 +157,9 @@ class SearchResults extends StatelessWidget {
           (state) {
             // If no results found
             if (state == null || state.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
-                  'No results found',
+                  'no_results_found'.tr,
                   style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
               );

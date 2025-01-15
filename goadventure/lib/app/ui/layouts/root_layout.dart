@@ -40,14 +40,14 @@ class RootLayout extends StatelessWidget {
             type: BottomNavigationBarType.fixed,
             unselectedItemColor: Colors.grey,
             selectedItemColor: Colors.blue,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            items: [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'.tr),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.play_arrow), label: 'Game'),
+                  icon: Icon(Icons.play_arrow), label: 'game'.tr),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.search), label: 'Search'),
+                  icon: Icon(Icons.search), label: 'search'.tr),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Profile'),
+                  icon: Icon(Icons.person), label: 'profile'.tr),
             ],
           ),
         );

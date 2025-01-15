@@ -21,8 +21,8 @@ class GameSelectionScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Available Gamebooks:',
+            Text(
+              'available_gamebooks'.tr,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -36,8 +36,8 @@ class GameSelectionScreen extends StatelessWidget {
                 }
 
                 if (gameController.availableGamebooks.isEmpty) {
-                  return const Center(
-                    child: Text('No gamebooks available.'),
+                  return Center(
+                    child: Text('no_gamebooks_available'.tr),
                   );
                 }
 
