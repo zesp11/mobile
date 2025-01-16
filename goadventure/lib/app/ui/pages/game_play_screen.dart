@@ -11,8 +11,7 @@ import 'package:logger/web.dart';
   clickable and allows to see main page of given game
 - TODO: list players that participate in given game (only in version 3.0)
 - TODO: remember game after switching tabs.
-- TODO: fix clunky lag when switching game 
-  -> show loading indicator ??? Maybe skeleton ???
+- TODO: maybe show skeleton instead of loading circle
  */
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
@@ -30,7 +29,10 @@ class GamePlayScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: GameTitle(logger: logger, controller: controller),
+          title: controller.obx(
+            (state) => GameTitle(logger: logger, controller: controller),
+            onLoading: const CircularProgressIndicator(),
+          ),
           centerTitle: true,
           bottom: TabBar(
             tabs: [
@@ -42,16 +44,21 @@ class GamePlayScreen extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.exit_to_app),
-              onPressed: onReturnToSelection, // Go back to game selection
+              onPressed: onReturnToSelection,
             ),
           ],
         ),
-        body: TabBarView(
-          children: [
-            DecisionTab(),
-            StoryTab(),
-            MapWidget(),
-          ],
+        body: controller.obx(
+          (state) => TabBarView(
+            children: [
+              DecisionTab(),
+              StoryTab(),
+              MapWidget(),
+            ],
+          ),
+          onLoading: const Center(child: CircularProgressIndicator()),
+          onEmpty: const Center(child: Text('No gamebook found')),
+          onError: (error) => Center(child: Text(error ?? 'Error occurred')),
         ),
       ),
     );
