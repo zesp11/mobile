@@ -15,7 +15,7 @@ import 'package:logger/web.dart';
   -> show loading indicator ??? Maybe skeleton ???
  */
 class GamePlayScreen extends StatelessWidget {
-  final GameController controller = Get.find();
+  final GamePlayController controller = Get.find();
   final logger = Get.find<Logger>();
   final VoidCallback onReturnToSelection;
 
@@ -66,7 +66,7 @@ class GameTitle extends StatelessWidget {
   });
 
   final Logger logger;
-  final GameController controller;
+  final GamePlayController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class GameTitle extends StatelessWidget {
 
 class DecisionTab extends StatelessWidget {
   DecisionTab({super.key});
-  final controller = Get.find<GameController>();
+  final controller = Get.find<GamePlayController>();
 
   @override
   Widget build(BuildContext context) {
@@ -128,9 +128,8 @@ class DecisionTab extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  controller.currentGamebookId.value = 1;
                   controller
-                      .fetchGamebookData(controller.currentGamebookId.value!);
+                      .fetchGamebookData(controller.currentGamebook.value!.id);
                 },
                 child: const Text("Start From the Beginning"),
               ),
@@ -182,7 +181,7 @@ class MapWidget extends StatelessWidget {
 
 class StoryTab extends StatelessWidget {
   StoryTab({super.key});
-  final controller = Get.find<GameController>();
+  final controller = Get.find<GamePlayController>();
 
   @override
   Widget build(BuildContext context) {

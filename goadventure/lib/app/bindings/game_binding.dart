@@ -7,6 +7,7 @@ class GameBinding extends Bindings {
   void dependencies() {
     // Inject ApiService and CurrentGameController
     Get.find<ApiService>();
-    Get.put<GameController>(GameController(gameService: Get.find()));
+    Get.find<GameSelectionController>();
+    Get.find<GamePlayController>();
   }
 }

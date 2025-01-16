@@ -39,7 +39,9 @@ class AppBindings extends Bindings {
     ));
     Get.put<ProfileController>(ProfileController(userService: Get.find()));
     Get.put<HomeController>(HomeController(homeService: Get.find()));
-    Get.put<GameController>(GameController(gameService: Get.find()));
+    Get.put<GamePlayController>(GamePlayController(gameService: Get.find()));
+    Get.put<GameSelectionController>(
+        GameSelectionController(gameService: Get.find()));
     Get.put<SearchController>(SearchController(searchService: Get.find()));
   }
 
