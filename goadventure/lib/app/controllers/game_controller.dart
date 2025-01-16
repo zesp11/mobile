@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 
 // This screen focuses on the active game session.
 // It manages the game logic, decisions, and interactions with other players.
+// TODO: split this into GameRunning and GamesController
 class GameController extends GetxController {
   final GameService gameService;
   final logger = Get.find<Logger>();
