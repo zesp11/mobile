@@ -39,7 +39,7 @@ class GameSelectionController extends GetxController {
   }
 }
 
-class GamePlayController extends GetxController {
+class GamePlayController extends GetxController with StateMixin {
   final GameService gameService;
   final logger = Get.find<Logger>();
 
@@ -58,7 +58,7 @@ class GamePlayController extends GetxController {
 
   // Fetch the current gamebook data and initialize the first step
   Future<void> fetchGamebookData(int id) async {
-    isCurrentGamebookLoading.value = true;
+    change(null, status: RxStatus.loading()); // Set the state to loading
     gameHistory.clear();
     try {
       final gamebook = await gameService.fetchGamebook(id);
@@ -68,10 +68,10 @@ class GamePlayController extends GetxController {
       if (gamebook.steps.isNotEmpty) {
         currentStep.value = gamebook.steps.first;
       }
+      change(null, status: RxStatus.success()); // Update status to success
     } catch (e) {
       logger.e("Error fetching gamebook: $e");
-    } finally {
-      isCurrentGamebookLoading.value = false;
+      change(null, status: RxStatus.error("Error fetching gamebook")); // Handle error
     }
   }
 
