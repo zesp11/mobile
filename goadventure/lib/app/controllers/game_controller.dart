@@ -44,6 +44,7 @@ class GameController extends GetxController {
   // Fetch current gamebook data and the first step
   Future<void> fetchGamebookData(int id) async {
     isCurrentGamebookLoading.value = true;
+    gameHistory.clear();
     try {
       final gamebook = await gameService.fetchGamebook(id);
       currentGamebook.value = gamebook;
