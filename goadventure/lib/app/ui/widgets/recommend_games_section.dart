@@ -5,7 +5,7 @@ import 'package:goadventure/app/controllers/game_controller.dart';
 import 'package:goadventure/app/ui/widgets/section_widget.dart';
 
 class RecommendedGamesWidget extends StatelessWidget {
-  final GameController controller = Get.find();
+  final GameSelectionController controller = Get.find();
 
   RecommendedGamesWidget({Key? key}) : super(key: key);
 

@@ -8,12 +8,40 @@ import 'package:logger/logger.dart';
 // This screen focuses on the active game session.
 // It manages the game logic, decisions, and interactions with other players.
 // TODO: split this into GameRunning and GamesController
-class GameController extends GetxController {
+class GameSelectionController extends GetxController {
   final GameService gameService;
   final logger = Get.find<Logger>();
 
-  // Rx to hold the selected gamebook ID, default to null (no game selected)
-  var currentGamebookId = Rx<int?>(null); // Default to null
+  // List of available gamebooks
+  var availableGamebooks = <Gamebook>[].obs;
+  var isAvailableGamebooksLoading = false.obs;
+
+  GameSelectionController({required this.gameService});
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchAvailableGamebooks();
+  }
+
+  // Fetch the list of available gamebooks
+  Future<void> fetchAvailableGamebooks() async {
+    isAvailableGamebooksLoading.value = true;
+    try {
+      logger.i("[DEV_DEBUG] Fetching available gamebooks");
+      final gamebooks = await gameService.fetchAvailableGamebooks();
+      availableGamebooks.assignAll(gamebooks);
+    } catch (e) {
+      logger.e("Error fetching available gamebooks: $e");
+    } finally {
+      isAvailableGamebooksLoading.value = false;
+    }
+  }
+}
+
+class GamePlayController extends GetxController {
+  final GameService gameService;
+  final logger = Get.find<Logger>();
 
   // Reactive variable for the selected gamebook
   Rx<Gamebook?> currentGamebook = Rx<Gamebook?>(null);
@@ -21,28 +49,14 @@ class GameController extends GetxController {
   // Reactive variable for the current step of the gamebook
   Rx<Step?> currentStep = Rx<Step?>(null);
 
-  // List of other gamebooks (optional, depending on your requirements)
-  var availableGamebooks = <Gamebook>[].obs;
-  var isAvailableGamebooksLoading = false.obs;
-
-  // Loading indicators for the gamebook and other gamebooks
-  var isCurrentGamebookLoading = false.obs;
-  var isOtherGamebooksLoading = true.obs;
-
-  GameController({required this.gameService});
-
-// History to store the sequence of decisions and steps
+  // History to store the sequence of decisions and steps
   var gameHistory = RxList<String>([]);
 
-  @override
-  void onInit() {
-    super.onInit();
+  var isCurrentGamebookLoading = false.obs;
 
-    fetchAvailableGamebooks();
-    // Initialization logic if needed
-  }
+  GamePlayController({required this.gameService});
 
-  // Fetch current gamebook data and the first step
+  // Fetch the current gamebook data and initialize the first step
   Future<void> fetchGamebookData(int id) async {
     isCurrentGamebookLoading.value = true;
     gameHistory.clear();
@@ -52,11 +66,8 @@ class GameController extends GetxController {
 
       // Set the first step if available
       if (gamebook.steps.isNotEmpty) {
-        currentStep.value = gamebook.steps.first; // Start with the first step
+        currentStep.value = gamebook.steps.first;
       }
-
-      // Optionally, fetch other gamebooks concurrently (if needed)
-      // await fetchOtherGamebooks(id);
     } catch (e) {
       logger.e("Error fetching gamebook: $e");
     } finally {
@@ -64,21 +75,15 @@ class GameController extends GetxController {
     }
   }
 
-  // Update the current gamebook and trigger a re-fetch
   void updateCurrentGamebook(int id) {
-    currentGamebookId.value = id;
     fetchGamebookData(id);
   }
 
   void makeDecision(Decision decision) {
-    // Add the current step text to the history
-    // TODO: I think this should fetch from the remote server
-    // TODO: adjust the developmentApiService then
     if (currentStep.value != null) {
       gameHistory.add("Step: ${currentStep.value!.text}");
     }
 
-    // Add the decision text to the history
     gameHistory.add("Decision: ${decision.text}");
 
     // Find the next step based on the decision
@@ -95,37 +100,19 @@ class GameController extends GetxController {
     );
 
     if (nextStep != null) {
-      // Update the current step to the next one
       currentStep.value = nextStep;
     }
   }
 
-  // Check if a game is selected
   bool isGamebookSelected() {
     return currentGamebook.value != null;
   }
 
-  // Get the game history as a string
   String getGameHistory() {
     if (gameHistory.isEmpty) {
       return "There is no history yet, travel around the world to create your own...";
     } else {
-      return gameHistory.join('\n'); // Join the history items with newline
-    }
-  }
-
-  // TODO: add error handling
-  Future<void> fetchAvailableGamebooks() async {
-    isAvailableGamebooksLoading.value = true;
-    try {
-      logger.i("[DEV_DEBUG] Fetching available gamebooks");
-      final gamebooks = await gameService.fetchAvailableGamebooks();
-
-      availableGamebooks.assignAll(gamebooks);
-    } catch (e) {
-      logger.e("Error fetching available gamebooks: $e");
-    } finally {
-      isAvailableGamebooksLoading.value = false;
+      return gameHistory.join('\n');
     }
   }
 }

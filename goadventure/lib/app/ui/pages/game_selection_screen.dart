@@ -7,7 +7,7 @@ import 'package:goadventure/app/ui/widgets/gamebook_list.dart';
 class GameSelectionScreen extends StatelessWidget {
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
-  final GameController gameController = Get.find();
+  final GameSelectionController controller = Get.find();
   final authController = Get.find<AuthController>();
 
   GameSelectionScreen(
@@ -29,20 +29,20 @@ class GameSelectionScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Expanded(
               child: Obx(() {
-                if (gameController.isAvailableGamebooksLoading.value) {
+                if (controller.isAvailableGamebooksLoading.value) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
                 }
 
-                if (gameController.availableGamebooks.isEmpty) {
+                if (controller.availableGamebooks.isEmpty) {
                   return Center(
                     child: Text('no_gamebooks_available'.tr),
                   );
                 }
 
                 return GamebookListView(
-                  gamebooks: gameController.availableGamebooks,
+                  gamebooks: controller.availableGamebooks,
                   authController: authController,
                 );
               }),
