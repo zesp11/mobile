@@ -45,7 +45,10 @@ class GamePlayScreen extends StatelessWidget {
               Get.toNamed(scenarioLink,
                   arguments: controller.currentGamebook.value);
             },
-            child: const Text('Game Title'),
+            // TODO: provide widget for that
+            child: Obx(() {
+              return Text(controller.currentGamebook.value!.title);
+            }),
           ),
           centerTitle: true,
           bottom: TabBar(
@@ -137,7 +140,15 @@ class GamePlayScreen extends StatelessWidget {
               );
             }),
             // History Tab
-            const Center(child: Text("History functionality will go here")),
+            Center(
+                child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Obx(
+                      () => Text(
+                        controller.getGameHistory(),
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ))),
             // Map Tab
             const Center(child: Text("Map functionality will go here")),
           ],
