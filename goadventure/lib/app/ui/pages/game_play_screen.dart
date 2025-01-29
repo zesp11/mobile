@@ -36,9 +36,24 @@ class GamePlayScreen extends StatelessWidget {
           centerTitle: true,
           bottom: TabBar(
             tabs: [
-              Tab(text: 'decision'.tr),
-              Tab(text: 'history'.tr),
-              Tab(text: 'map'.tr),
+              Obx(
+                () => Tab(
+                  text: 'decision'.tr,
+                  icon: controller.hasArrivedAtLocation.value
+                      ? const Icon(Icons.check_circle)
+                      : const Icon(
+                          Icons.location_disabled,
+                        ),
+                ),
+              ),
+              Tab(
+                text: 'history'.tr,
+                icon: Icon(Icons.article),
+              ),
+              Tab(
+                text: 'map'.tr,
+                icon: Icon(Icons.map),
+              ),
             ],
           ),
           actions: [
@@ -106,74 +121,168 @@ class DecisionTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final currentStep = controller.currentStep;
-      if (currentStep.value == null) {
-        return const Center(
-            child: Text("No steps available for the selected gamebook."));
+      // Show success message after decision
+      if (controller.showPostDecisionMessage.value) {
+        return _buildDecisionSuccessMessage(context);
       }
 
-      final decisions = currentStep.value!.decisions;
-      final buttonLayout = Get.find<SettingsController>()
-          .layoutStyle
-          .value; // Get button layout from settings
-
-      if (decisions.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Text(
-                    currentStep.value!.text,
-                    style: const TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  controller
-                      .fetchGamebookData(controller.currentGamebook.value!.id);
-                },
-                child: const Text("Start From the Beginning"),
-              ),
-            ],
-          ),
-        );
+      // Show blocking message if not arrived
+      if (!controller.hasArrivedAtLocation.value) {
+        return _buildArrivalRequiredMessage(context);
       }
 
-      return Column(
+      // Original decision content when arrived
+      return _buildDecisionContent(context);
+    });
+  }
+
+  Widget _buildDecisionSuccessMessage(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            flex: 2,
-            child: Padding(
+          const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
+          const SizedBox(height: 20),
+          Text(
+            "Decision Recorded!",
+            style: TextStyle(
+              fontSize: 24,
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 15),
+          Text(
+            "Proceed to the next location\nto continue your adventure",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.map),
+            label: const Text("Navigate to Next Location"),
+            onPressed: () {
+              DefaultTabController.of(context)
+                  ?.animateTo(2); // Switch to Map tab
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildArrivalRequiredMessage(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.location_off, size: 50),
+          const SizedBox(height: 20),
+          Text(
+            "Location Required",
+            style: TextStyle(
+              fontSize: 18,
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            "Confirm your arrival at the current location\nin the Map tab to continue",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).disabledColor,
+            ),
+          ),
+          const SizedBox(height: 25),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.map),
+            label: const Text("Go to Map"),
+            onPressed: () {
+              // Switch to Map tab
+              DefaultTabController.of(context)?.animateTo(2);
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDecisionContent(BuildContext context) {
+    final currentStep = controller.currentStep.value;
+    if (currentStep == null) {
+      return const Center(child: Text("No steps available"));
+    }
+
+    final decisions = currentStep.decisions;
+    final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
+
+    if (decisions.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Text(
-                  currentStep.value!.text,
+                  currentStep.text,
                   style: const TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: DecisionButtonLayout(
-                decisions: decisions,
-                layoutStyle: buttonLayout,
-                onDecisionMade: controller.makeDecision,
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => controller
+                  .fetchGamebookData(controller.currentGamebook.value!.id),
+              child: const Text("Start From the Beginning"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Text(
+                currentStep.text,
+                style: const TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
-        ],
-      );
-    });
+        ),
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: DecisionButtonLayout(
+              decisions: decisions,
+              layoutStyle: buttonLayout,
+              onDecisionMade: controller.makeDecision,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -182,7 +291,54 @@ class MapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final controller = Get.find<GamePlayController>();
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Current Location", style: TextStyle(fontSize: 20)),
+          const SizedBox(height: 20),
+          Obx(() => Text(
+                controller.hasArrivedAtLocation.value
+                    ? "You've arrived at the location!"
+                    : "Travel to the marked location...",
+                style: const TextStyle(fontSize: 16),
+              )),
+          const SizedBox(height: 30),
+          Obx(() {
+            if (controller.hasArrivedAtLocation.value) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      DefaultTabController.of(context)
+                          ?.animateTo(0); // Switch to Decision tab
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 15),
+                    ),
+                    child: const Text("Go to Decisions"),
+                  ),
+                  const SizedBox(width: 20),
+                  Icon(Icons.check_circle, color: Colors.green, size: 30),
+                ],
+              );
+            }
+            return ElevatedButton(
+              onPressed: () => controller.confirmArrival(),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+              ),
+              child: const Text("Confirm Arrival"),
+            );
+          }),
+        ],
+      ),
+    );
   }
 }
 
