@@ -46,6 +46,13 @@ class GamePlayController extends GetxController with StateMixin {
   // Reactive variable for the selected gamebook
   Rx<Gamebook?> currentGamebook = Rx<Gamebook?>(null);
 
+  final showPostDecisionMessage = false.obs;
+  final hasArrivedAtLocation = false.obs;
+  void confirmArrival() {
+    showPostDecisionMessage.value = false;
+    hasArrivedAtLocation.value = true;
+  }
+
   // Reactive variable for the current step of the gamebook
   Rx<Step?> currentStep = Rx<Step?>(null);
 
@@ -63,6 +70,8 @@ class GamePlayController extends GetxController with StateMixin {
     try {
       final gamebook = await gameService.fetchGamebook(id);
       currentGamebook.value = gamebook;
+      hasArrivedAtLocation.value = false;
+      showPostDecisionMessage.value = false;
 
       // Set the first step if available
       if (gamebook.steps.isNotEmpty) {
@@ -71,7 +80,8 @@ class GamePlayController extends GetxController with StateMixin {
       change(null, status: RxStatus.success()); // Update status to success
     } catch (e) {
       logger.e("Error fetching gamebook: $e");
-      change(null, status: RxStatus.error("Error fetching gamebook")); // Handle error
+      change(null,
+          status: RxStatus.error("Error fetching gamebook")); // Handle error
     }
   }
 
@@ -80,6 +90,8 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   void makeDecision(Decision decision) {
+    showPostDecisionMessage.value = true;
+    hasArrivedAtLocation.value = false;
     if (currentStep.value != null) {
       gameHistory.add("Step: ${currentStep.value!.text}");
     }
@@ -101,6 +113,7 @@ class GamePlayController extends GetxController with StateMixin {
 
     if (nextStep != null) {
       currentStep.value = nextStep;
+      hasArrivedAtLocation.value = false;
     }
   }
 
