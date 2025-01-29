@@ -12,7 +12,7 @@ class SearchService {
   Future<List<Map<String, String>>> search(
       String query, String category) async {
     try {
-      var response = await apiService.search(query, category);
+      final response = await apiService.search(query, category);
 
       List<Map<String, String>> results = [];
       for (var item in response) {

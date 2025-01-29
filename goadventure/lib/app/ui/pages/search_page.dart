@@ -204,7 +204,7 @@ class SearchResults extends StatelessWidget {
                         ),
                         subtitle: Text(item['type']!),
                         onTap: () {
-                          if (item['type'] == 'User') {
+                          if (item['type'] == 'user') {
                             Get.toNamed('/profile/${item["id"]}');
                           } else if (item['type'] == 'Scenario') {
                             Get.toNamed('/scenario/${item["id"]}');
@@ -239,11 +239,11 @@ class SearchResults extends StatelessWidget {
   // Helper function to return an icon based on type
   Icon _getIconForType(String type) {
     switch (type) {
-      case 'User':
+      case 'user':
         return const Icon(Icons.person, color: Colors.blue);
-      case 'Game':
+      case 'game':
         return const Icon(Icons.videogame_asset, color: Colors.green);
-      case 'Scenario':
+      case 'scenario':
         return const Icon(Icons.map, color: Colors.orange);
       default:
         return const Icon(Icons.help_outline);

@@ -1,6 +1,10 @@
 import 'package:goadventure/app/services/api_service/api_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProductionApiService extends ApiService {
+  static const String name = "https://squid-app-p63zw.ondigitalocean.app";
+
   // Authentication endpoints
   static const String registerRoute = '/api/auth/register';
   static const String loginRoute = '/api/auth/login';
@@ -8,10 +12,10 @@ class ProductionApiService extends ApiService {
   static const String refreshTokenRoute = '/api/auth/refresh';
 
   // User endpoints
-  static const String getUserProfileRoute = '/api/users/:id';
+  static const String getUserProfileRoute = '/api/user/:id';
   static const String getCurrentUserProfileRoute = '/api/users/profile';
   static const String updateProfileRoute = '/api/users/profile';
-  static const String getUsersListRoute = '/api/users';
+  static const String getUsersListRoute = '/api/user/all';
   static const String removeAccountRoute = '/api/users/:id';
 
   // Scenario endpoints
@@ -26,80 +30,78 @@ class ProductionApiService extends ApiService {
   static const String getStepRoute = '/api/games/:id/step';
   static const String makeStepRoute = '/api/games/:id/step';
 
-  /* Authentication endpoints */
-  Future<void> registerUser(String username, String email, String password) {
-    throw UnimplementedError('registerUser() is not implemented.');
-  }
-
-  Future<void> login(String username, String password) {
-    throw UnimplementedError('login() is not implemented.');
-  }
-
-  Future<void> logout() {
-    throw UnimplementedError('logout() is not implemented.');
-  }
-
-  Future<void> refreshToken() {
-    throw UnimplementedError('refreshToken() is not implemented.');
-  }
-
-  /* User endpoints */
-  Future<Map<String, dynamic>> getUserProfile(String id) {
-    throw UnimplementedError('getUserProfile() is not implemented.');
-  }
-
-  Future<Map<String, dynamic>> getCurrentUserProfile() {
-    throw UnimplementedError('getCurrentUserProfile() is not implemented.');
-  }
-
-  Future<void> updateProfile(Map<String, dynamic> profile) {
-    throw UnimplementedError('updateProfile() is not implemented.');
-  }
-
-  Future<List<Map<String, dynamic>>> getUsersList() {
-    throw UnimplementedError('getUsersList() is not implemented.');
-  }
-
-  Future<void> removeAccount(String id) {
-    throw UnimplementedError('removeAccount() is not implemented.');
-  }
-
-  /* Scenario endpoints */
+  @override
   Future<List<Map<String, dynamic>>> getAvailableGamebooks() {
-    throw UnimplementedError('getAvailableGamebooks() is not implemented.');
+    // TODO: implement getAvailableGamebooks
+    throw UnimplementedError();
   }
 
+  @override
   Future<Map<String, dynamic>> getGameBookWithId(int gamebookId) {
-    throw UnimplementedError('getGameBookWithId() is not implemented.');
+    // TODO: implement getGameBookWithId
+    throw UnimplementedError();
   }
 
-  Future<void> removeScenario(int scenarioId) {
-    throw UnimplementedError('removeScenario() is not implemented.');
+  // TODO: add logger to log all network activity
+  @override
+  Future<Map<String, dynamic>> getUserProfile(String id) async {
+    try {
+      final endpoint = '$name${getUserProfileRoute.replaceAll(':id', id)}';
+      final response = await http.get(Uri.parse(endpoint));
+
+      if (response.statusCode == 200) {
+        // Convert JSON to Map<String, dynamic>
+        final dynamic parsed = jsonDecode(response.body);
+        final userData = Map<String, dynamic>.from(parsed);
+
+        return {
+          'id': userData['id_user']?.toString() ?? '0',
+          'name': userData['login']?.toString() ?? 'Unknown User',
+          'email': userData['email']?.toString() ?? '',
+          'bio': userData['bio']?.toString() ?? '',
+          'gamesPlayed': (userData['gamesPlayed'] as int?) ?? 0,
+          'gamesFinished': (userData['gamesFinished'] as int?) ?? 0,
+          'preferences':
+              Map<String, dynamic>.from(userData['preferences'] ?? {}),
+          'avatar': userData['avatar']?.toString() ?? '',
+        };
+      } else {
+        throw Exception(
+            'Failed to load profile. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Profile fetch failed: ${e.toString()}');
+    }
   }
 
-  /* Game endpoints */
-  Future<void> createGame(Map<String, dynamic> gameData) {
-    throw UnimplementedError('createGame() is not implemented.');
-  }
+  @override
+  Future<List<Map<String, dynamic>>> search(
+      String query, String category) async {
+    try {
+      if (category == 'user') {
+        final response = await http.get(
+          Uri.parse('$name$getUsersListRoute?search=$query'),
+        );
 
-  Future<Map<String, dynamic>> getGameWithId(int id) {
-    throw UnimplementedError('getGameWithId() is not implemented.');
-  }
+        if (response.statusCode == 200) {
+          final List<dynamic> users = jsonDecode(response.body);
+          return users
+              .map<Map<String, dynamic>>((user) => {
+                    'name': user['login'] ?? 'Unknown User',
+                    'type': 'user',
+                    'id': user['id_user'].toString(),
+                  })
+              .toList();
+        } else {
+          throw Exception(
+              'User search failed with status: ${response.statusCode}');
+        }
+      }
 
-  Future<List<Map<String, dynamic>>> getNearbyGames(int id) {
-    throw UnimplementedError('getNearbyGames() is not implemented.');
-  }
-
-  Future<Map<String, dynamic>> getStep(int id) {
-    throw UnimplementedError('getStep() is not implemented.');
-  }
-
-  Future<void> makeStep(int id, String decision) {
-    throw UnimplementedError('makeStep() is not implemented.');
-  }
-
-  /* Search functionality for players, gamebooks, and cities */
-  Future<List<dynamic>> search(String query, String category) {
-    throw UnimplementedError('search() is not implemented.');
+      // Return empty lists for other categories until implemented
+      return [];
+    } catch (e) {
+      throw Exception('Search failed: ${e.toString()}');
+    }
   }
 }

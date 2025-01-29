@@ -41,7 +41,7 @@ class DevelopmentApiService implements ApiService {
     for (var user in mockUsers) {
       allItems.add({
         'name': user.name,
-        'type': 'User',
+        'type': 'user',
         'id': user.id,
       });
     }
@@ -49,7 +49,7 @@ class DevelopmentApiService implements ApiService {
     for (var gamebook in mockGamebooksJson) {
       allItems.add({
         'name': gamebook["title"],
-        'type': 'Scenario',
+        'type': 'scenario',
         'id': gamebook["id"].toString(),
       });
     }
