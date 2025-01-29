@@ -187,19 +187,40 @@ class MapWidget extends StatelessWidget {
 }
 
 class StoryTab extends StatelessWidget {
+  /* 
+  TODO: improve the story tab, becasue there should be username with 
+  user avatar what decision have been made 
+  FIXME: when there is no history it should be shown
+  */
   StoryTab({super.key});
   final controller = Get.find<GamePlayController>();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Obx(
-          () => Text(
-            controller.getGameHistory(),
-            style: TextStyle(fontSize: 16),
-          ),
+    // Scroll to bottom whenever the history updates
+    ever(controller.gameHistory, (_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        }
+      });
+    });
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Obx(
+        () => ListView.builder(
+          controller: _scrollController,
+          reverse: true, // Start from bottom
+          itemCount: controller.gameHistory.length,
+          itemBuilder: (context, index) {
+            final reversedIndex = controller.gameHistory.length - 1 - index;
+            return Text(
+              controller.gameHistory[reversedIndex],
+              style: const TextStyle(fontSize: 16),
+            );
+          },
         ),
       ),
     );
