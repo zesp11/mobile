@@ -6,6 +6,7 @@ import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:goadventure/app/controllers/search_controller.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/app/services/api_service/developmentApiService.dart';
+import 'package:goadventure/app/services/api_service/productionApiService.dart';
 import 'package:goadventure/app/services/auth_service.dart';
 import 'package:goadventure/app/services/game_service.dart';
 import 'package:goadventure/app/services/home_service.dart';
@@ -47,9 +48,8 @@ class AppBindings extends Bindings {
 
   void _registerApiService(Logger logger) {
     if (isProduction) {
-      logger.e("Production API service is not implemented yet.");
-      throw UnimplementedError("There is no production API yet");
-      // Get.lazyPut<ApiService>(() => ProductionApiService("https://api.example.com"));
+      logger.d("Registering production API service");
+      Get.lazyPut<ApiService>(() => ProductionApiService());
     } else {
       logger.d("Registering development API service.");
       Get.lazyPut<ApiService>(
