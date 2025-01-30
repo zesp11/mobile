@@ -69,6 +69,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - lib/assets/animations/error.json
+    - lib/assets/lang/en.json
+    - lib/assets/lang/pl.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
