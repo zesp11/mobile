@@ -11,7 +11,6 @@ class ScenarioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the 'id' parameter from the URL
     final String id = Get.parameters['id'] ?? 'Unknown';
 
     return Scaffold(
@@ -21,18 +20,31 @@ class ScenarioScreen extends StatelessWidget {
             : Future.value(Get.arguments as Gamebook),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // Loading state
+            return Center(
+                child: CircularProgressIndicator(
+              color: Color(0xFFFA802F), // Accent color
+            ));
           } else if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}'), // Error state
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Color(0xFF9C8B73)), // Secondary color
+              ),
             );
           } else if (snapshot.hasData) {
             final gamebook = snapshot.data!;
 
             return Scaffold(
               appBar: AppBar(
-                title: Text(gamebook
-                    .name), // Set the dynamic title based on fetched data
+                title: Text(
+                  gamebook.name,
+                  style: TextStyle(
+                    color: Color(0xFFFA802F), // Accent color
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                backgroundColor: Color(0xFF322505), // Foreground color
+                iconTheme: IconThemeData(color: Color(0xFFFA802F)), // Accent
               ),
               body: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -40,12 +52,12 @@ class ScenarioScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title Section
                       Text(
                         gamebook.title,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF322505), // Foreground
                         ),
                       ),
                       SizedBox(height: 8),
@@ -56,21 +68,18 @@ class ScenarioScreen extends StatelessWidget {
                             'ID: $id',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              color: Color(0xFF9C8B73), // Secondary
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              // Navigate to the author's profile screen
-                              Get.toNamed('/profile/${gamebook.authorId}');
-                            },
+                            onTap: () =>
+                                Get.toNamed('/profile/${gamebook.authorId}'),
                             child: Text(
                               'AuthorID: ${gamebook.authorId}',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.blue,
-                                decoration: TextDecoration
-                                    .underline, // Underline to signify it's a link
+                                color: Color(0xFFFA802F), // Accent
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
@@ -84,6 +93,7 @@ class ScenarioScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
+                          color: Color(0xFF322505), // Foreground
                         ),
                       ),
                       SizedBox(height: 8),
@@ -92,6 +102,7 @@ class ScenarioScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           height: 1.5,
+                          color: Color(0xFF9C8B73), // Secondary
                         ),
                       ),
                       SizedBox(height: 16),
@@ -102,17 +113,21 @@ class ScenarioScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
+                          color: Color(0xFF322505), // Foreground
                         ),
                       ),
                       SizedBox(height: 8),
                       Row(
                         children: [
                           Icon(Icons.calendar_today,
-                              size: 18, color: Colors.blue),
+                              size: 18, color: Color(0xFFFA802F)), // Accent
                           SizedBox(width: 8),
                           Text(
                             '${"start_date".tr}: ${gamebook.startDate.toLocal().toString().split(' ')[0]}',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF9C8B73), // Secondary
+                            ),
                           ),
                         ],
                       ),
@@ -120,11 +135,15 @@ class ScenarioScreen extends StatelessWidget {
                       if (gamebook.endDate != null)
                         Row(
                           children: [
-                            Icon(Icons.event, size: 18, color: Colors.green),
+                            Icon(Icons.event,
+                                size: 18, color: Color(0xFFFA802F)), // Accent
                             SizedBox(width: 8),
                             Text(
                               '${"end_date".tr}: ${gamebook.endDate!.toLocal().toString().split(' ')[0]}',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF9C8B73), // Secondary
+                              ),
                             ),
                           ],
                         ),
@@ -136,6 +155,7 @@ class ScenarioScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
+                          color: Color(0xFF322505), // Foreground
                         ),
                       ),
                       SizedBox(height: 8),
@@ -148,13 +168,38 @@ class ScenarioScreen extends StatelessWidget {
                             final step = gamebook.steps[index];
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 4),
-                              elevation: 2,
+                              color: Color(0xFFF3E8CA)
+                                  .withOpacity(0.6), // Background
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Color(0xFF9C8B73)
+                                      .withOpacity(0.3), // Secondary
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  child: Text((index + 1).toString()),
+                                  backgroundColor: Color(0xFFFA802F)
+                                      .withOpacity(0.3), // Accent
+                                  child: Text(
+                                    (index + 1).toString(),
+                                    style: TextStyle(
+                                        color: Color(0xFF322505), // Foreground
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                                title: Text(step.text),
-                                subtitle: Text('Step ID: ${step.id}'),
+                                title: Text(
+                                  step.text,
+                                  style: TextStyle(
+                                    color: Color(0xFF322505), // Foreground
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Step ID: ${step.id}',
+                                  style: TextStyle(
+                                    color: Color(0xFF9C8B73), // Secondary
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -163,7 +208,9 @@ class ScenarioScreen extends StatelessWidget {
                         Text(
                           'No steps available.',
                           style: TextStyle(
-                              fontSize: 16, fontStyle: FontStyle.italic),
+                              fontSize: 16,
+                              color: Color(0xFF9C8B73), // Secondary
+                              fontStyle: FontStyle.italic),
                         ),
                     ],
                   ),
@@ -174,20 +221,15 @@ class ScenarioScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Row with Expanded to make the button fill horizontal space
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton(
                             onPressed: authController.isAuthenticated
-                                ? () {
-                                    // Navigate to the gameplay screen or start the game
-                                    final gamebook_destination =
-                                        AppRoutes.gameDetail.replaceFirst(
-                                            ":id", gamebook.id.toString());
-                                    Get.toNamed(gamebook_destination);
-                                  }
-                                : null, // Disable the button if the user is not authenticated
+                                ? () => Get.toNamed(AppRoutes.gameDetail
+                                    .replaceFirst(
+                                        ":id", gamebook.id.toString()))
+                                : null,
                             style: ElevatedButton.styleFrom(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 16.0),
@@ -195,16 +237,16 @@ class ScenarioScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               backgroundColor: authController.isAuthenticated
-                                  ? Colors.blue
-                                  : Colors.blue.withOpacity(
-                                      0.5), // Maintain the blue color with reduced opacity when disabled
+                                  ? Color(0xFFFA802F) // Accent
+                                  : Color(0xFF9C8B73)
+                                      .withOpacity(0.3), // Secondary
                             ),
                             child: Text(
                               'play_game'.tr,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Color(0xFFF3E8CA), // Background
                               ),
                             ),
                           ),
@@ -218,7 +260,7 @@ class ScenarioScreen extends StatelessWidget {
                           'login_needed'.tr,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.red,
+                            color: Color(0xFF9C8B73), // Secondary
                           ),
                         ),
                       ),
@@ -227,7 +269,11 @@ class ScenarioScreen extends StatelessWidget {
               ),
             );
           } else {
-            return Center(child: Text('No data found.'));
+            return Center(
+                child: Text(
+              'No data found.',
+              style: TextStyle(color: Color(0xFF9C8B73)), // Secondary
+            ));
           }
         },
       ),

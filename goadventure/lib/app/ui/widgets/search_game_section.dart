@@ -13,15 +13,19 @@ class SearchGamesSection extends StatelessWidget {
       title: "search_games".tr,
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFFFA802F), // Accent color
+              const Color(0xFFFA802F).withOpacity(0.8), // Lighter accent
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color:
+                  const Color(0xFF9C8B73).withOpacity(0.2), // Secondary color
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -32,9 +36,9 @@ class SearchGamesSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.gamepad_outlined,
-              color: Colors.white,
+              color: const Color(0xFFF3E8CA), // Background color
               size: 60,
             ),
             const SizedBox(height: 10),
@@ -44,7 +48,7 @@ class SearchGamesSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: const Color(0xFFF3E8CA), // Background color
               ),
             ),
             const SizedBox(height: 10),
@@ -53,29 +57,39 @@ class SearchGamesSection extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white70,
+                color: const Color(0xFFF3E8CA)
+                    .withOpacity(0.9), // Background color
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
-                // Use GetRouterOutletDelegate to update the content in the current layout
                 Get.rootDelegate.toNamed(AppRoutes.search);
               },
-              icon: const Icon(Icons.search, size: 24),
+              icon: Icon(Icons.search,
+                  size: 24, color: const Color(0xFF322505)), // Foreground
               label: Text(
                 "find_games".tr,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF322505), // Foreground
+                ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blueAccent,
+                backgroundColor: const Color(0xFFF3E8CA), // Background
+                foregroundColor: const Color(0xFF322505), // Foreground
                 padding: const EdgeInsets.symmetric(
                     vertical: 14.0, horizontal: 20.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
+                  side: BorderSide(
+                    color:
+                        const Color(0xFF322505).withOpacity(0.3), // Foreground
+                    width: 1,
+                  ),
                 ),
-                elevation: 10,
+                elevation: 5,
               ),
             ),
           ],

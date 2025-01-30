@@ -59,14 +59,18 @@ class SearchBar extends StatelessWidget {
       child: TextField(
         decoration: InputDecoration(
           hintText: 'search_hint'.tr,
-          prefixIcon: const Icon(Icons.search),
+          hintStyle: TextStyle(color: Color(0xFF9C8B73)), // Secondary
+          prefixIcon: Icon(Icons.search, color: Color(0xFF9C8B73)), // Secondary
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Color(0xFF9C8B73).withOpacity(0.3)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Color(0xFFFA802F)), // Accent
           ),
         ),
-        onChanged: (value) {
-          controller.updateQuery(value); // Update the query
-        },
+        onChanged: controller.updateQuery,
       ),
     );
   }
@@ -95,47 +99,41 @@ class FilterButtons extends StatelessWidget {
     );
   }
 
-  // Filter button to toggle the selected filter state
   Widget _buildFilterButton(String filterType) {
     return Obx(() {
-      // Check if the filter is selected or not
       bool isSelected = selectedFilters.contains(filterType);
-
       return Expanded(
         child: ElevatedButton(
           onPressed: () {
-            // Only toggle filter if it's not visually "disabled"
             if (isSelected) {
-              selectedFilters
-                  .remove(filterType); // Remove filter if already selected
+              selectedFilters.remove(filterType);
             } else {
-              selectedFilters.add(filterType); // Add filter if not selected
+              selectedFilters.add(filterType);
             }
-            // Notify the controller to update results
             controller.filterItemsByTypes(selectedFilters);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: isSelected
-                ? Colors.blueAccent // Highlight selected filter
-                : Colors.white60, // Light gray for unselected filter
+                ? Color(0xFFFA802F).withOpacity(0.9) // Accent
+                : Color(0xFFF3E8CA).withOpacity(0.5), // Background
             foregroundColor: isSelected
-                ? Colors.white
-                : Colors.grey.shade600, // Darker text for "disabled" appearance
+                ? Color(0xFFF3E8CA) // Background
+                : Color(0xFF322505), // Foreground
             padding: const EdgeInsets.symmetric(vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
-            ),
-            side: BorderSide(
-              color: isSelected
-                  ? Colors.blueAccent
-                  : Colors.grey.shade400, // Border color
+              side: BorderSide(
+                color: isSelected
+                    ? Color(0xFFFA802F) // Accent
+                    : Color(0xFF9C8B73).withOpacity(0.3), // Secondary
+              ),
             ),
           ),
           child: Text(
             filterType,
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.normal, // Regular font weight
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
@@ -155,98 +153,104 @@ class SearchResults extends StatelessWidget {
       children: [
         controller.obx(
           (state) {
-            // If no results found
             if (state == null || state.isEmpty) {
               return Center(
                 child: Text(
                   'no_results_found'.tr,
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF9C8B73),
+                  ),
                 ),
               );
             }
 
-            // Group by 'type' field in the item
+            // Add grouping logic here
             Map<String, List<Map<String, String>>> groupedItems = {};
-
             for (var item in state) {
               final type = item['type']!;
               groupedItems.putIfAbsent(type, () => []).add(item);
             }
 
-            // Render grouped results
             return ListView(
               children: groupedItems.entries.map((entry) {
-                final type = entry.key;
-                final items = entry.value;
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Group Header
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        type,
-                        style: const TextStyle(
+                        entry.key,
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
+                          color: Color(0xFFFA802F),
                         ),
                       ),
                     ),
-                    // List of items in this group
-                    ...items.map((item) {
+                    ...entry.value.map((item) {
                       return ListTile(
                         leading: _getIconForType(item['type']!),
                         title: Text(
                           item['name']!,
-                          style: const TextStyle(fontSize: 18),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Color(0xFF322505),
+                          ),
                         ),
-                        subtitle: Text(item['type']!),
-                        onTap: () {
-                          if (item['type'] == 'user') {
-                            Get.toNamed('/profile/${item["id"]}');
-                          } else if (item['type'] == 'Scenario') {
-                            Get.toNamed('/scenario/${item["id"]}');
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Selected: ${item['name']}'),
-                              ),
-                            );
-                          }
-                        },
+                        subtitle: Text(
+                          item['type']!,
+                          style: TextStyle(
+                            color: Color(0xFF9C8B73),
+                          ),
+                        ),
+                        onTap: () => _handleItemTap(item),
                       );
-                    }).toList(),
+                    }),
                   ],
                 );
               }).toList(),
             );
           },
-          onLoading: const Center(
-            child: CircularProgressIndicator(), // Show loading spinner
+          onLoading: Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFFA802F),
+            ),
           ),
           onError: (error) => ErrorScreen(
-              onRetry: () {
-                controller.searchItems(controller.query.value);
-              },
-              error: error),
+            onRetry: () => controller.searchItems(controller.query.value),
+            error: error,
+          ),
         ),
       ],
     );
   }
 
-  // Helper function to return an icon based on type
   Icon _getIconForType(String type) {
-    switch (type) {
-      case 'user':
-        return const Icon(Icons.person, color: Colors.blue);
-      case 'game':
-        return const Icon(Icons.videogame_asset, color: Colors.green);
-      case 'scenario':
-        return const Icon(Icons.map, color: Colors.orange);
-      default:
-        return const Icon(Icons.help_outline);
+    return Icon(
+      _typeIcons[type] ?? Icons.help_outline,
+      color: Color(0xFFFA802F), // Accent color for all icons
+    );
+  }
+
+  final _typeIcons = {
+    'user': Icons.person,
+    'game': Icons.videogame_asset,
+    'scenario': Icons.map,
+  };
+
+  void _handleItemTap(Map<String, String> item) {
+    if (item['type'] == 'user') {
+      Get.toNamed('/profile/${item["id"]}');
+    } else if (item['type'] == 'scenario') {
+      Get.toNamed('/scenario/${item["id"]}');
+    } else {
+      Get.snackbar(
+        item['name']!,
+        'Selected: ${item['name']}',
+        backgroundColor: Color(0xFFF3E8CA), // Background
+        colorText: Color(0xFF322505), // Foreground
+      );
     }
   }
 }
