@@ -6,8 +6,6 @@ import 'package:goadventure/app/ui/widgets/recommend_games_section.dart';
 import 'package:goadventure/app/ui/widgets/search_game_section.dart';
 import 'package:goadventure/app/ui/widgets/user_summary.dart';
 
-// TODO: split it into multiple files
-// TODO: use data from controllers instead of mock ups
 class HomeScreen extends StatelessWidget {
   final HomeController controller =
       Get.put(HomeController(homeService: Get.find()));

@@ -15,7 +15,7 @@ import 'package:logger/web.dart';
  */
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
-  final logger = Get.find<Logger>();
+  final Logger logger = Get.find<Logger>();
   final VoidCallback onReturnToSelection;
 
   GamePlayScreen({required this.onReturnToSelection});
@@ -31,34 +31,51 @@ class GamePlayScreen extends StatelessWidget {
         appBar: AppBar(
           title: controller.obx(
             (state) => GameTitle(logger: logger, controller: controller),
-            onLoading: const CircularProgressIndicator(),
+            onLoading: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
           centerTitle: true,
           bottom: TabBar(
+            indicatorColor: Theme.of(context).colorScheme.secondary,
+            labelColor: Theme.of(context).colorScheme.secondary,
+            unselectedLabelColor:
+                Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             tabs: [
               Obx(
                 () => Tab(
                   text: 'decision'.tr,
-                  icon: controller.hasArrivedAtLocation.value
-                      ? const Icon(Icons.check_circle)
-                      : const Icon(
-                          Icons.location_disabled,
-                        ),
+                  icon: Icon(
+                    controller.hasArrivedAtLocation.value
+                        ? Icons.check_circle
+                        : Icons.location_disabled,
+                    color: controller.hasArrivedAtLocation.value
+                        ? Theme.of(context)
+                            .colorScheme
+                            .secondary // Use accent color when active
+                        : Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.3), // Use muted accent when disabled
+                  ),
                 ),
               ),
               Tab(
                 text: 'history'.tr,
-                icon: Icon(Icons.article),
+                icon: Icon(Icons.article,
+                    color: Theme.of(context).colorScheme.secondary),
               ),
               Tab(
                 text: 'map'.tr,
-                icon: Icon(Icons.map),
+                icon: Icon(Icons.map,
+                    color: Theme.of(context).colorScheme.secondary),
               ),
             ],
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.exit_to_app),
+              icon: Icon(Icons.exit_to_app,
+                  color: Theme.of(context).colorScheme.secondary),
               onPressed: onReturnToSelection,
             ),
           ],
@@ -71,9 +88,23 @@ class GamePlayScreen extends StatelessWidget {
               MapWidget(),
             ],
           ),
-          onLoading: const Center(child: CircularProgressIndicator()),
-          onEmpty: const Center(child: Text('No gamebook found')),
-          onError: (error) => Center(child: Text(error ?? 'Error occurred')),
+          onLoading: Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          onEmpty: Center(
+            child: Text(
+              'No gamebook found',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+          onError: (error) => Center(
+            child: Text(
+              error ?? 'Error occurred',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
         ),
       ),
     );
@@ -96,19 +127,17 @@ class GameTitle extends StatelessWidget {
       onTap: () {
         logger.i(
             "User wants to see /scenario/${controller.currentGamebook.value!.id}");
-        if (controller.currentGamebook.value == null) {
-          logger.d(
-              "[GamePlayScreen] controller.currentGamebook == null -> do nothing");
-          return;
-        }
+        if (controller.currentGamebook.value == null) return;
         final gameBookId = controller.currentGamebook.value!.id;
         final scenarioLink =
             AppRoutes.scenarioDetail.replaceFirst(":id", gameBookId.toString());
         Get.toNamed(scenarioLink, arguments: controller.currentGamebook.value);
       },
-      // TODO: provide widget for that
       child: Obx(() {
-        return Text(controller.currentGamebook.value!.title);
+        return Text(
+          controller.currentGamebook.value!.title,
+          style: Theme.of(context).textTheme.titleLarge,
+        );
       }),
     );
   }
@@ -121,17 +150,12 @@ class DecisionTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // Show success message after decision
       if (controller.showPostDecisionMessage.value) {
         return _buildDecisionSuccessMessage(context);
       }
-
-      // Show blocking message if not arrived
       if (!controller.hasArrivedAtLocation.value) {
         return _buildArrivalRequiredMessage(context);
       }
-
-      // Original decision content when arrived
       return _buildDecisionContent(context);
     });
   }
@@ -141,36 +165,35 @@ class DecisionTab extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
+          Icon(
+            Icons.check_circle_outline,
+            size: 60,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
           const SizedBox(height: 20),
           Text(
             "Decision Recorded!",
-            style: TextStyle(
-              fontSize: 24,
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
           ),
           const SizedBox(height: 15),
           Text(
             "Proceed to the next location\nto continue your adventure",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 30),
           ElevatedButton.icon(
-            icon: const Icon(Icons.map),
-            label: const Text("Navigate to Next Location"),
-            onPressed: () {
-              DefaultTabController.of(context)
-                  ?.animateTo(2); // Switch to Map tab
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            icon: Icon(Icons.map,
+                color: Theme.of(context).colorScheme.onSecondary),
+            label: Text(
+              "Navigate to Next Location",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
             ),
+            onPressed: () => DefaultTabController.of(context)?.animateTo(2),
           ),
         ],
       ),
@@ -182,38 +205,35 @@ class DecisionTab extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.location_off, size: 50),
+          Icon(
+            Icons.location_off,
+            size: 50,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
           const SizedBox(height: 20),
           Text(
             "Location Required",
-            style: TextStyle(
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
           ),
           const SizedBox(height: 10),
           Text(
             "Confirm your arrival at the current location\nin the Map tab to continue",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).disabledColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 25),
           ElevatedButton.icon(
-            icon: const Icon(Icons.map),
-            label: const Text("Go to Map"),
-            onPressed: () {
-              // Switch to Map tab
-              DefaultTabController.of(context)?.animateTo(2);
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            icon: Icon(Icons.map,
+                color: Theme.of(context).colorScheme.onSecondary),
+            label: Text(
+              "Go to Map",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
+            onPressed: () => DefaultTabController.of(context)?.animateTo(2),
           ),
         ],
       ),
@@ -223,7 +243,12 @@ class DecisionTab extends StatelessWidget {
   Widget _buildDecisionContent(BuildContext context) {
     final currentStep = controller.currentStep.value;
     if (currentStep == null) {
-      return const Center(child: Text("No steps available"));
+      return Center(
+        child: Text(
+          "No steps available",
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      );
     }
 
     final decisions = currentStep.decisions;
@@ -239,7 +264,7 @@ class DecisionTab extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Text(
                   currentStep.text,
-                  style: const TextStyle(fontSize: 18),
+                  style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -248,7 +273,12 @@ class DecisionTab extends StatelessWidget {
             ElevatedButton(
               onPressed: () => controller
                   .fetchGamebookData(controller.currentGamebook.value!.id),
-              child: const Text("Start From the Beginning"),
+              child: Text(
+                "Start From the Beginning",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
             ),
           ],
         ),
@@ -264,7 +294,7 @@ class DecisionTab extends StatelessWidget {
             child: SingleChildScrollView(
               child: Text(
                 currentStep.text,
-                style: const TextStyle(fontSize: 18),
+                style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -297,13 +327,16 @@ class MapWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Current Location", style: TextStyle(fontSize: 20)),
+          Text(
+            "Current Location",
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 20),
           Obx(() => Text(
                 controller.hasArrivedAtLocation.value
                     ? "You've arrived at the location!"
                     : "Travel to the marked location...",
-                style: const TextStyle(fontSize: 16),
+                style: Theme.of(context).textTheme.bodyLarge,
               )),
           const SizedBox(height: 30),
           Obx(() {
@@ -312,28 +345,32 @@ class MapWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      DefaultTabController.of(context)
-                          ?.animateTo(0); // Switch to Decision tab
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 15),
+                    onPressed: () =>
+                        DefaultTabController.of(context)?.animateTo(0),
+                    child: Text(
+                      "Go to Decisions",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
-                    child: const Text("Go to Decisions"),
                   ),
                   const SizedBox(width: 20),
-                  Icon(Icons.check_circle, color: Colors.green, size: 30),
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.secondary,
+                    size: 30,
+                  ),
                 ],
               );
             }
             return ElevatedButton(
               onPressed: () => controller.confirmArrival(),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+              child: Text(
+                "Confirm Arrival",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
               ),
-              child: const Text("Confirm Arrival"),
             );
           }),
         ],
@@ -354,7 +391,6 @@ class StoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scroll to bottom whenever the history updates
     ever(controller.gameHistory, (_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
@@ -366,18 +402,35 @@ class StoryTab extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Obx(
-        () => ListView.builder(
-          controller: _scrollController,
-          reverse: true, // Start from bottom
-          itemCount: controller.gameHistory.length,
-          itemBuilder: (context, index) {
-            final reversedIndex = controller.gameHistory.length - 1 - index;
-            return Text(
-              controller.gameHistory[reversedIndex],
-              style: const TextStyle(fontSize: 16),
-            );
-          },
-        ),
+        () => controller.gameHistory.isEmpty
+            ? Center(
+                child: Text(
+                  "No history yet",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              )
+            : ListView.builder(
+                controller: _scrollController,
+                reverse: true,
+                itemCount: controller.gameHistory.length,
+                itemBuilder: (context, index) {
+                  final reversedIndex =
+                      controller.gameHistory.length - 1 - index;
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      child: Icon(
+                        Icons.person,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    ),
+                    title: Text(
+                      controller.gameHistory[reversedIndex],
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }

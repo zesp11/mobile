@@ -79,7 +79,6 @@ class GamebookDescriptionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // The "Desc" button should always be accessible
         Get.toNamed(
           '${AppRoutes.scenario}/${gamebook.id}',
           arguments: gamebook,
@@ -90,11 +89,11 @@ class GamebookDescriptionButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFFFA802F), // Accent color
       ),
-      child: const Icon(
+      child: Icon(
         Icons.info_outline,
-        color: Colors.white,
+        color: Color(0xFFF3E8CA), // Background color
         size: 24,
       ),
     );
@@ -126,12 +125,14 @@ class GamebookSelectButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0),
         ),
         backgroundColor: authController.isAuthenticated
-            ? Colors.blue
-            : Colors.blue.withOpacity(0.5),
+            ? Color(0xFFFA802F) // Accent color
+            : Color(0xFF9C8B73).withOpacity(0.3), // Secondary color
       ),
-      child: const Icon(
+      child: Icon(
         Icons.play_arrow,
-        color: Colors.white,
+        color: authController.isAuthenticated
+            ? Color(0xFFF3E8CA) // Background color
+            : Color(0xFF9C8B73).withOpacity(0.6), // Secondary color
         size: 24,
       ),
     );
@@ -142,22 +143,32 @@ class GamebookSelectButton extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Please Log In'),
-          content: const Text('You need to log in to play the game.'),
+          backgroundColor: Color(0xFFF3E8CA), // Background color
+          title: Text(
+            'Please Log In',
+            style: TextStyle(color: Color(0xFF322505)), // Foreground color
+          ),
+          content: Text(
+            'You need to log in to play the game.',
+            style: TextStyle(color: Color(0xFF9C8B73)), // Secondary color
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Get.back();
-                // Optionally, you can navigate to the login screen here
                 Get.toNamed(AppRoutes.profile);
               },
-              child: const Text('Log In'),
+              child: Text(
+                'Log In',
+                style: TextStyle(color: Color(0xFFFA802F)), // Accent color
+              ),
             ),
             TextButton(
-              onPressed: () {
-                Get.back();
-              },
-              child: const Text('Cancel'),
+              onPressed: () => Get.back(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Color(0xFF9C8B73)), // Secondary color
+              ),
             ),
           ],
         );

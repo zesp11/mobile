@@ -12,47 +12,66 @@ class RootLayout extends StatelessWidget {
       builder: (context, delegate, currentRoute) {
         return Scaffold(
           body: GetRouterOutlet(
-            // This is where the route content is rendered
             initialRoute: AppRoutes.home,
           ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex(currentRoute?.uri.toString() ?? ''),
-            onTap: (index) {
-              switch (index) {
-                case 0:
-                  delegate
-                      .toNamed(AppRoutes.home); // Navigating to the home route
-                  break;
-                case 1:
-                  delegate
-                      .toNamed(AppRoutes.game); // Navigating to the game route
-                  break;
-                case 2:
-                  delegate.toNamed(
-                      AppRoutes.search); // Navigating to the search route
-                  break;
-                case 3:
-                  delegate.toNamed(
-                      AppRoutes.profile); // Navigating to the profile route
-                  break;
-              }
-            },
+            onTap: (index) => _handleNavigation(index, delegate),
             type: BottomNavigationBarType.fixed,
-            unselectedItemColor: Colors.grey,
-            selectedItemColor: Colors.blue,
+            selectedItemColor: Color(0xFFFA802F), // Accent color
+            unselectedItemColor:
+                Color(0xFF9C8B73).withOpacity(0.6), // Secondary
+            backgroundColor: Color(0xFFF3E8CA), // Background color
+            selectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF322505), // Foreground
+            ),
+            unselectedLabelStyle: TextStyle(
+              color: Color(0xFF9C8B73), // Secondary
+            ),
             items: [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'.tr),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.play_arrow), label: 'game'.tr),
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'home'.tr,
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.search), label: 'search'.tr),
+                icon: Icon(Icons.play_arrow_outlined),
+                activeIcon: Icon(Icons.play_arrow),
+                label: 'game'.tr,
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'profile'.tr),
+                icon: Icon(Icons.search_outlined),
+                activeIcon: Icon(Icons.search),
+                label: 'search'.tr,
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: 'profile'.tr,
+              ),
             ],
           ),
         );
       },
     );
+  }
+
+  void _handleNavigation(int index, GetDelegate delegate) {
+    switch (index) {
+      case 0:
+        delegate.toNamed(AppRoutes.home);
+        break;
+      case 1:
+        delegate.toNamed(AppRoutes.game);
+        break;
+      case 2:
+        delegate.toNamed(AppRoutes.search);
+        break;
+      case 3:
+        delegate.toNamed(AppRoutes.profile);
+        break;
+    }
   }
 
   int _currentIndex(String currentRoute) {

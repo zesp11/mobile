@@ -16,42 +16,31 @@ class UserSummaryWidget extends StatelessWidget {
       child: Obx(() {
         final userProfile = profile.userProfile.value;
         return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 4,
-          color: Colors.blueGrey,
           child: ListTile(
             leading: userProfile != null && userProfile.avatar.isNotEmpty
                 ? CircleAvatar(
                     backgroundImage: NetworkImage(userProfile.avatar),
                     radius: 20,
                   )
-                : const Icon(Icons.person, size: 40, color: Colors.white),
+                : Icon(
+                    Icons.person,
+                    size: 40,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
             title: Text(
               userProfile?.name ?? "Guest",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Achievements: ${userProfile?.preferences['achievements'] ?? 'None'}",
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 Text(
                   "Last Game Completed: ${userProfile?.preferences['lastGame'] ?? 'N/A'}",
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
