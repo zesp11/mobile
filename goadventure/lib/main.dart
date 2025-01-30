@@ -32,21 +32,31 @@ Logger _createLogger(bool isProduction) {
 
 void main() async {
   await GetStorage.init();
-
   Logger logger = _createLogger(isProduction);
   Get.put<Logger>(logger);
 
-  // register settings service
-  Get.put<SettingsService>(SettingsService());
-  // Register controllers that need services
-  Get.put<SettingsController>(SettingsController(settingService: Get.find()));
+  // Initialize settings first
+  await Get.putAsync<SettingsService>(() async => SettingsService());
+  final settingsService = Get.find<SettingsService>();
 
-  runApp(GoAdventure());
+  // Check first launch
+  bool firstLaunch = settingsService.isFirstLaunch();
+  if (firstLaunch) {
+    await settingsService.setFirstLaunch(false);
+  }
+
+  // Register controllers
+  Get.put<SettingsController>(
+      SettingsController(settingService: settingsService));
+
+  runApp(GoAdventure(firstLaunch: firstLaunch));
 }
 
 class GoAdventure extends StatelessWidget {
-  GoAdventure({super.key});
+  final bool firstLaunch;
   final settings = Get.find<SettingsController>();
+
+  GoAdventure({super.key, required this.firstLaunch});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +64,7 @@ class GoAdventure extends StatelessWidget {
       () {
         return GetMaterialApp(
           title: 'Gamebook App',
-          initialRoute: '/',
+          initialRoute: true ? '/welcome' : '/',
           translations: Messages(),
           initialBinding: AppBindings(),
           getPages: AppRoutes.routes,
@@ -63,7 +73,7 @@ class GoAdventure extends StatelessWidget {
           debugShowCheckedModeBanner: !isProduction,
           theme: lightTheme,
           darkTheme: darkTheme,
-          themeMode: settings.themeMode.value, // This will reactively update
+          themeMode: settings.themeMode.value,
         );
       },
     );

@@ -12,12 +12,14 @@ class SettingsService extends GetxService {
   static const String _layoutKey = 'layoutStyle';
   static const String _languageKey = 'language';
   static const String _notificationsKey = 'notifications';
+  static const String _firstLaunchKey = 'firstLaunch';
 
   // Default values
   final ThemeMode defaultTheme = ThemeMode.system;
   final String defaultLayoutStyle = 'stacked';
   final String defaultLanguage = 'en';
   final bool defaultNotifications = true;
+  final bool defaultFirstLaunch = true;
 
   // Save theme
   Future<void> saveTheme(ThemeMode theme) async {
@@ -69,5 +71,13 @@ class SettingsService extends GetxService {
   // Get notifications
   bool getNotifications() {
     return _storage.read(_notificationsKey) ?? defaultNotifications;
+  }
+
+  Future<void> setFirstLaunch(bool value) async {
+    await _storage.write(_firstLaunchKey, value);
+  }
+
+  bool isFirstLaunch() {
+    return _storage.read(_firstLaunchKey) ?? defaultFirstLaunch;
   }
 }

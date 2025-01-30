@@ -16,6 +16,7 @@ import 'package:goadventure/app/ui/pages/scenario_screen.dart';
 import 'package:goadventure/app/ui/pages/search_page.dart';
 import 'package:goadventure/app/ui/pages/settings_screen.dart';
 import 'package:goadventure/app/ui/pages/user_profile_screen.dart';
+import 'package:goadventure/app/ui/pages/welcome_screen.dart';
 
 class AppRoutes {
   // Define route names as static constants for easier reference
@@ -26,6 +27,7 @@ class AppRoutes {
   static const search = '/search';
   static const profile = '/profile';
   static const settings = '/settings';
+  static const welcome = "/welcome";
 
   // nested game routes
   static const gameSelection = '$game/select';
@@ -123,6 +125,11 @@ class AppRoutes {
     GetPage(
       name: register,
       page: () => RegisterScreen(),
+    ),
+    // Add welcome screen as separate page
+    GetPage(
+      name: welcome,
+      page: () => OnboardingScreen(),
     ),
   ];
 }
