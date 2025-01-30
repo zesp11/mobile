@@ -31,11 +31,17 @@ Logger _createLogger(bool isProduction) {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+
+  // Initialize logger
   Logger logger = _createLogger(isProduction);
   Get.put<Logger>(logger);
 
-  // Initialize settings first
+  // Load translations before app start
+  final messages = await Messages.loadTranslations();
+
+  // Initialize settings
   await Get.putAsync<SettingsService>(() async => SettingsService());
   final settingsService = Get.find<SettingsService>();
 
@@ -49,33 +55,39 @@ void main() async {
   Get.put<SettingsController>(
       SettingsController(settingService: settingsService));
 
-  runApp(GoAdventure(firstLaunch: firstLaunch));
+  runApp(GoAdventure(
+    firstLaunch: firstLaunch,
+    messages: messages,
+  ));
 }
 
 class GoAdventure extends StatelessWidget {
   final bool firstLaunch;
+  final Messages messages;
   final settings = Get.find<SettingsController>();
 
-  GoAdventure({super.key, required this.firstLaunch});
+  GoAdventure({
+    super.key,
+    required this.firstLaunch,
+    required this.messages,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () {
-        return GetMaterialApp(
-          title: 'Gamebook App',
-          initialRoute: true ? '/welcome' : '/',
-          translations: Messages(),
-          initialBinding: AppBindings(),
-          getPages: AppRoutes.routes,
-          locale: Locale(settings.language.value),
-          fallbackLocale: const Locale('en'),
-          debugShowCheckedModeBanner: !isProduction,
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: settings.themeMode.value,
-        );
-      },
+      () => GetMaterialApp(
+        title: 'Gamebook App',
+        initialRoute: firstLaunch ? '/welcome' : '/',
+        translations: messages,
+        locale: Locale(settings.language.value),
+        fallbackLocale: const Locale('en'),
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: settings.themeMode.value,
+        initialBinding: AppBindings(),
+        getPages: AppRoutes.routes,
+        debugShowCheckedModeBanner: !isProduction,
+      ),
     );
   }
 }

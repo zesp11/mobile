@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/profile_controller.dart';
 import 'package:goadventure/app/ui/widgets/section_widget.dart';
 
+// FIXME: currently ProfileController keeps info of last user fetched instead of current one
 class UserSummaryWidget extends StatelessWidget {
   final ProfileController profile = Get.find<ProfileController>();
 
