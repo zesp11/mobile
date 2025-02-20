@@ -6,6 +6,10 @@ import 'package:goadventure/app/routes/app_routes.dart';
 import 'package:goadventure/app/ui/widgets/decision_buttons.dart';
 import 'package:logger/web.dart';
 
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:latlong2/latlong.dart';
+
 /*
 - TODO: the game should have in top left corner somekind of icon/title that is
   clickable and allows to see main page of given game
@@ -316,10 +320,244 @@ class DecisionTab extends StatelessWidget {
   }
 }
 
-class MapWidget extends StatelessWidget {
-  const MapWidget({super.key});
+class MapWidget  extends StatefulWidget {
+
+  //final LatLng initialPosition;
+
+  const MapWidget ({super.key});
 
   @override
+  State<MapWidget> createState() => _OSMFlutterMapState();
+}
+
+/*class MapWidget extends StatelessWidget {
+  const MapWidget({super.key});
+*/
+  
+
+class _OSMFlutterMapState extends State<MapWidget > {
+
+  late MapController mapController;
+  LatLng? currentPosition;
+  double currentZoom = 8.0;
+  List<Marker> markers = [];
+  double distanceToWaypoint = 0;
+  @override
+  void initState()
+  {
+    super.initState();
+    mapController = MapController();
+
+    _startTracking();
+  }
+
+  void _startTracking() {
+    final stream = const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
+
+    stream.listen((LocationMarkerPosition? position) {
+      if (position != null) {
+        setState(() {
+          currentPosition = position.latLng;
+          
+        });
+      }
+    });
+  }
+ 
+  void moveToCurrentPosition() async {
+    final stream = const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
+
+    final LocationMarkerPosition? position = await stream.first;
+
+    if (position != null)
+    {
+      mapController.move(position.latLng, currentZoom);
+    }
+
+  }
+
+  void addWaypoint(LatLng point)
+  {
+    setState(() {
+      markers.clear();
+      markers.add(
+        Marker(
+          point: point,
+          width: 37,
+          height: 37,
+          rotate: true,
+          //anchorPos: AnchorPos.align(AnchorAlign.center),
+          child: const Icon(
+            Icons.location_pin,
+            color: Colors.red,
+            size:40,
+          ),
+          alignment: Alignment.topCenter,
+          //anchorPos: const Offset(0.5, 0.5)
+          
+        ),
+      );
+    });
+  }
+
+  double calculateDistance(LatLng point1, LatLng point2)
+  {
+    final Distance distance = const Distance();
+    return distance.as(LengthUnit.Meter, point1, point2);
+  }
+/*
+  void updatePosition(LatLng position)
+  {
+    setState(() {
+      currentPosition = position;
+    });
+  }*/
+
+
+  //bool isLocationPressed = false;
+  bool isTracking = false;
+  bool headingReset = false;
+
+  @override
+  Widget build(BuildContext context) {
+
+    final double distanceToWaypoint = (currentPosition != null && markers.isNotEmpty)
+      ? calculateDistance(currentPosition!, markers.last.point)
+      : 0.0;
+
+    return Scaffold(
+      body:Stack(
+        children: [
+          FlutterMap(
+            options: MapOptions(
+                initialCenter: const LatLng(52.06516, 19.25248),
+                initialZoom: 7,
+                minZoom: 0,
+                maxZoom: 19,
+                onLongPress: (tapPosition, point) {
+                  addWaypoint(point);
+                },
+                onPositionChanged: ( position, hasGesture) {
+                  setState(() {
+                    currentZoom = position.zoom;
+                  });
+                },
+              ),
+            mapController: mapController,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'net.tlserver6y.flutter_map_location_marker.example',
+                maxZoom: 19,
+              ),
+              if (isTracking)
+                CurrentLocationLayer(
+                  alignPositionOnUpdate: AlignOnUpdate.once,
+                  alignDirectionOnUpdate: AlignOnUpdate.never,
+                  style: const LocationMarkerStyle(
+                    marker: DefaultLocationMarker(),
+                    markerDirection: MarkerDirection.heading,
+                  ),
+                  
+                ),
+              MarkerLayer(markers: markers),
+            ],
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+              
+              
+              backgroundColor: isTracking ? Colors.blue : Colors.white,
+              onPressed: () {
+                //backgroundColor: Colors.blue;
+                
+                //print("thing happened");
+                
+                setState(() {
+                  isTracking = !isTracking;
+
+                });
+
+              },
+              child: Icon(
+                isTracking ? Icons.location_searching : Icons.location_disabled,
+              ),
+            )
+            
+          ),
+          Positioned(
+            bottom: 100,
+            right: 20,
+            child: FloatingActionButton(
+              
+              backgroundColor: isTracking ? Colors.blue : Colors.white,
+              onPressed: () {
+                //print("another thing happened");
+                
+                if(isTracking)
+                {
+                  moveToCurrentPosition();
+                }
+              },
+              child: Icon(
+                isTracking ? Icons.location_on : Icons.location_off,
+              ),
+            )
+            
+          ),
+          Positioned(
+            bottom: 180,
+            right: 20,
+            child: FloatingActionButton(
+              
+              backgroundColor: isTracking ? Colors.blue : Colors.white,
+              onPressed: () {
+                markers.clear();
+                mapController.rotate(0.0);
+              },
+              child: Transform.rotate(
+                angle: 135 * pi/180,
+                child: const Icon(Icons.explore),
+              ),
+            )
+            
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            bottom: isTracking && markers.isNotEmpty == true ? 20 : -100,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                ),
+                child: Text(
+                  '${distanceToWaypoint.toStringAsFixed(0)} m',
+                  //'${currentPosition!.latitude.toStringAsFixed(4)}, ${currentPosition!.longitude.toStringAsFixed(4)}',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  
+                ),
+            )
+          ),
+
+        ]
+      ),
+    );
+  }
+}
+
+ /* @override
   Widget build(BuildContext context) {
     final controller = Get.find<GamePlayController>();
 
@@ -376,8 +614,10 @@ class MapWidget extends StatelessWidget {
         ],
       ),
     );
+    
   }
-}
+  */
+//}
 
 class StoryTab extends StatelessWidget {
   /* 
