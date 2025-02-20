@@ -376,7 +376,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
 
   }
 
-  void addWaypoint(LatLng point)
+  void addWaypoint(LatLng point, Color markerColor)
   {
     setState(() {
       markers.clear();
@@ -387,9 +387,9 @@ class _OSMFlutterMapState extends State<MapWidget > {
           height: 37,
           rotate: true,
           //anchorPos: AnchorPos.align(AnchorAlign.center),
-          child: const Icon(
+          child: Icon(
             Icons.location_pin,
-            color: Colors.red,
+            color: markerColor,//Colors.red,
             size:40,
           ),
           alignment: Alignment.topCenter,
@@ -421,6 +421,9 @@ class _OSMFlutterMapState extends State<MapWidget > {
   @override
   Widget build(BuildContext context) {
 
+    Color secondaryColor = Theme.of(context).colorScheme.secondary;
+    Color primaryColor = Theme.of(context).colorScheme.primary;
+
     final double distanceToWaypoint = (currentPosition != null && markers.isNotEmpty)
       ? calculateDistance(currentPosition!, markers.last.point)
       : 0.0;
@@ -435,7 +438,8 @@ class _OSMFlutterMapState extends State<MapWidget > {
                 minZoom: 0,
                 maxZoom: 19,
                 onLongPress: (tapPosition, point) {
-                  addWaypoint(point);
+
+                  addWaypoint(point, secondaryColor);
                 },
                 onPositionChanged: ( position, hasGesture) {
                   setState(() {
@@ -454,7 +458,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
                 CurrentLocationLayer(
                   alignPositionOnUpdate: AlignOnUpdate.once,
                   alignDirectionOnUpdate: AlignOnUpdate.never,
-                  style: const LocationMarkerStyle(
+                  style: LocationMarkerStyle(
                     marker: DefaultLocationMarker(),
                     markerDirection: MarkerDirection.heading,
                   ),
@@ -469,7 +473,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
             child: FloatingActionButton(
               
               
-              backgroundColor: isTracking ? Colors.blue : Colors.white,
+              backgroundColor: isTracking ? primaryColor : secondaryColor,
               onPressed: () {
                 //backgroundColor: Colors.blue;
                 
@@ -483,6 +487,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
               },
               child: Icon(
                 isTracking ? Icons.location_searching : Icons.location_disabled,
+                color: isTracking ? secondaryColor : primaryColor,
               ),
             )
             
@@ -492,7 +497,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
             right: 20,
             child: FloatingActionButton(
               
-              backgroundColor: isTracking ? Colors.blue : Colors.white,
+              backgroundColor: isTracking ? primaryColor : secondaryColor,
               onPressed: () {
                 //print("another thing happened");
                 
@@ -503,6 +508,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
               },
               child: Icon(
                 isTracking ? Icons.location_on : Icons.location_off,
+                color: isTracking ? secondaryColor : primaryColor,
               ),
             )
             
@@ -512,14 +518,17 @@ class _OSMFlutterMapState extends State<MapWidget > {
             right: 20,
             child: FloatingActionButton(
               
-              backgroundColor: isTracking ? Colors.blue : Colors.white,
+              backgroundColor: isTracking ? primaryColor : secondaryColor,
               onPressed: () {
                 markers.clear();
                 mapController.rotate(0.0);
               },
               child: Transform.rotate(
                 angle: 135 * pi/180,
-                child: const Icon(Icons.explore),
+                child: Icon(
+                  Icons.explore,
+                  color: isTracking ? secondaryColor : primaryColor,
+                  ),
               ),
             )
             
@@ -532,7 +541,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent,
+                  color: primaryColor,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
@@ -545,7 +554,7 @@ class _OSMFlutterMapState extends State<MapWidget > {
                 child: Text(
                   '${distanceToWaypoint.toStringAsFixed(0)} m',
                   //'${currentPosition!.latitude.toStringAsFixed(4)}, ${currentPosition!.longitude.toStringAsFixed(4)}',
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: secondaryColor, fontSize: 16),
                   
                 ),
             )

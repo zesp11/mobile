@@ -3,11 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-<<<<<<< HEAD
   flutter_secure_storage_windows
-=======
   geolocator_windows
->>>>>>> ea6e10b (add basic osm map widget)
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
