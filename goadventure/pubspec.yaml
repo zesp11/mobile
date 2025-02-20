@@ -42,6 +42,12 @@ dependencies:
   get_storage: ^2.1.1
   flutter_secure_storage: ^9.2.4
 
+  # Map deps
+  flutter_map: ^7.0.2
+  geolocator: 13.0.2
+  latlong2: 0.9.1
+  flutter_map_location_marker: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
