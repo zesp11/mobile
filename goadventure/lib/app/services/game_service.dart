@@ -14,8 +14,8 @@ class GameService {
     try {
       // TODO: handle/display it if game not found
       final response = await apiService.getGameBookWithId(id);
-      return Gamebook.fromJson(
-          response); // Assuming Gamebook has a fromJson method
+
+      return Gamebook.fromJson(response);
     } catch (e) {
       throw Exception("Error fetching gamebook: $e");
     }
@@ -36,6 +36,8 @@ class GameService {
       // Fetch the raw data from the API service
       List<Map<String, dynamic>> gamebooksJson =
           await apiService.getAvailableGamebooks();
+
+      logger.d('response=${gamebooksJson}');
 
       // Map the JSON data into a list of Gamebook objects
       return gamebooksJson.map((json) => Gamebook.fromJson(json)).toList();

@@ -4,7 +4,6 @@ import 'package:goadventure/app/models/step.dart';
 class Gamebook {
   // TODO: consider if id's shouldn't be string anyway UUID? can check for number etc...
   final int id;
-  final String name;
   final String title;
   final String description; // Overview of the gamebook
   final DateTime startDate;
@@ -14,7 +13,6 @@ class Gamebook {
 
   Gamebook({
     required this.id,
-    required this.name,
     required this.title,
     required this.description,
     required this.startDate,
@@ -26,16 +24,19 @@ class Gamebook {
   // From JSON constructor
   factory Gamebook.fromJson(Map<String, dynamic> json) {
     final game = Gamebook(
-      id: json['id'] ?? 0, // default to 0 if id is null
-      name: json['name'],
+      id: json['id'] ?? 0,
       title: json['title'],
       description: json['description'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
-      steps: (json['steps'] as List)
-          .map((stepJson) => Step.fromJson(stepJson))
-          .toList(),
-      authorId: json['authorId'] ?? 0, // default to 0 if id is null
+      startDate: DateTime.now(),
+      endDate: DateTime.now(),
+      steps: List.empty(),
+      authorId: 0,
+      // startDate: DateTime.parse(json['startDate']),
+      // endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
+      // steps: (json['steps'] as List)
+      //     .map((stepJson) => Step.fromJson(stepJson))
+      //     .toList(),
+      // authorId: json['authorId'] ?? 0, // default to 0 if id is null
     );
 
     return game;
@@ -45,7 +46,6 @@ class Gamebook {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
       'title': title,
       'description': description,
       'startDate': startDate.toIso8601String(),
