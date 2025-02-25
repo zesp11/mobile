@@ -13,6 +13,7 @@ import 'package:goadventure/app/services/home_service.dart';
 import 'package:goadventure/app/services/search_service.dart';
 import 'package:goadventure/app/services/user_service.dart';
 import 'package:goadventure/main.dart';
+import 'package:goadventure/utils/env_config.dart';
 import 'package:logger/logger.dart';
 
 class AppBindings extends Bindings {
@@ -22,7 +23,8 @@ class AppBindings extends Bindings {
     final logger = Get.find<Logger>();
 
     // Log environment info
-    logger.i("Environment: ${isProduction ? 'Production' : 'Development'}");
+    logger.i("Environment: ${EnvConfig.environment}");
+    logger.d("API Endpoint: ${EnvConfig.apiUrl}");
 
     // Register the API service
     _registerApiService(logger);
@@ -47,7 +49,7 @@ class AppBindings extends Bindings {
   }
 
   void _registerApiService(Logger logger) {
-    if (isProduction) {
+    if (EnvConfig.isProduction || EnvConfig.isDebugProd) {
       logger.d("Registering production API service");
       Get.lazyPut<ApiService>(() => ProductionApiService());
     } else {
