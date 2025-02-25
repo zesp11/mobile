@@ -1,6 +1,10 @@
+import 'package:get/get.dart';
+import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:logger/logger.dart';
 
 class ProductionApiService extends ApiService {
   static const String name = "https://squid-app-p63zw.ondigitalocean.app";
@@ -30,10 +34,154 @@ class ProductionApiService extends ApiService {
   static const String getStepRoute = '/api/games/:id/step';
   static const String makeStepRoute = '/api/games/:id/step';
 
+  // @override
+  // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
+  //   try {
+  //     final endpoint = '$name$getAvailableGamebooksRoute';
+  //     // Add logging for network activity
+  //     // Get.find<Logger>().d('Fetching gamebooks from: $endpoint');
+
+  //     final response = await http.get(Uri.parse(endpoint));
+
+  //     // Add response logging
+  //     // Get.find<Logger>().d('Gamebooks response: ${response.statusCode}');
+
+  //     if (response.statusCode == 200) {
+  //       final List<dynamic> gamebooks = jsonDecode(response.body);
+  //       // TODO:
+  //       // return gamebooks.map<Map<String, dynamic>>((gamebook) {
+  //       //   return {
+  //       //     'id': gamebook['id_scenario']?.toString() ?? '0',
+  //       //     'title': gamebook['title']?.toString() ?? 'Untitled Scenario',
+  //       //     'description': gamebook['description']?.toString() ?? '',
+  //       //     'coverImage': gamebook['cover_image']?.toString() ?? '',
+  //       //     'difficulty': gamebook['difficulty']?.toString() ?? 'medium',
+  //       //     'estimatedDuration': (gamebook['estimated_duration'] as int?) ?? 60,
+  //       //     'averageRating':
+  //       //         (gamebook['average_rating'] as num?)?.toDouble() ?? 0.0,
+  //       //     'totalPlays': (gamebook['total_plays'] as int?) ?? 0,
+  //       //     'author': gamebook['author']?.toString() ?? 'Unknown Author',
+  //       //     'createdAt': gamebook['created_at']?.toString() ?? '',
+  //       //   };
+  //       // }).toList();
+  //       return gamebooks.map<Map<String, dynamic>>((gamebook) {
+  //         return {
+  //           'id': gamebook['id_scenario']?.toString() ?? '0',
+  //           'title': gamebook['title']?.toString() ?? 'Untitled Scenario',
+  //           'description': gamebook['description']?.toString() ?? '',
+  //           'coverImage': gamebook['cover_image']?.toString() ?? '',
+  //           'difficulty': gamebook['difficulty']?.toString() ?? 'medium',
+  //           'estimatedDuration': (gamebook['estimated_duration'] as int?) ?? 60,
+  //           'averageRating':
+  //               (gamebook['average_rating'] as num?)?.toDouble() ?? 0.0,
+  //           'totalPlays': (gamebook['total_plays'] as int?) ?? 0,
+  //           'author': gamebook['author']?.toString() ?? 'Unknown Author',
+  //           'createdAt': gamebook['created_at']?.toString() ?? '',
+  //         };
+  //       }).toList();
+  //     } else {
+  //       throw Exception(
+  //           'Failed to load gamebooks. Status: ${response.statusCode}');
+  //     }
+  //   } on http.ClientException catch (e) {
+  //     // Get.find<Logger>().e('Network error fetching gamebooks: ${e.message}');
+  //     throw Exception('Network error: ${e.message}');
+  //   } on FormatException catch (e) {
+  //     // Get.find<Logger>().e('JSON parsing error: ${e.message}');
+  //     throw Exception('Data format error: ${e.message}');
+  //   } catch (e) {
+  //     // Get.find<Logger>().e('Unexpected error: ${e.toString()}');
+  //     throw Exception('Failed to fetch gamebooks: ${e.toString()}');
+  //   }
+  // }
+
   @override
-  Future<List<Map<String, dynamic>>> getAvailableGamebooks() {
-    // TODO: implement getAvailableGamebooks
-    throw UnimplementedError();
+  Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
+    try {
+      final endpoint = '$name$getAvailableGamebooksRoute';
+      final logger = Get.find<Logger>();
+
+      // Add debug logging
+      logger.d('Fetching gamebooks from: $endpoint');
+
+      // Add authorization if needed
+      final headers = {
+        'Content-Type': 'application/json',
+        // TODO: 'Authorization': 'Bearer ${Get.find<AuthController>().token}',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Gamebooks response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final List<dynamic> gamebooks = responseBody['data'] ?? [];
+
+        final gamebooksResponse =
+            gamebooks.map<Map<String, dynamic>>((gamebook) {
+          // Extract author information
+          final authorData = gamebook['author'] ?? {};
+
+          // Map API response to Gamebook structure
+          return {
+            'id': gamebook['id'] ?? 0,
+            'title': gamebook['name']?.toString() ?? 'Untitled Scenario',
+            'description': gamebook['description']?.toString() ??
+                'No description available',
+            'startDate': _parseDateTime(gamebook['created_at']),
+            'endDate': _parseDateTime(gamebook['end_date']),
+            'steps': _parseSteps(gamebook['steps'] ?? []),
+            'authorId': _parseAuthorId(authorData),
+            // Add additional fields if needed
+            'difficulty': gamebook['difficulty']?.toString() ?? 'medium',
+            'coverImage': gamebook['cover_image']?.toString() ?? '',
+          };
+        }).toList();
+
+        return gamebooksResponse;
+      } else {
+        logger.e('Failed to load gamebooks. Status: ${response.statusCode}');
+        throw Exception('Failed to load gamebooks: ${response.statusCode}');
+      }
+    } on http.ClientException catch (e) {
+      Get.find<Logger>().e('Network error: ${e.message}');
+      throw Exception('Network error: ${e.message}');
+    } on FormatException catch (e) {
+      Get.find<Logger>().e('JSON parsing error: ${e.message}');
+      throw Exception('Invalid data format: ${e.message}');
+    } catch (e) {
+      Get.find<Logger>().e('Unexpected error: $e');
+      throw Exception('Failed to fetch gamebooks: $e');
+    }
+  }
+
+// Helper methods
+  DateTime _parseDateTime(String? dateString) {
+    if (dateString == null) return DateTime.now();
+    return DateTime.tryParse(dateString) ?? DateTime.now();
+  }
+
+  List<Map<String, dynamic>> _parseSteps(dynamic stepsData) {
+    if (stepsData is! List) return [];
+    return stepsData.map<Map<String, dynamic>>((step) {
+      return {
+        'id': step['id_step']?.toString() ?? '0',
+        'title': step['title']?.toString() ?? 'Untitled Step',
+        'content': step['content']?.toString() ?? '',
+        // Add other step fields as needed
+      };
+    }).toList();
+  }
+
+  int _parseAuthorId(dynamic authorData) {
+    if (authorData is Map<String, dynamic>) {
+      return authorData['id_author'] as int? ?? 0;
+    }
+    return 0;
   }
 
   @override

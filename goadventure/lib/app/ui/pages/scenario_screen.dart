@@ -37,7 +37,7 @@ class ScenarioScreen extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(
                 title: Text(
-                  gamebook.name,
+                  gamebook.title,
                   style: TextStyle(
                     color: Color(0xFFFA802F), // Accent color
                     fontWeight: FontWeight.bold,
