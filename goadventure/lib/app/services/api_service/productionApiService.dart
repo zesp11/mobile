@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:logger/logger.dart';
 
 class ProductionApiService extends ApiService {
+  final logger = Get.find<Logger>();
+
   static const String name = "https://squid-app-p63zw.ondigitalocean.app";
 
   // Authentication endpoints
@@ -16,10 +18,10 @@ class ProductionApiService extends ApiService {
   static const String refreshTokenRoute = '/api/auth/refresh';
 
   // User endpoints
-  static const String getUserProfileRoute = '/api/user/:id';
+  static const String usersRoute = 'api/users';
+  static const String getUserProfileRoute = '/api/users/:id';
   static const String getCurrentUserProfileRoute = '/api/users/profile';
   static const String updateProfileRoute = '/api/users/profile';
-  static const String getUsersListRoute = '/api/user/all';
   static const String removeAccountRoute = '/api/users/:id';
 
   // Scenario endpoints
@@ -197,6 +199,8 @@ class ProductionApiService extends ApiService {
       final endpoint = '$name${getUserProfileRoute.replaceAll(':id', id)}';
       final response = await http.get(Uri.parse(endpoint));
 
+      logger.d(response.body);
+
       if (response.statusCode == 200) {
         // Convert JSON to Map<String, dynamic>
         final dynamic parsed = jsonDecode(response.body);
@@ -228,7 +232,7 @@ class ProductionApiService extends ApiService {
     try {
       if (category == 'user') {
         final response = await http.get(
-          Uri.parse('$name$getUsersListRoute?search=$query'),
+          Uri.parse('$name$usersRoute?search=$query'),
         );
 
         if (response.statusCode == 200) {
@@ -252,4 +256,73 @@ class ProductionApiService extends ApiService {
       throw Exception('Search failed: ${e.toString()}');
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> login(String username, String password) async {
+    logger.d('username=$username');
+    logger.d('password=$password');
+
+    try {
+      final endpoint = '$name$loginRoute';
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'login': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic parsed = jsonDecode(response.body);
+
+        if (parsed is Map<String, dynamic>) {
+          final token = parsed['token'] as String;
+          final refreshToken = parsed['refreshToken'] as String;
+          final user = parsed['user'] as Map<String, dynamic>;
+
+          final userId = user['id_user'] as int;
+          final login = user['login'] as String;
+          final email = user['email'] as String;
+
+          logger.d('Login successful: $login ($email)');
+          logger.d('Token: $token');
+          logger.d('Refresh Token: $refreshToken');
+
+          return {
+            'user_id': userId,
+            'token': token,
+            'refresh_token': refreshToken,
+          };
+
+          // Store tokens securely (e.g., SharedPreferences or secure storage)
+          // await storage.write(key: 'token', value: token);
+          // await storage.write(key: 'refreshToken', value: refreshToken);
+
+          // Handle successful login (e.g., update user session state)
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception(
+            'Login failed: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      logger.e('Login error: ${e.toString()}');
+      throw Exception('Login failed: ${e.toString()}');
+    }
+  }
+
+  /*
+  response for successful register
+    "message": "User registered successfully.",
+    "user": {
+        "id_user": 20,
+        "login": "user1",
+        "email": "user1@example.com"
+    }
+}
+  */
 }

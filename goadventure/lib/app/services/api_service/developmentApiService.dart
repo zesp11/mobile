@@ -91,4 +91,10 @@ class DevelopmentApiService implements ApiService {
 
     return mockGamebooksJson;
   }
+
+  @override
+  Future<Map<String, dynamic>> login(String username, String password) {
+    // TODO: implement login
+    throw UnimplementedError();
+  }
 }

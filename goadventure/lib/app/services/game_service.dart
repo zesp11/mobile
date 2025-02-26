@@ -37,8 +37,6 @@ class GameService {
       List<Map<String, dynamic>> gamebooksJson =
           await apiService.getAvailableGamebooks();
 
-      logger.d('response=${gamebooksJson}');
-
       // Map the JSON data into a list of Gamebook objects
       return gamebooksJson.map((json) => Gamebook.fromJson(json)).toList();
     } catch (e) {
