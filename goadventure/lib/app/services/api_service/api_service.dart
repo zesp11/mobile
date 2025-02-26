@@ -28,7 +28,7 @@ abstract class ApiService {
 
   /* Authentication endpoints */
   // TODO: Future<void> registerUser();
-  // TODO: Future<void> login();
+  Future<Map<String, dynamic>> login(String username, String password);
   // TODO: Future<void> logout();
   // TODO: Future<void> refreshToken();
 

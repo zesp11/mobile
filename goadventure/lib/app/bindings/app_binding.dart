@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:goadventure/app/controllers/auth_controller.dart';
 import 'package:goadventure/app/controllers/game_controller.dart';
@@ -35,6 +36,7 @@ class AppBindings extends Bindings {
     Get.put<HomeService>(HomeService(apiService: Get.find()));
     Get.put<GameService>(GameService(apiService: Get.find()));
     Get.put<AuthService>(AuthService(apiService: Get.find()));
+    Get.put<FlutterSecureStorage>(FlutterSecureStorage());
 
     Get.put<AuthController>(AuthController(
       userService: Get.find(),

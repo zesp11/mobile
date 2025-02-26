@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
+import 'package:goadventure/app/models/loginResponse.dart';
 import 'package:goadventure/app/services/api_service/api_service.dart';
 import 'package:goadventure/main.dart';
+import 'package:goadventure/utils/env_config.dart';
 import 'package:logger/logger.dart';
 
 // TODO: add services should inherit from GetxService
@@ -12,10 +14,16 @@ class AuthService {
   // Simulating local data for token
   static const String _mockToken = 'testToken';
 
-  Future<String> login(String username, String password) async {
-    if (isProduction) {
-      logger.f("AuthService is not implemented in production");
-      UnimplementedError();
+  Future<LoginResponse> login(String username, String password) async {
+    if (EnvConfig.isDebugProd || EnvConfig.isProduction) {
+      Map<String, dynamic> credentials =
+          await apiService.login(username, password);
+
+      return LoginResponse(
+        userId: credentials['user_id'],
+        token: credentials['token'],
+        refreshToken: credentials['refresh_token'],
+      );
     }
 
     // INFO: this is only for development GET RID OF IF IN PRODUCTION
@@ -24,7 +32,11 @@ class AuthService {
         (username == '2' && password == '2') ||
         (username == '3' && password == '3')) {
       // Simulating a successful login by returning the mock token
-      return username; // return he's login
+      return LoginResponse(
+        userId: int.parse(username),
+        token: _mockToken,
+        refreshToken: _mockToken,
+      ); // return he's login
     } else {
       // Simulate a login failure
       throw Exception('Invalid username or password');

@@ -106,7 +106,8 @@ class RegisterScreen extends GetView<AuthController> {
                     return;
                   }
 
-                  await controller.register(name, email, password);
+                  throw UnimplementedError();
+                  // await controller.register(name, email, password);
                 },
                 child: Text('register'.tr),
               ),
