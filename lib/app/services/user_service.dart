@@ -15,4 +15,21 @@ class UserService {
       throw Exception('Failed to fetch user profile: $e');
     }
   }
+
+  Future<UserProfile> fetchCurrentUserProfile() async {
+    try {
+      final response = await apiService.getCurrentUserProfile();
+      return UserProfile.fromJson(response);
+    } catch (e) {
+      throw Exception('Failed to fetch current user profile: $e');
+    }
+  }
+
+  Future<void> updateUserProfile(Map<String, dynamic> profileData) async {
+    try {
+      await apiService.updateUserProfile(profileData);
+    } catch (e) {
+      throw Exception('Failed to update user profile: $e');
+    }
+  }
 }
