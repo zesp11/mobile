@@ -26,8 +26,25 @@ abstract class ApiService {
   Future<void> updateUserProfile(Map<String, dynamic> profile);
   */
 
+  /** RESPONSE for successful registration status_code == 201
+   * {
+    "message": "User registered successfully.",
+    "user": {
+        "id_user": 26,
+        "login": "Kamil2025_081",
+        "email": "kamil20205_081@example.com"
+    }
+}
+
+ Response for failed registration  status_code == 400
+{
+    "message": "User with this login already exists.",
+    "user": null
+}
+   */
+
   /* Authentication endpoints */
-  // TODO: Future<void> registerUser();
+  Future<void> register(String name, String email, String password);
   Future<Map<String, dynamic>> login(String username, String password);
   // TODO: Future<void> logout();
   // TODO: Future<void> refreshToken();

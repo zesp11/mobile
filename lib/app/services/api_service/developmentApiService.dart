@@ -97,4 +97,10 @@ class DevelopmentApiService implements ApiService {
     // TODO: implement login
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> register(String username, String password, String email) {
+    // TODO: implement registerUser
+    throw UnimplementedError();
+  }
 }

@@ -4,14 +4,13 @@ import 'package:get/get.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/auth_service.dart';
 import 'package:gotale/app/services/user_service.dart';
-import 'package:gotale/main.dart';
 import 'package:gotale/utils/env_config.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/material.dart';
 
 // TODO: implement that class fully
 // currently it only mocks user
-// TODO: use flutter_secure_storage
 class AuthController extends GetxController with StateMixin<UserProfile> {
   final UserService userService;
   final AuthService authService;
@@ -137,6 +136,40 @@ class AuthController extends GetxController with StateMixin<UserProfile> {
     } catch (e) {
       logger.e("Token decoding failed: $e");
       return null;
+    }
+  }
+
+  Future<void> register(String username, String email, String password) async {
+    try {
+      change(null, status: RxStatus.loading());
+      await authService.register(username, email, password);
+      logger.i("Registration successful");
+
+      // Show success message
+      Get.snackbar(
+        'Success',
+        'Registration successful! Please login to continue.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+      );
+
+      await Future.delayed(Duration(seconds: 1));
+      Get.offNamed('/login');
+    } catch (e) {
+      logger.e("Registration failed: $e");
+      change(null, status: RxStatus.error(e.toString()));
+
+      // Show error message
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+      );
     }
   }
 }

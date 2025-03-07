@@ -48,4 +48,8 @@ class AuthService {
     // You can also mock clearing any stored data here if needed
     print("User logged out successfully");
   }
+
+  Future<void> register(String username, String email, String password) async {
+    return apiService.register(username, email, password);
+  }
 }

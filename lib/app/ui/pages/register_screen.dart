@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 
+// TODO: the popup for errors should be slightly red
 class RegisterScreen extends GetView<AuthController> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -60,20 +61,37 @@ class RegisterScreen extends GetView<AuthController> {
             const SizedBox(height: 24),
             // StateMixin handling states
             controller.obx(
-              onLoading: const Center(child: CircularProgressIndicator()),
-              onError: (error) => Column(
-                children: [
-                  Text(
-                    'Registration failed: $error',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+              onLoading: const Center(
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Creating your account...'),
+                  ],
+                ),
+              ),
+              onError: (error) => Container(
+                padding: EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red),
+                    SizedBox(height: 8),
+                    Text(
+                      error?.toString() ?? 'Registration failed',
+                      style: TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
               onEmpty: SizedBox.shrink(),
-              (state) {
-                return SizedBox.shrink();
-              },
+              (state) => SizedBox.shrink(),
             ),
             // Submit button
             SizedBox(
@@ -106,8 +124,7 @@ class RegisterScreen extends GetView<AuthController> {
                     return;
                   }
 
-                  throw UnimplementedError();
-                  // await controller.register(name, email, password);
+                  await controller.register(name, email, password);
                 },
                 child: Text('register'.tr),
               ),
@@ -117,7 +134,7 @@ class RegisterScreen extends GetView<AuthController> {
             Center(
               child: TextButton(
                 onPressed: () {
-                  // Navigate to login screen
+                  // Navigate to login screen while preserving navigation stack
                   Get.toNamed('/login');
                 },
                 child: Text(
