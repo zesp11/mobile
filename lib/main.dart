@@ -77,7 +77,8 @@ class GoTale extends StatelessWidget {
     return Obx(
       () => GetMaterialApp(
         title: 'Gamebook App',
-        initialRoute: firstLaunch ? '/welcome' : '/',
+        // initialRoute: firstLaunch ? '/welcome' : '/',
+        initialRoute: true ? '/welcome' : '/',
         translations: messages,
         locale: Locale(settings.language.value),
         fallbackLocale: const Locale('en'),

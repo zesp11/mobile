@@ -25,22 +25,17 @@ class SearchScreen extends GetView<goTaleSearch.SearchController> {
     controller.searchItems('');
 
     return Scaffold(
-      body: Column(
-        children: [
-          // Search Bar
-          SearchBar(controller: controller),
-
-          const SizedBox(height: 8),
-
-          // Filter Buttons Section
-          FilterButtons(
-              selectedFilters: selectedFilters, controller: controller),
-
-          const SizedBox(height: 8),
-
-          // Results Section
-          Expanded(child: SearchResults(controller: controller)),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            SearchBar(controller: controller),
+            const SizedBox(height: 12),
+            FilterButtons(
+                selectedFilters: selectedFilters, controller: controller),
+            const SizedBox(height: 16),
+            Expanded(child: SearchResults(controller: controller)),
+          ],
+        ),
       ),
     );
   }
@@ -53,22 +48,35 @@ class SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(16.0),
       child: TextField(
         decoration: InputDecoration(
           hintText: 'search_hint'.tr,
-          hintStyle: TextStyle(color: Color(0xFF9C8B73)), // Secondary
-          prefixIcon: Icon(Icons.search, color: Color(0xFF9C8B73)), // Secondary
+          hintStyle: theme.textTheme.bodyMedium,
+          prefixIcon: Icon(Icons.search, color: theme.colorScheme.tertiary),
+          filled: true,
+          fillColor: theme.cardTheme.color,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xFF9C8B73).withOpacity(0.3)),
+            borderRadius: BorderRadius.circular(16),
+            borderSide:
+                BorderSide(color: theme.colorScheme.tertiary.withOpacity(0.2)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide:
+                BorderSide(color: theme.colorScheme.tertiary.withOpacity(0.2)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xFFFA802F)), // Accent
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: theme.colorScheme.secondary),
           ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
+        style: theme.textTheme.bodyLarge,
         onChanged: controller.updateQuery,
       ),
     );
@@ -84,19 +92,20 @@ class FilterButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          _buildFilterButton("user".tr),
-          const SizedBox(width: 8),
-          _buildFilterButton("scenario".tr),
+          _buildFilterButton("user".tr, context),
+          const SizedBox(width: 12),
+          _buildFilterButton("scenario".tr, context),
         ],
       ),
     );
   }
 
-  Widget _buildFilterButton(String filterType) {
+  Widget _buildFilterButton(String filterType, BuildContext context) {
+    final theme = Theme.of(context);
+
     return Obx(() {
       bool isSelected = selectedFilters.contains(filterType);
       return Expanded(
@@ -107,32 +116,33 @@ class FilterButtons extends StatelessWidget {
             } else {
               selectedFilters.add(filterType);
             }
-            print(
-                'Filter button pressed: $filterType, selected: ${!isSelected}');
             controller.filterItemsByTypes(selectedFilters);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: isSelected
-                ? Color(0xFFFA802F).withOpacity(0.9) // Accent
-                : Color(0xFFF3E8CA).withOpacity(0.5), // Background
+                ? theme.colorScheme.secondary
+                : theme.cardTheme.color,
             foregroundColor: isSelected
-                ? Color(0xFFF3E8CA) // Background
-                : Color(0xFF322505), // Foreground
-            padding: const EdgeInsets.symmetric(vertical: 8),
+                ? theme.colorScheme.onSecondary
+                : theme.colorScheme.onBackground,
+            elevation: isSelected ? 2 : 0,
+            padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: isSelected
-                    ? Color(0xFFFA802F) // Accent
-                    : Color(0xFF9C8B73).withOpacity(0.3), // Secondary
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.tertiary.withOpacity(0.2),
               ),
             ),
           ),
           child: Text(
             filterType,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isSelected
+                  ? theme.colorScheme.onSecondary
+                  : theme.colorScheme.onBackground,
             ),
           ),
         ),
@@ -148,6 +158,8 @@ class SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Stack(
       children: [
         controller.obx(
@@ -156,10 +168,7 @@ class SearchResults extends StatelessWidget {
               return Center(
                 child: Text(
                   'no_results_found'.tr,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFF9C8B73),
-                  ),
+                  style: theme.textTheme.bodyLarge,
                 ),
               );
             }
@@ -171,32 +180,48 @@ class SearchResults extends StatelessWidget {
             }
 
             return ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               children: groupedItems.entries.map((entry) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Text(
-                        entry.key,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFA802F),
+                        entry.key.tr,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.secondary,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                     ...entry.value.map((item) {
-                      return ListTile(
-                        leading: _getIconForType(item['type']!),
-                        title: Text(
-                          item['name']!,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF322505),
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                theme.colorScheme.secondary.withOpacity(0.1),
+                            child: Icon(
+                              _getIconForType(item['type']!),
+                              color: theme.colorScheme.secondary,
+                            ),
+                          ),
+                          title: Text(
+                            item['name']!,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          trailing: Icon(
+                            Icons.chevron_right,
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          onTap: () => _handleItemTap(item),
                         ),
-                        onTap: () => _handleItemTap(item),
                       );
                     }),
                   ],
@@ -206,7 +231,7 @@ class SearchResults extends StatelessWidget {
           },
           onLoading: Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFFA802F),
+              color: theme.colorScheme.secondary,
             ),
           ),
           onError: (error) => ErrorScreen(
@@ -218,11 +243,8 @@ class SearchResults extends StatelessWidget {
     );
   }
 
-  Icon _getIconForType(String type) {
-    return Icon(
-      _typeIcons[type] ?? Icons.help_outline,
-      color: Color(0xFFFA802F),
-    );
+  IconData _getIconForType(String type) {
+    return _typeIcons[type] ?? Icons.help_outline;
   }
 
   final _typeIcons = {
