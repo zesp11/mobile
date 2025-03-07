@@ -2,16 +2,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
+import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/ui/widgets/section_widget.dart';
 
-// FIXME: currently ProfileController keeps info of last user fetched instead of current one
 class UserSummaryWidget extends StatelessWidget {
   final ProfileController profile = Get.find<ProfileController>();
+  final AuthController auth = Get.find<AuthController>();
 
   UserSummaryWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Fetch current user's profile when widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (auth.state?.id != null) {
+        profile.fetchUserProfile(auth.state!.id);
+      }
+    });
+
     return SectionWidget(
       title: "User Summary",
       child: Obx(() {
