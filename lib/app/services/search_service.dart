@@ -8,25 +8,43 @@ class SearchService {
 
   SearchService({required this.apiService});
 
-  // Perform search based on query and category
-  Future<List<Map<String, String>>> search(
-      String query, String category) async {
+  Future<List<Map<String, String>>> searchUsers(String query) async {
     try {
-      final response = await apiService.search(query, category);
-
-      List<Map<String, String>> results = [];
-      for (var item in response) {
-        results.add({
-          'name': item['name'],
-          'type': item['type'],
-          'id': item['id'],
-        });
-      }
-
-      return results;
+      final response = await apiService.searchUsers(query);
+      return _processUserResults(response);
     } catch (error) {
-      logger.e("Search error: $error");
+      logger.e("User search error: $error");
       return [];
     }
+  }
+
+  Future<List<Map<String, String>>> searchScenarios(String query) async {
+    try {
+      final response = await apiService.searchScenarios(query);
+      return _processScenarioResults(response);
+    } catch (error) {
+      logger.e("Scenario search error: $error");
+      return [];
+    }
+  }
+
+  List<Map<String, String>> _processUserResults(List<dynamic> response) {
+    return response
+        .map((item) => {
+              'name': (item['name'] ?? '').toString(),
+              'type': 'user',
+              'id': (item['id'] ?? '').toString(),
+            })
+        .toList();
+  }
+
+  List<Map<String, String>> _processScenarioResults(List<dynamic> response) {
+    return response
+        .map((item) => {
+              'name': (item['name'] ?? '').toString(),
+              'type': 'scenario',
+              'id': (item['id'] ?? '').toString(),
+            })
+        .toList();
   }
 }

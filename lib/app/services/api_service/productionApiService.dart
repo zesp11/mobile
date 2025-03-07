@@ -372,4 +372,56 @@ class ProductionApiService extends ApiService {
     }
 }
   */
+
+  @override
+  Future<List<dynamic>> searchUsers(String query) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$name/$usersRoute?search=$query'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final List<dynamic> users = responseBody['users'] ?? [];
+        return users
+            .map((user) => {
+                  'name': user['login'] ?? 'Unknown User',
+                  'type': 'user',
+                  'id': user['id_user'].toString(),
+                })
+            .toList();
+      } else {
+        throw Exception(
+            'User search failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('User search failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<dynamic>> searchScenarios(String query) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$name$getAvailableGamebooksRoute?search=$query'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final List<dynamic> scenarios = responseBody['data'] ?? [];
+        return scenarios
+            .map((scenario) => {
+                  'name': scenario['name'] ?? 'Unknown Scenario',
+                  'type': 'scenario',
+                  'id': scenario['id'].toString(),
+                })
+            .toList();
+      } else {
+        throw Exception(
+            'Scenario search failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Scenario search failed: ${e.toString()}');
+    }
+  }
 }

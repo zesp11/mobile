@@ -103,4 +103,16 @@ class DevelopmentApiService implements ApiService {
     // TODO: implement registerUser
     throw UnimplementedError();
   }
+
+  @override
+  Future<List> searchScenarios(String query) {
+    // TODO: implement searchScenarios
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List> searchUsers(String query) {
+    // TODO: implement searchUsers
+    throw UnimplementedError();
+  }
 }
