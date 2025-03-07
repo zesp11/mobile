@@ -63,25 +63,118 @@ class GamePlayController extends GetxController with StateMixin {
 
   GamePlayController({required this.gameService});
 
+  // Create a new game from a scenario
+  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
+    change(null, status: RxStatus.loading());
+    try {
+      final gameData = await gameService.createGameFromScenario(scenarioId);
+
+      // Create a new Gamebook from the response
+      final gamebook = Gamebook(
+        id: gameData['id_game'] ?? 0,
+        title: gameData['name'] ?? 'Untitled Game',
+        description: 'Game created from scenario',
+        startDate: DateTime.now(),
+        endDate: null,
+        steps: [], // We'll populate this with the first step
+        authorId: gameData['id_author'] ?? 0,
+      );
+
+      logger.d("Created game with id: ${gamebook.id}");
+
+      // Set the current gamebook
+      currentGamebook.value = gamebook;
+
+      // Fetch the first step
+      await fetchCurrentStep(gamebook.id);
+
+      change(null, status: RxStatus.success());
+      return gameData;
+    } catch (e) {
+      logger.e("Error creating game from scenario: $e");
+      change(null,
+          status: RxStatus.error("Failed to create game from scenario"));
+      throw e;
+    }
+  }
+
+  // Fetch the current step of the game
+  Future<void> fetchCurrentStep(int gameId) async {
+    try {
+      final stepData = await gameService.getCurrentStep(gameId);
+      final step = stepData['step'];
+
+      if (step != null) {
+        final currentStep = Step(
+          id: step['id_step'] ?? 1,
+          title: step['title'] ?? 'Current Step',
+          text: step['text'] ?? '',
+          latitude: step['latitude']?.toDouble() ?? 0.0,
+          longitude: step['longitude']?.toDouble() ?? 0.0,
+          decisions: (step['choices'] as List?)
+                  ?.map((choice) => Decision(
+                        text: choice['text'] ?? '',
+                        nextStepId: choice['id_next_step'] ?? 0,
+                      ))
+                  .toList() ??
+              [],
+        );
+
+        this.currentStep.value = currentStep;
+      }
+    } catch (e) {
+      logger.e("Error fetching current step: $e");
+      throw Exception("Failed to fetch current step: $e");
+    }
+  }
+
   // Fetch the current gamebook data and initialize the first step
   Future<void> fetchGamebookData(int id) async {
-    change(null, status: RxStatus.loading()); // Set the state to loading
+    change(null, status: RxStatus.loading());
     gameHistory.clear();
     try {
-      final gamebook = await gameService.fetchGamebook(id);
+      final gameData = await gameService.getGamePlay(id);
+
+      // Create Gamebook from the response
+      final gamebook = Gamebook(
+        id: gameData['id_game'] ?? 0,
+        title: gameData['name'] ?? 'Untitled Game',
+        description: 'Game in progress',
+        startDate: DateTime.now(),
+        endDate: null,
+        steps: [], // We'll populate this with the current step
+        authorId: gameData['id_author'] ?? 0,
+      );
+
       currentGamebook.value = gamebook;
       hasArrivedAtLocation.value = false;
       showPostDecisionMessage.value = false;
 
-      // Set the first step if available
-      if (gamebook.steps.isNotEmpty) {
-        currentStep.value = gamebook.steps.first;
+      // Handle the current step from the response
+      final step = gameData['first_step'];
+      if (step != null) {
+        final currentStep = Step(
+          id: step['id_step'] ?? 1,
+          title: step['title'] ?? 'Current Step',
+          text: step['text'] ?? '',
+          latitude: step['latitude']?.toDouble() ?? 0.0,
+          longitude: step['longitude']?.toDouble() ?? 0.0,
+          decisions: (step['choices'] as List?)
+                  ?.map((choice) => Decision(
+                        text: choice['text'] ?? '',
+                        nextStepId: choice['id_next_step'] ?? 0,
+                      ))
+                  .toList() ??
+              [],
+        );
+
+        this.currentStep.value = currentStep;
       }
-      change(null, status: RxStatus.success()); // Update status to success
+
+      change(null, status: RxStatus.success());
     } catch (e) {
       logger.e("Error fetching gamebook: $e");
-      change(null,
-          status: RxStatus.error("Error fetching gamebook")); // Handle error
+      change(null, status: RxStatus.error("Error fetching gamebook"));
     }
   }
 
@@ -89,7 +182,7 @@ class GamePlayController extends GetxController with StateMixin {
     fetchGamebookData(id);
   }
 
-  void makeDecision(Decision decision) {
+  void makeDecision(Decision decision) async {
     showPostDecisionMessage.value = true;
     hasArrivedAtLocation.value = false;
     if (currentStep.value != null) {
@@ -98,22 +191,9 @@ class GamePlayController extends GetxController with StateMixin {
 
     gameHistory.add("Decision: ${decision.text}");
 
-    // Find the next step based on the decision
-    Step? nextStep = currentGamebook.value?.steps.firstWhere(
-      (step) => step.id == decision.nextStepId,
-      orElse: () => Step(
-        id: decision.nextStepId,
-        title: "Next Step",
-        text: "This is the next step.",
-        latitude: 0.0,
-        longitude: 0.0,
-        decisions: [],
-      ),
-    );
-
-    if (nextStep != null) {
-      currentStep.value = nextStep;
-      hasArrivedAtLocation.value = false;
+    // Fetch the next step
+    if (currentGamebook.value != null) {
+      await fetchCurrentStep(currentGamebook.value!.id);
     }
   }
 

@@ -320,11 +320,10 @@ class DecisionTab extends StatelessWidget {
   }
 }
 
-class MapWidget  extends StatefulWidget {
-
+class MapWidget extends StatefulWidget {
   //final LatLng initialPosition;
 
-  const MapWidget ({super.key});
+  const MapWidget({super.key});
 
   @override
   State<MapWidget> createState() => _OSMFlutterMapState();
@@ -333,18 +332,15 @@ class MapWidget  extends StatefulWidget {
 /*class MapWidget extends StatelessWidget {
   const MapWidget({super.key});
 */
-  
 
-class _OSMFlutterMapState extends State<MapWidget > {
-
+class _OSMFlutterMapState extends State<MapWidget> {
   late MapController mapController;
   LatLng? currentPosition;
   double currentZoom = 8.0;
   List<Marker> markers = [];
   double distanceToWaypoint = 0;
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
     mapController = MapController();
 
@@ -352,32 +348,30 @@ class _OSMFlutterMapState extends State<MapWidget > {
   }
 
   void _startTracking() {
-    final stream = const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
+    final stream =
+        const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
 
     stream.listen((LocationMarkerPosition? position) {
       if (position != null) {
         setState(() {
           currentPosition = position.latLng;
-          
         });
       }
     });
   }
- 
+
   void moveToCurrentPosition() async {
-    final stream = const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
+    final stream =
+        const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
 
     final LocationMarkerPosition? position = await stream.first;
 
-    if (position != null)
-    {
+    if (position != null) {
       mapController.move(position.latLng, currentZoom);
     }
-
   }
 
-  void addWaypoint(LatLng point, Color markerColor)
-  {
+  void addWaypoint(LatLng point, Color markerColor) {
     setState(() {
       markers.clear();
       markers.add(
@@ -389,19 +383,17 @@ class _OSMFlutterMapState extends State<MapWidget > {
           //anchorPos: AnchorPos.align(AnchorAlign.center),
           child: Icon(
             Icons.location_pin,
-            color: markerColor,//Colors.red,
-            size:40,
+            color: markerColor, //Colors.red,
+            size: 40,
           ),
           alignment: Alignment.topCenter,
           //anchorPos: const Offset(0.5, 0.5)
-          
         ),
       );
     });
   }
 
-  double calculateDistance(LatLng point1, LatLng point2)
-  {
+  double calculateDistance(LatLng point1, LatLng point2) {
     final Distance distance = const Distance();
     return distance.as(LengthUnit.Meter, point1, point2);
   }
@@ -413,96 +405,85 @@ class _OSMFlutterMapState extends State<MapWidget > {
     });
   }*/
 
-
   //bool isLocationPressed = false;
   bool isTracking = false;
   bool headingReset = false;
 
   @override
   Widget build(BuildContext context) {
-
     Color secondaryColor = Theme.of(context).colorScheme.secondary;
     Color primaryColor = Theme.of(context).colorScheme.primary;
 
-    final double distanceToWaypoint = (currentPosition != null && markers.isNotEmpty)
-      ? calculateDistance(currentPosition!, markers.last.point)
-      : 0.0;
+    final double distanceToWaypoint =
+        (currentPosition != null && markers.isNotEmpty)
+            ? calculateDistance(currentPosition!, markers.last.point)
+            : 0.0;
 
     return Scaffold(
-      body:Stack(
-        children: [
-          FlutterMap(
-            options: MapOptions(
-                initialCenter: const LatLng(52.06516, 19.25248),
-                initialZoom: 7,
-                minZoom: 0,
-                maxZoom: 19,
-                onLongPress: (tapPosition, point) {
-
-                  addWaypoint(point, secondaryColor);
-                },
-                onPositionChanged: ( position, hasGesture) {
-                  setState(() {
-                    currentZoom = position.zoom;
-                  });
-                },
-              ),
-            mapController: mapController,
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'net.tlserver6y.flutter_map_location_marker.example',
-                maxZoom: 19,
-              ),
-              if (isTracking)
-                CurrentLocationLayer(
-                  alignPositionOnUpdate: AlignOnUpdate.once,
-                  alignDirectionOnUpdate: AlignOnUpdate.never,
-                  style: LocationMarkerStyle(
-                    marker: DefaultLocationMarker(),
-                    markerDirection: MarkerDirection.heading,
-                  ),
-                  
-                ),
-              MarkerLayer(markers: markers),
-            ],
+      body: Stack(children: [
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: const LatLng(52.06516, 19.25248),
+            initialZoom: 7,
+            minZoom: 0,
+            maxZoom: 19,
+            onLongPress: (tapPosition, point) {
+              addWaypoint(point, secondaryColor);
+            },
+            onPositionChanged: (position, hasGesture) {
+              setState(() {
+                currentZoom = position.zoom;
+              });
+            },
           ),
-          Positioned(
+          mapController: mapController,
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName:
+                  'net.tlserver6y.flutter_map_location_marker.example',
+              maxZoom: 19,
+            ),
+            if (isTracking)
+              CurrentLocationLayer(
+                alignPositionOnUpdate: AlignOnUpdate.once,
+                alignDirectionOnUpdate: AlignOnUpdate.never,
+                style: LocationMarkerStyle(
+                  marker: DefaultLocationMarker(),
+                  markerDirection: MarkerDirection.heading,
+                ),
+              ),
+            MarkerLayer(markers: markers),
+          ],
+        ),
+        Positioned(
             bottom: 20,
             right: 20,
             child: FloatingActionButton(
-              
-              
               backgroundColor: isTracking ? primaryColor : secondaryColor,
               onPressed: () {
                 //backgroundColor: Colors.blue;
-                
+
                 //print("thing happened");
-                
+
                 setState(() {
                   isTracking = !isTracking;
-
                 });
-
               },
               child: Icon(
                 isTracking ? Icons.location_searching : Icons.location_disabled,
                 color: isTracking ? secondaryColor : primaryColor,
               ),
-            )
-            
-          ),
-          Positioned(
+            )),
+        Positioned(
             bottom: 100,
             right: 20,
             child: FloatingActionButton(
-              
               backgroundColor: isTracking ? primaryColor : secondaryColor,
               onPressed: () {
                 //print("another thing happened");
-                
-                if(isTracking)
-                {
+
+                if (isTracking) {
                   moveToCurrentPosition();
                 }
               },
@@ -510,37 +491,32 @@ class _OSMFlutterMapState extends State<MapWidget > {
                 isTracking ? Icons.location_on : Icons.location_off,
                 color: isTracking ? secondaryColor : primaryColor,
               ),
-            )
-            
-          ),
-          Positioned(
+            )),
+        Positioned(
             bottom: 180,
             right: 20,
             child: FloatingActionButton(
-              
               backgroundColor: isTracking ? primaryColor : secondaryColor,
               onPressed: () {
                 markers.clear();
                 mapController.rotate(0.0);
               },
               child: Transform.rotate(
-                angle: 135 * pi/180,
+                angle: 135 * pi / 180,
                 child: Icon(
                   Icons.explore,
                   color: isTracking ? secondaryColor : primaryColor,
-                  ),
+                ),
               ),
-            )
-            
-          ),
-          AnimatedPositioned(
+            )),
+        AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             bottom: isTracking && markers.isNotEmpty == true ? 20 : -100,
             left: 20,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
+              decoration: BoxDecoration(
                   color: primaryColor,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
@@ -549,24 +525,19 @@ class _OSMFlutterMapState extends State<MapWidget > {
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     )
-                  ]
-                ),
-                child: Text(
-                  '${distanceToWaypoint.toStringAsFixed(0)} m',
-                  //'${currentPosition!.latitude.toStringAsFixed(4)}, ${currentPosition!.longitude.toStringAsFixed(4)}',
-                  style: TextStyle(color: secondaryColor, fontSize: 16),
-                  
-                ),
-            )
-          ),
-
-        ]
-      ),
+                  ]),
+              child: Text(
+                '${distanceToWaypoint.toStringAsFixed(0)} m',
+                //'${currentPosition!.latitude.toStringAsFixed(4)}, ${currentPosition!.longitude.toStringAsFixed(4)}',
+                style: TextStyle(color: secondaryColor, fontSize: 16),
+              ),
+            )),
+      ]),
     );
   }
 }
 
- /* @override
+/* @override
   Widget build(BuildContext context) {
     final controller = Get.find<GamePlayController>();
 
