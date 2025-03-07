@@ -315,6 +315,53 @@ class ProductionApiService extends ApiService {
     }
   }
 
+  @override
+  Future<void> register(String username, String email, String password) async {
+    try {
+      final endpoint = '$name$registerRoute';
+      logger.d('Attempting registration at: $endpoint');
+
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'login': username,
+          'password': password,
+          'email': email,
+        }),
+      );
+
+      logger.d('Registration response status: ${response.statusCode}');
+
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        logger.d('Registration successful: ${responseData['message']}');
+
+        // You can access the user data from responseData['user'] if needed
+        return;
+      }
+
+      // Handle error cases
+      if (response.statusCode == 400) {
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Invalid registration data');
+      } else if (response.statusCode == 409) {
+        throw Exception('Username or email already exists');
+      } else {
+        throw Exception(
+            'Registration failed with status: ${response.statusCode}');
+      }
+    } on FormatException catch (e) {
+      logger.e('Registration error - Invalid format: ${e.toString()}');
+      throw Exception('Invalid response format');
+    } catch (e) {
+      logger.e('Registration error: ${e.toString()}');
+      throw Exception('Registration failed: ${e.toString()}');
+    }
+  }
+
   /*
   response for successful register
     "message": "User registered successfully.",
