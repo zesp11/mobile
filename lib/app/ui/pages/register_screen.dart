@@ -11,139 +11,350 @@ class RegisterScreen extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('register'.tr),
+        title: Text(
+          'register'.tr,
+          style: theme.textTheme.titleLarge,
+        ),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Name input
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'name'.tr,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Email input
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'email'.tr,
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            // Password input
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'password'.tr,
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-            // Confirm Password input
-            TextField(
-              controller: confirmPasswordController,
-              decoration: InputDecoration(
-                labelText: 'confirm_password'.tr,
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 24),
-            // StateMixin handling states
-            controller.obx(
-              onLoading: const Center(
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Creating your account...'),
-                  ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'create_account'.tr,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              onError: (error) => Container(
-                padding: EdgeInsets.all(16),
-                margin: EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red),
+                const SizedBox(height: 8),
+                Text(
+                  'register_subtitle'.tr,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onBackground.withOpacity(0.7),
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red),
-                    SizedBox(height: 8),
-                    Text(
-                      error?.toString() ?? 'Registration failed',
-                      style: TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
+                const SizedBox(height: 32),
+
+                // Name input
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'name'.tr,
+                    hintText: 'enter_name'.tr,
+                    prefixIcon: Icon(
+                      Icons.person_outline,
+                      color: theme.colorScheme.tertiary,
                     ),
-                  ],
+                    filled: true,
+                    fillColor: theme.cardTheme.color,
+                    labelStyle: TextStyle(
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    floatingLabelStyle: TextStyle(
+                      color: theme.colorScheme.secondary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.secondary,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  style: theme.textTheme.bodyLarge,
+                  cursorColor: theme.colorScheme.secondary,
                 ),
-              ),
-              onEmpty: SizedBox.shrink(),
-              (state) => SizedBox.shrink(),
-            ),
-            // Submit button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final name = nameController.text.trim();
-                  final email = emailController.text.trim();
-                  final password = passwordController.text.trim();
-                  final confirmPassword = confirmPasswordController.text.trim();
+                const SizedBox(height: 20),
 
-                  if (name.isEmpty ||
-                      email.isEmpty ||
-                      password.isEmpty ||
-                      confirmPassword.isEmpty) {
-                    Get.snackbar(
-                      'Error',
-                      'All fields are required.',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-                    return;
-                  }
-
-                  if (password != confirmPassword) {
-                    Get.snackbar(
-                      'Error',
-                      'Passwords do not match.',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-                    return;
-                  }
-
-                  await controller.register(name, email, password);
-                },
-                child: Text('register'.tr),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Link to Login Screen if user already has an account
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  // Navigate to login screen while preserving navigation stack
-                  Get.toNamed('/login');
-                },
-                child: Text(
-                  '${"already_registered".tr} ${"login".tr}!',
-                  style: TextStyle(fontSize: 16),
+                // Email input
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'email'.tr,
+                    hintText: 'enter_email'.tr,
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    filled: true,
+                    fillColor: theme.cardTheme.color,
+                    labelStyle: TextStyle(
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    floatingLabelStyle: TextStyle(
+                      color: theme.colorScheme.secondary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.secondary,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  style: theme.textTheme.bodyLarge,
+                  cursorColor: theme.colorScheme.secondary,
                 ),
-              ),
+                const SizedBox(height: 20),
+
+                // Password input
+                TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'password'.tr,
+                    hintText: 'enter_password'.tr,
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    filled: true,
+                    fillColor: theme.cardTheme.color,
+                    labelStyle: TextStyle(
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    floatingLabelStyle: TextStyle(
+                      color: theme.colorScheme.secondary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.secondary,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  obscureText: true,
+                  style: theme.textTheme.bodyLarge,
+                  cursorColor: theme.colorScheme.secondary,
+                ),
+                const SizedBox(height: 20),
+
+                // Confirm Password input
+                TextField(
+                  controller: confirmPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'confirm_password'.tr,
+                    hintText: 'reenter_password'.tr,
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    filled: true,
+                    fillColor: theme.cardTheme.color,
+                    labelStyle: TextStyle(
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    floatingLabelStyle: TextStyle(
+                      color: theme.colorScheme.secondary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withOpacity(0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.secondary,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  obscureText: true,
+                  style: theme.textTheme.bodyLarge,
+                  cursorColor: theme.colorScheme.secondary,
+                ),
+                const SizedBox(height: 24),
+
+                // Error and Loading States
+                controller.obx(
+                  onLoading: Center(
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(
+                          color: theme.colorScheme.secondary,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'creating_account'.tr,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onError: (error) => Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: theme.colorScheme.error,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            error?.toString() ?? 'registration_failed'.tr,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.error,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onEmpty: const SizedBox.shrink(),
+                  (state) => const SizedBox.shrink(),
+                ),
+
+                // Register Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final name = nameController.text.trim();
+                      final email = emailController.text.trim();
+                      final password = passwordController.text.trim();
+                      final confirmPassword =
+                          confirmPasswordController.text.trim();
+
+                      if (name.isEmpty ||
+                          email.isEmpty ||
+                          password.isEmpty ||
+                          confirmPassword.isEmpty) {
+                        Get.snackbar(
+                          'error'.tr,
+                          'all_fields_required'.tr,
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor:
+                              theme.colorScheme.error.withOpacity(0.1),
+                          colorText: theme.colorScheme.error,
+                          margin: const EdgeInsets.all(16),
+                          borderRadius: 12,
+                        );
+                        return;
+                      }
+
+                      if (password != confirmPassword) {
+                        Get.snackbar(
+                          'error'.tr,
+                          'passwords_dont_match'.tr,
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor:
+                              theme.colorScheme.error.withOpacity(0.1),
+                          colorText: theme.colorScheme.error,
+                          margin: const EdgeInsets.all(16),
+                          borderRadius: 12,
+                        );
+                        return;
+                      }
+
+                      await controller.register(name, email, password);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text('register'.tr),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Login Link
+                Center(
+                  child: TextButton(
+                    onPressed: () => Get.toNamed('/login'),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: Text(
+                      '${"already_registered".tr} ${"login".tr}!',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.secondary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

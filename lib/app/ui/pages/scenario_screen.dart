@@ -13,6 +13,9 @@ class ScenarioScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String id = Get.parameters['id'] ?? 'Unknown';
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 600;
 
     return Scaffold(
       body: FutureBuilder<Gamebook>(
@@ -22,266 +25,463 @@ class ScenarioScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-                child: CircularProgressIndicator(
-              color: Color(0xFFFA802F), // Accent color
-            ));
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: TextStyle(color: Color(0xFF9C8B73)), // Secondary color
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    color: theme.colorScheme.secondary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'loading_scenario'.tr,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onBackground.withOpacity(0.7),
+                    ),
+                  ),
+                ],
               ),
             );
-          } else if (snapshot.hasData) {
-            final gamebook = snapshot.data!;
+          }
 
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  gamebook.title,
-                  style: TextStyle(
-                    color: Color(0xFFFA802F), // Accent color
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                backgroundColor: Color(0xFF322505), // Foreground color
-                iconTheme: IconThemeData(color: Color(0xFFFA802F)), // Accent
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        gamebook.title,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF322505), // Foreground
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'ID: $id',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF9C8B73), // Secondary
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () =>
-                                Get.toNamed('/profile/${gamebook.authorId}'),
-                            child: Text(
-                              'AuthorID: ${gamebook.authorId}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFFFA802F), // Accent
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-
-                      // Description Section
-                      Text(
-                        'description'.tr,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF322505), // Foreground
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        gamebook.description,
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 1.5,
-                          color: Color(0xFF9C8B73), // Secondary
-                        ),
-                      ),
-                      SizedBox(height: 16),
-
-                      // Date Section
-                      Text(
-                        'dates'.tr,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF322505), // Foreground
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today,
-                              size: 18, color: Color(0xFFFA802F)), // Accent
-                          SizedBox(width: 8),
-                          Text(
-                            '${"start_date".tr}: ${gamebook.startDate.toLocal().toString().split(' ')[0]}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF9C8B73), // Secondary
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      if (gamebook.endDate != null)
-                        Row(
-                          children: [
-                            Icon(Icons.event,
-                                size: 18, color: Color(0xFFFA802F)), // Accent
-                            SizedBox(width: 8),
-                            Text(
-                              '${"end_date".tr}: ${gamebook.endDate!.toLocal().toString().split(' ')[0]}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF9C8B73), // Secondary
-                              ),
-                            ),
-                          ],
-                        ),
-                      SizedBox(height: 16),
-
-                      // Steps Section
-                      Text(
-                        'steps'.tr,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF322505), // Foreground
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      if (gamebook.steps.isNotEmpty)
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: gamebook.steps.length,
-                          itemBuilder: (context, index) {
-                            final step = gamebook.steps[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              color: Color(0xFFF3E8CA)
-                                  .withOpacity(0.6), // Background
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color: Color(0xFF9C8B73)
-                                      .withOpacity(0.3), // Secondary
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: Color(0xFFFA802F)
-                                      .withOpacity(0.3), // Accent
-                                  child: Text(
-                                    (index + 1).toString(),
-                                    style: TextStyle(
-                                        color: Color(0xFF322505), // Foreground
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                title: Text(
-                                  step.text,
-                                  style: TextStyle(
-                                    color: Color(0xFF322505), // Foreground
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  'Step ID: ${step.id}',
-                                  style: TextStyle(
-                                    color: Color(0xFF9C8B73), // Secondary
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                      else
-                        Text(
-                          'No steps available.',
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF9C8B73), // Secondary
-                              fontStyle: FontStyle.italic),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              bottomNavigationBar: Padding(
-                padding: const EdgeInsets.all(12.0),
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: authController.isAuthenticated
-                                ? () async {
-                                    final gameController =
-                                        Get.find<GamePlayController>();
-                                    final gameData = await gameController
-                                        .createGameFromScenario(gamebook.id);
-                                    Get.toNamed(AppRoutes.gameDetail
-                                        .replaceFirst(":id",
-                                            gameData['id_game'].toString()));
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              backgroundColor: authController.isAuthenticated
-                                  ? Color(0xFFFA802F) // Accent
-                                  : Color(0xFF9C8B73)
-                                      .withOpacity(0.3), // Secondary
-                            ),
-                            child: Text(
-                              'play_game'.tr,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFF3E8CA), // Background
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: theme.colorScheme.error,
                     ),
-                    if (!authController.isAuthenticated)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'login_needed'.tr,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF9C8B73), // Secondary
-                          ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'error_loading_scenario'.tr,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => Get.back(),
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: theme.colorScheme.onSecondary,
+                      ),
+                      label: Text('go_back'.tr),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
             );
-          } else {
-            return Center(
-                child: Text(
-              'No data found.',
-              style: TextStyle(color: Color(0xFF9C8B73)), // Secondary
-            ));
           }
+
+          if (!snapshot.hasData) {
+            return Center(
+              child: Text(
+                'no_scenario_found'.tr,
+                style: theme.textTheme.bodyLarge,
+              ),
+            );
+          }
+
+          final gamebook = snapshot.data!;
+
+          return Scaffold(
+            body: SafeArea(
+              child: CustomScrollView(
+                slivers: [
+                  // App Bar
+                  SliverAppBar(
+                    expandedHeight: 200.0,
+                    floating: false,
+                    pinned: true,
+                    backgroundColor: theme.colorScheme.surface,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(
+                        gamebook.title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(0, 1),
+                              blurRadius: 3,
+                            ),
+                          ],
+                        ),
+                      ),
+                      background: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.surface,
+                            ],
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.auto_stories,
+                            size: 64,
+                            color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Content
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
+                      vertical: 24.0,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        // Author Info
+                        Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withOpacity(0.1),
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () =>
+                                Get.toNamed('/profile/${gamebook.authorId}'),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: theme.colorScheme.secondary
+                                        .withOpacity(0.1),
+                                    child: Icon(
+                                      Icons.person,
+                                      color: theme.colorScheme.secondary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'author'.tr,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                            color: theme.colorScheme.onSurface
+                                                .withOpacity(0.7),
+                                          ),
+                                        ),
+                                        Text(
+                                          'ID: ${gamebook.authorId}',
+                                          style: theme.textTheme.titleMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Description Section
+                        Text(
+                          'description'.tr,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: theme.cardTheme.color,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: theme.colorScheme.outline.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Text(
+                            gamebook.description,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Dates Section
+                        Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'dates'.tr,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      size: 20,
+                                      color: theme.colorScheme.secondary,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'start_date'.tr,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                            color: theme.colorScheme.onSurface
+                                                .withOpacity(0.7),
+                                          ),
+                                        ),
+                                        Text(
+                                          gamebook.startDate
+                                              .toLocal()
+                                              .toString()
+                                              .split(' ')[0],
+                                          style: theme.textTheme.titleMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                if (gamebook.endDate != null) ...[
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.event,
+                                        size: 20,
+                                        color: theme.colorScheme.secondary,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'end_date'.tr,
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                              color: theme.colorScheme.onSurface
+                                                  .withOpacity(0.7),
+                                            ),
+                                          ),
+                                          Text(
+                                            gamebook.endDate!
+                                                .toLocal()
+                                                .toString()
+                                                .split(' ')[0],
+                                            style: theme.textTheme.titleMedium,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Steps Section
+                        Text(
+                          'steps'.tr,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (gamebook.steps.isNotEmpty)
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: gamebook.steps.length,
+                            itemBuilder: (context, index) {
+                              final step = gamebook.steps[index];
+                              return Card(
+                                elevation: 0,
+                                margin: const EdgeInsets.only(bottom: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: theme.colorScheme.outline
+                                        .withOpacity(0.1),
+                                  ),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(16),
+                                  leading: CircleAvatar(
+                                    backgroundColor: theme.colorScheme.secondary
+                                        .withOpacity(0.1),
+                                    child: Text(
+                                      (index + 1).toString(),
+                                      style: TextStyle(
+                                        color: theme.colorScheme.secondary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  title: Text(
+                                    step.text,
+                                    style: theme.textTheme.bodyLarge,
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      'Step ID: ${step.id}',
+                                      style:
+                                          theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onSurface
+                                            .withOpacity(0.6),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        else
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.format_list_bulleted,
+                                    size: 48,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.3),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'no_steps_available'.tr,
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.7),
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            bottomNavigationBar: Container(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                8,
+                16,
+                8 + MediaQuery.of(context).padding.bottom,
+              ),
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 5,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: authController.isAuthenticated
+                          ? () async {
+                              final gameController =
+                                  Get.find<GamePlayController>();
+                              final gameData = await gameController
+                                  .createGameFromScenario(gamebook.id);
+                              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                                  ":id", gameData['id_game'].toString()));
+                            }
+                          : null,
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        size: 24,
+                        color: authController.isAuthenticated
+                            ? theme.colorScheme.onSecondary
+                            : theme.colorScheme.onSurface.withOpacity(0.38),
+                      ),
+                      label: Text('play_game'.tr),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        backgroundColor: authController.isAuthenticated
+                            ? theme.colorScheme.secondary
+                            : theme.colorScheme.surfaceVariant,
+                      ),
+                    ),
+                  ),
+                  if (!authController.isAuthenticated)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'login_needed'.tr,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );

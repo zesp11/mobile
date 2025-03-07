@@ -3,15 +3,16 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
-import 'package:gotale/app/ui/widgets/user_profile.dart';
 
-// TODO: redirect to /profile if its user own profile, but using middleware
 class UserProfileScreen extends GetView<ProfileController> {
   final AuthController authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
     final String userId = Get.parameters['id']!;
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 600;
 
     // Redirect to '/profile' if the user views their own profile
     if (authController.state?.id == userId) {
@@ -27,26 +28,225 @@ class UserProfileScreen extends GetView<ProfileController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Profile"),
+        title: Text(
+          'user_profile'.tr,
+          style: theme.textTheme.titleLarge,
+        ),
+        centerTitle: true,
       ),
       body: controller.obx(
         // Success state
         (userProfile) {
           if (userProfile == null) {
-            return const Center(child: Text('User profile not found.'));
+            return Center(
+              child: Text(
+                'user_not_found'.tr,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            );
           }
-          return Center(
-            child: UserProfileWidget(userProfile: userProfile),
+
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
+                vertical: 24.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile Header
+                  Center(
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: isSmallScreen ? 50 : 60,
+                          backgroundColor:
+                              theme.colorScheme.secondary.withOpacity(0.1),
+                          child: Text(
+                            (userProfile.name.substring(0, 1)).toUpperCase(),
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              color: theme.colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: isSmallScreen ? 32 : 40,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          userProfile.name,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          userProfile.email,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Bio Section
+                  if (userProfile.bio.isNotEmpty) ...[
+                    Text(
+                      'bio'.tr,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.cardTheme.color,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Text(
+                        userProfile.bio,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+
+                  // Stats Section
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
+                    decoration: BoxDecoration(
+                      color: theme.cardTheme.color,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withOpacity(0.1),
+                      ),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Wrap(
+                          alignment: WrapAlignment.spaceAround,
+                          spacing: constraints.maxWidth * 0.05,
+                          runSpacing: 24,
+                          children: [
+                            _buildStatItem(
+                              context,
+                              'games_played'.tr,
+                              '${userProfile.gamesPlayed}',
+                              Icons.sports_esports,
+                              isSmallScreen,
+                            ),
+                            _buildStatItem(
+                              context,
+                              'scenarios_created'.tr,
+                              '3',
+                              Icons.create,
+                              isSmallScreen,
+                            ),
+                            _buildStatItem(
+                              context,
+                              'achievements'.tr,
+                              '5',
+                              Icons.emoji_events,
+                              isSmallScreen,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           );
         },
-        onLoading: const Center(child: CircularProgressIndicator()),
-        onEmpty: const Center(child: Text('User profile not found.')),
+        onLoading: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                color: theme.colorScheme.secondary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'loading_profile'.tr,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onBackground.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+        onEmpty: Center(
+          child: Text(
+            'user_not_found'.tr,
+            style: theme.textTheme.titleMedium,
+          ),
+        ),
         onError: (error) => Center(
           child: ErrorScreen(
-            error: error ?? 'An error occurred',
+            error: error ?? 'error_loading_profile'.tr,
             onRetry: () => controller.fetchUserProfile(userId),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    bool isSmallScreen,
+  ) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: isSmallScreen ? null : 160,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: theme.colorScheme.secondary,
+              size: isSmallScreen ? 24 : 28,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.secondary,
+              fontSize: isSmallScreen ? 24 : 28,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

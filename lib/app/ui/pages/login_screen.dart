@@ -17,101 +17,382 @@ class LoginScreen extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Email input
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'email'.tr,
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            // Password input
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'password'.tr,
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 24),
-            // StateMixin's onLoading, onError, onEmpty for handling states
-            controller.obx(
-              onLoading: const Center(child: CircularProgressIndicator()),
-              onError: (error) => Column(
-                children: [
-                  Text(
-                    'login_failed'.tr,
-                    style: TextStyle(color: Colors.red),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: TweenAnimationBuilder(
+              duration: Duration(milliseconds: 800),
+              tween: Tween<double>(begin: 0, end: 1),
+              builder: (context, double value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: child,
                   ),
-                  const SizedBox(height: 16),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 32),
+                  Hero(
+                    tag: 'welcome_text',
+                    child: Text(
+                      'welcome_back'.tr,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'login_subtitle'.tr,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onBackground.withOpacity(0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Email input with animation
+                  TweenAnimationBuilder(
+                    duration: Duration(milliseconds: 600),
+                    tween:
+                        Tween<Offset>(begin: Offset(-0.2, 0), end: Offset.zero),
+                    builder: (context, Offset offset, child) {
+                      return Transform.translate(
+                        offset: offset * 100,
+                        child: child,
+                      );
+                    },
+                    child: TextField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        labelText: 'email'.tr,
+                        hintText: 'enter_email'.tr,
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: theme.colorScheme.tertiary,
+                        ),
+                        filled: true,
+                        fillColor: theme.cardTheme.color,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.tertiary,
+                        ),
+                        floatingLabelStyle: TextStyle(
+                          color: theme.colorScheme.secondary,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.tertiary.withOpacity(0.2),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.tertiary.withOpacity(0.2),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.secondary,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      style: theme.textTheme.bodyLarge,
+                      cursorColor: theme.colorScheme.secondary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password input with animation
+                  TweenAnimationBuilder(
+                    duration: Duration(milliseconds: 600),
+                    tween:
+                        Tween<Offset>(begin: Offset(0.2, 0), end: Offset.zero),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, Offset offset, child) {
+                      return Transform.translate(
+                        offset: offset * 100,
+                        child: child,
+                      );
+                    },
+                    child: TextField(
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'password'.tr,
+                        hintText: 'enter_password'.tr,
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: theme.colorScheme.tertiary,
+                        ),
+                        filled: true,
+                        fillColor: theme.cardTheme.color,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.tertiary,
+                        ),
+                        floatingLabelStyle: TextStyle(
+                          color: theme.colorScheme.secondary,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.tertiary.withOpacity(0.2),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.tertiary.withOpacity(0.2),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.secondary,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                      ),
+                      obscureText: true,
+                      style: theme.textTheme.bodyLarge,
+                      cursorColor: theme.colorScheme.secondary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Error and Loading States
+                  controller.obx(
+                    onLoading: Center(
+                      child: Column(
+                        children: [
+                          TweenAnimationBuilder(
+                            duration: Duration(milliseconds: 400),
+                            tween: Tween<double>(begin: 0, end: 1),
+                            builder: (context, double value, child) {
+                              return Transform.scale(
+                                scale: value,
+                                child: child,
+                              );
+                            },
+                            child: CircularProgressIndicator(
+                              color: theme.colorScheme.secondary,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'logging_in'.tr,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    onError: (error) => TweenAnimationBuilder(
+                      duration: Duration(milliseconds: 400),
+                      tween: Tween<double>(begin: 0, end: 1),
+                      builder: (context, double value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Opacity(
+                            opacity: value,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.error.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: theme.colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'login_failed'.tr,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    onEmpty: const SizedBox.shrink(),
+                    (state) => const SizedBox.shrink(),
+                  ),
+
+                  // Login Button with animation and glow
+                  TweenAnimationBuilder(
+                    duration: Duration(milliseconds: 600),
+                    tween: Tween<double>(begin: 0, end: 1),
+                    curve: Curves.easeOut,
+                    builder: (context, double value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.colorScheme.secondary
+                                    .withOpacity(0.3 * value),
+                                blurRadius: 15,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final email = emailController.text.trim();
+                          final password = passwordController.text.trim();
+
+                          if (email.isEmpty || password.isEmpty) {
+                            Get.snackbar(
+                              'error'.tr,
+                              'credentials_required'.tr,
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor:
+                                  theme.colorScheme.error.withOpacity(0.1),
+                              colorText: theme.colorScheme.error,
+                              margin: const EdgeInsets.all(16),
+                              borderRadius: 12,
+                            );
+                            return;
+                          }
+
+                          await controller.login(email, password);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: theme.colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'login'.tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Register Link with animation and glow
+                  TweenAnimationBuilder(
+                    duration: Duration(milliseconds: 800),
+                    tween: Tween<double>(begin: 0, end: 1),
+                    curve: Curves.easeOut,
+                    builder: (context, double value, child) {
+                      return Opacity(
+                        opacity: value,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.colorScheme.secondary
+                                    .withOpacity(0.2 * value),
+                                blurRadius: 10,
+                                spreadRadius: -2,
+                              ),
+                            ],
+                          ),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Center(
+                      child: TextButton(
+                        onPressed: () => Get.toNamed('/register'),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: Text(
+                          '${'no_account_question'.tr} ${'register'.tr}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.secondary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              onEmpty: Padding(
-                padding: EdgeInsets.only(bottom: 16.0),
-                child: Center(
-                  child: Text('not_logged_in'.tr),
-                ),
-              ),
-              // Default UI when login succeeds (or controller state changes)
-              (state) {
-                return SizedBox
-                    .shrink(); // Return nothing, as we already have the button
-              },
             ),
-            // Submit button (only displayed once)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final email = emailController.text.trim();
-                  final password = passwordController.text.trim();
-
-                  if (email.isEmpty || password.isEmpty) {
-                    Get.snackbar(
-                      'Error',
-                      'Email and password are required.',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
-                    return;
-                  }
-
-                  // Trigger login using AuthController
-                  await controller.login(email, password);
-                },
-                child: Text('login'.tr),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Link to Register page
-            Center(
-              child: GestureDetector(
-                onTap: () => Get.toNamed('/register'),
-                child: Text(
-                  '${'no_account_question'.tr} ${'register'.tr}',
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'login_settings_fab',
-        onPressed: () => Get.toNamed('/settings'),
-        child: const Icon(Icons.settings),
-        tooltip: 'Settings',
+      floatingActionButton: TweenAnimationBuilder(
+        duration: Duration(milliseconds: 600),
+        tween: Tween<double>(begin: 0, end: 1),
+        curve: Curves.elasticOut,
+        builder: (context, double value, child) {
+          return Transform.scale(
+            scale: value,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.secondary.withOpacity(0.3 * value),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: child,
+            ),
+          );
+        },
+        child: FloatingActionButton(
+          heroTag: 'login_settings_fab',
+          onPressed: () => Get.toNamed('/settings'),
+          backgroundColor: theme.colorScheme.secondary,
+          child: Icon(Icons.settings),
+        ),
       ),
     );
   }

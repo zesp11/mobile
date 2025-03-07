@@ -11,13 +11,15 @@ class RecommendedGamesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SectionWidget(
       title: "recommended_games".tr,
       child: Obx(() {
         if (controller.isAvailableGamebooksLoading.value) {
           return Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFFA802F),
+              color: theme.colorScheme.secondary,
             ),
           );
         }
@@ -26,10 +28,7 @@ class RecommendedGamesWidget extends StatelessWidget {
           return Center(
             child: Text(
               "no_recommended_games".tr,
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xFF9C8B73).withOpacity(0.6),
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
           );
         }
@@ -37,40 +36,40 @@ class RecommendedGamesWidget extends StatelessWidget {
         return Column(
           children: controller.availableGamebooks.map((gamebook) {
             return Container(
-              height: 90, // Reduced height for single-line layout
-              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              height: 90,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Card(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
-                    color: Color(0xFF9C8B73).withOpacity(0.2),
+                    color: theme.colorScheme.tertiary.withOpacity(0.2),
                     width: 1,
                   ),
                 ),
-                elevation: 2,
-                color:
-                    Color(0xFFF3E8CA).withOpacity(0.7), // Brighter background
+                elevation: theme.cardTheme.elevation ?? 1,
+                color: theme.cardTheme.color,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   onTap: () => Get.toNamed('/scenario/${gamebook.id}'),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Row(
                       children: [
                         // Icon Container
                         Container(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Color(0xFFFA802F).withOpacity(0.2),
+                            color: theme.colorScheme.secondary.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.auto_awesome,
-                            color: Color(0xFFFA802F),
+                            color: theme.colorScheme.secondary,
                             size: 24,
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         // Title and Rating
                         Expanded(
                           child: Row(
@@ -82,29 +81,26 @@ class RecommendedGamesWidget extends StatelessWidget {
                                   children: [
                                     Text(
                                       gamebook.title,
-                                      style: TextStyle(
-                                        fontSize: 18, // Larger text
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF322505),
+                                      style:
+                                          theme.textTheme.titleMedium?.copyWith(
                                         height: 1.2,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Row(
                                       children: [
                                         Icon(
                                           Icons.star,
-                                          color: Color(0xFFFA802F),
+                                          color: theme.colorScheme.secondary,
                                           size: 18,
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Text(
                                           "9.1",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF9C8B73),
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -115,10 +111,11 @@ class RecommendedGamesWidget extends StatelessWidget {
                               ),
                               // Arrow aligned with title
                               Padding(
-                                padding: EdgeInsets.only(left: 12),
+                                padding: const EdgeInsets.only(left: 12),
                                 child: Icon(
                                   Icons.arrow_forward,
-                                  color: Color(0xFF9C8B73).withOpacity(0.6),
+                                  color: theme.colorScheme.tertiary
+                                      .withOpacity(0.6),
                                   size: 24,
                                 ),
                               ),

@@ -6,8 +6,12 @@ class OnboardingScreen extends StatefulWidget {
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
   int _currentPage = 0;
 
   final List<Widget> _pages = [
@@ -33,6 +37,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       color: Color(0xFF322505),
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,44 +128,64 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Next/Start Button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_currentPage < _pages.length - 1) {
-                          _pageController.nextPage(
-                            duration: Duration(milliseconds: 400),
-                            curve: Curves.easeInOut,
-                          );
-                        } else {
-                          Get.offAllNamed('/');
-                        }
+                    child: TweenAnimationBuilder(
+                      duration: Duration(milliseconds: 600),
+                      tween: Tween<double>(begin: 0, end: 1),
+                      builder: (context, double value, child) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    Color(0xFFFA802F).withOpacity(0.3 * value),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: child,
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF322505),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          side: BorderSide(
-                            color: Color(0xFFFA802F),
-                            width: 2,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_currentPage < _pages.length - 1) {
+                            _pageController.nextPage(
+                              duration: Duration(milliseconds: 400),
+                              curve: Curves.easeInOut,
+                            );
+                          } else {
+                            Get.offAllNamed('/');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF322505),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            side: BorderSide(
+                              color: Color(0xFFFA802F),
+                              width: 2,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Text(
-                        _currentPage == _pages.length - 1
-                            ? 'Begin Adventure'
-                            : 'Next',
-                        style: TextStyle(
-                          color: Color(0xFFF3E8CA),
-                          fontSize: 18,
-                          fontFamily: 'MedievalSharp',
-                          letterSpacing: 1.1,
+                        child: Text(
+                          _currentPage == _pages.length - 1
+                              ? 'Begin Adventure'
+                              : 'Next',
+                          style: TextStyle(
+                            color: Color(0xFFF3E8CA),
+                            fontSize: 18,
+                            fontFamily: 'MedievalSharp',
+                            letterSpacing: 1.1,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   SizedBox(height: 30),
-                  // Page Indicators
+                  // Page Indicators with glow
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(_pages.length, (index) {
@@ -141,6 +199,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ? Color(0xFFFA802F)
                               : Color(0xFF9C8B73).withOpacity(0.4),
                           borderRadius: BorderRadius.circular(4),
+                          boxShadow: _currentPage == index
+                              ? [
+                                  BoxShadow(
+                                    color: Color(0xFFFA802F).withOpacity(0.4),
+                                    blurRadius: 8,
+                                    spreadRadius: 1,
+                                  ),
+                                ]
+                              : null,
                         ),
                       );
                     }),
@@ -175,59 +242,97 @@ class _OnboardingPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: color,
-                width: 2,
+          TweenAnimationBuilder(
+            duration: Duration(milliseconds: 800),
+            tween: Tween<double>(begin: 0, end: 1),
+            builder: (context, double value, child) {
+              return Transform.scale(
+                scale: value,
+                child: child,
+              );
+            },
+            child: Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: color,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-            ),
-            child: Icon(
-              icon,
-              size: 60,
-              color: color,
+              child: Icon(
+                icon,
+                size: 60,
+                color: color,
+              ),
             ),
           ),
           SizedBox(height: 40),
-          Stack(
-            children: [
-              // Text border
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontFamily: 'MedievalSharp',
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 2
-                    ..color = Color(0xFF322505),
+          TweenAnimationBuilder(
+            duration: Duration(milliseconds: 600),
+            tween: Tween<Offset>(begin: Offset(0, 20), end: Offset.zero),
+            builder: (context, Offset offset, child) {
+              return Transform.translate(
+                offset: offset,
+                child: child,
+              );
+            },
+            child: Stack(
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontFamily: 'MedievalSharp',
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 2
+                      ..color = Color(0xFF322505),
+                  ),
                 ),
-              ),
-              // Main text
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontFamily: 'MedievalSharp',
-                  color: color,
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontFamily: 'MedievalSharp',
+                    color: color,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(height: 30),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFF322505),
-              height: 1.4,
-              fontFamily: 'Merriweather',
+          TweenAnimationBuilder(
+            duration: Duration(milliseconds: 800),
+            tween: Tween<double>(begin: 0, end: 1),
+            builder: (context, double value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                color: Color(0xFF322505),
+                height: 1.4,
+                fontFamily: 'Merriweather',
+              ),
             ),
           ),
         ],
