@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "Local Debug",
-      "program": "gotale/lib/main.dart",
+      "program": "lib/main.dart",
       "request": "launch",
       "type": "dart",
       "args": [
@@ -13,7 +13,7 @@
     },
     {
       "name": "Debug Production",
-      "program": "gotale/lib/main.dart",
+      "program": "lib/main.dart",
       "request": "launch",
       "type": "dart",
       "args": [
@@ -23,7 +23,7 @@
     },
     {
       "name": "Production",
-      "program": "gotale/lib/main.dart",
+      "program": "lib/main.dart",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
