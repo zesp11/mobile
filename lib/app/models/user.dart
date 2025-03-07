@@ -1,7 +1,7 @@
 class UserProfile {
   final String id;
   String name;
-  final String email;
+  String email;
   String avatar;
   String bio;
   final int gamesPlayed;

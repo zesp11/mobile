@@ -45,7 +45,21 @@ class ProfileController extends GetxController with StateMixin<UserProfile> {
     change(null, status: RxStatus.loading());
   }
 
-  // Fetch the user profile by ID
+  // Fetch the current user's profile
+  Future<void> fetchCurrentUserProfile() async {
+    try {
+      change(null, status: RxStatus.loading());
+      // Fetch the profile and update the state with success
+      userProfile.value = await userService.fetchCurrentUserProfile();
+      change(userProfile.value, status: RxStatus.success());
+    } catch (e) {
+      // If an error occurs, change the state to error
+      change(null, status: RxStatus.error('Error fetching user profile: $e'));
+      logger.w('Error fetching user profile: $e');
+    }
+  }
+
+  // Fetch a specific user's profile by ID
   Future<void> fetchUserProfile(String id) async {
     try {
       change(null, status: RxStatus.loading());
@@ -59,13 +73,38 @@ class ProfileController extends GetxController with StateMixin<UserProfile> {
     }
   }
 
-  void updateProfile(String name, int gamesPlayed, int gamesFinished) {
-    // Add your logic for updating the profile
-    userProfile.value?.name = name;
-    userProfile.value?.bio = 'Updated bio';
-    userProfile.value?.preferences['gamesPlayed'] = gamesPlayed;
-    userProfile.value?.preferences['gamesFinished'] = gamesFinished;
-    // Trigger the update by notifying the state
-    change(userProfile.value, status: RxStatus.success());
+  Future<void> updateProfile(
+      String name, String bio, String email, String? password) async {
+    try {
+      if (userProfile.value == null) {
+        throw Exception('No user profile to update');
+      }
+
+      // Update the profile locally
+      userProfile.value!.name = name;
+      userProfile.value!.bio = bio;
+      userProfile.value!.email = email;
+
+      // Create update data
+      final updateData = {
+        'name': name,
+        'bio': bio,
+        'email': email,
+      };
+
+      // Add password to update data if provided
+      if (password != null && password.isNotEmpty) {
+        updateData['password'] = password;
+      }
+
+      // Update the profile on the server
+      await userService.updateUserProfile(updateData);
+
+      // Update the state
+      change(userProfile.value, status: RxStatus.success());
+    } catch (e) {
+      logger.e('Error updating profile: $e');
+      change(null, status: RxStatus.error('Failed to update profile: $e'));
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/ui/widgets/section_widget.dart';
 
+// TODO: fix that widget is not updated / show loading indicator
 class UserSummaryWidget extends StatelessWidget {
   final ProfileController profile = Get.find<ProfileController>();
   final AuthController auth = Get.find<AuthController>();

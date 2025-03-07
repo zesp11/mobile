@@ -115,4 +115,16 @@ class DevelopmentApiService implements ApiService {
     // TODO: implement searchUsers
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> updateUserProfile(Map<String, dynamic> profile) {
+    // TODO: implement updateUserProfile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCurrentUserProfile() {
+    // TODO: implement getCurrentUserProfile
+    throw UnimplementedError();
+  }
 }

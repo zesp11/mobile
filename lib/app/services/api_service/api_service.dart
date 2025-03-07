@@ -52,8 +52,8 @@ abstract class ApiService {
   /* User endpoints */
   Future<Map<String, dynamic>> getUserProfile(String id);
   Future<List<dynamic>> searchUsers(String query);
-  // TODO: Future<void> getCurrentUserProfile();
-  // TODO: updateProfile();
+  Future<Map<String, dynamic>> getCurrentUserProfile();
+  Future<void> updateUserProfile(Map<String, dynamic> profile);
   // TODO: getUsersList;
   // TODO: removeAccount;
 

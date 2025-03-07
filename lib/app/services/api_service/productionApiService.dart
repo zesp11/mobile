@@ -3,6 +3,7 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:logger/logger.dart';
 
@@ -422,6 +423,79 @@ class ProductionApiService extends ApiService {
       }
     } catch (e) {
       throw Exception('Scenario search failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> updateUserProfile(Map<String, dynamic> profile) async {
+    try {
+      final endpoint = '$name$updateProfileRoute';
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final response = await http.put(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(profile),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error updating profile: $e');
+      throw Exception('Failed to update profile: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCurrentUserProfile() async {
+    try {
+      final endpoint = '$name$getCurrentUserProfileRoute';
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic parsed = jsonDecode(response.body);
+        final userData = Map<String, dynamic>.from(parsed);
+
+        return {
+          'id': userData['id_user']?.toString() ?? '0',
+          'name': userData['login']?.toString() ?? 'Unknown User',
+          'email': userData['email']?.toString() ?? '',
+          'bio': userData['bio']?.toString() ?? '',
+          'gamesPlayed': (userData['gamesPlayed'] as int?) ?? 0,
+          'gamesFinished': (userData['gamesFinished'] as int?) ?? 0,
+          'preferences':
+              Map<String, dynamic>.from(userData['preferences'] ?? {}),
+          'avatar': userData['avatar']?.toString() ?? '',
+        };
+      } else {
+        throw Exception(
+            'Failed to load profile. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error fetching current user profile: $e');
+      throw Exception('Profile fetch failed: ${e.toString()}');
     }
   }
 }
