@@ -51,6 +51,7 @@ abstract class ApiService {
 
   /* User endpoints */
   Future<Map<String, dynamic>> getUserProfile(String id);
+  Future<List<dynamic>> searchUsers(String query);
   // TODO: Future<void> getCurrentUserProfile();
   // TODO: updateProfile();
   // TODO: getUsersList;
@@ -60,6 +61,7 @@ abstract class ApiService {
   // INFO: the mobile app doesn't allow for scenario creation
   Future<List<Map<String, dynamic>>> getAvailableGamebooks();
   Future<Map<String, dynamic>> getGameBookWithId(int gamebookId);
+  Future<List<dynamic>> searchScenarios(String query);
   // TODO: removeScenario();
 
   /* Game endpoints */

@@ -89,9 +89,7 @@ class FilterButtons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           _buildFilterButton("user".tr),
-          const SizedBox(width: 8), // Add spacing between buttons
-          _buildFilterButton("game".tr),
-          const SizedBox(width: 8), // Add spacing between buttons
+          const SizedBox(width: 8),
           _buildFilterButton("scenario".tr),
         ],
       ),
@@ -109,6 +107,8 @@ class FilterButtons extends StatelessWidget {
             } else {
               selectedFilters.add(filterType);
             }
+            print(
+                'Filter button pressed: $filterType, selected: ${!isSelected}');
             controller.filterItemsByTypes(selectedFilters);
           },
           style: ElevatedButton.styleFrom(
@@ -164,7 +164,6 @@ class SearchResults extends StatelessWidget {
               );
             }
 
-            // Add grouping logic here
             Map<String, List<Map<String, String>>> groupedItems = {};
             for (var item in state) {
               final type = item['type']!;
@@ -197,12 +196,6 @@ class SearchResults extends StatelessWidget {
                             color: Color(0xFF322505),
                           ),
                         ),
-                        subtitle: Text(
-                          item['type']!,
-                          style: TextStyle(
-                            color: Color(0xFF9C8B73),
-                          ),
-                        ),
                         onTap: () => _handleItemTap(item),
                       );
                     }),
@@ -228,13 +221,12 @@ class SearchResults extends StatelessWidget {
   Icon _getIconForType(String type) {
     return Icon(
       _typeIcons[type] ?? Icons.help_outline,
-      color: Color(0xFFFA802F), // Accent color for all icons
+      color: Color(0xFFFA802F),
     );
   }
 
   final _typeIcons = {
     'user': Icons.person,
-    'game': Icons.videogame_asset,
     'scenario': Icons.map,
   };
 
@@ -243,13 +235,6 @@ class SearchResults extends StatelessWidget {
       Get.toNamed('/profile/${item["id"]}');
     } else if (item['type'] == 'scenario') {
       Get.toNamed('/scenario/${item["id"]}');
-    } else {
-      Get.snackbar(
-        item['name']!,
-        'Selected: ${item['name']}',
-        backgroundColor: Color(0xFFF3E8CA), // Background
-        colorText: Color(0xFF322505), // Foreground
-      );
     }
   }
 }
