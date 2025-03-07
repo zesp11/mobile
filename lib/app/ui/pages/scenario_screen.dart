@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:gotale/app/models/gamebook.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/game_service.dart';
@@ -16,7 +17,7 @@ class ScenarioScreen extends StatelessWidget {
     return Scaffold(
       body: FutureBuilder<Gamebook>(
         future: Get.arguments == null
-            ? service.fetchGamebook(int.tryParse(id) ?? 0)
+            ? service.fetchScenarioDetails(int.tryParse(id) ?? 0)
             : Future.value(Get.arguments as Gamebook),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -226,9 +227,15 @@ class ScenarioScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: authController.isAuthenticated
-                                ? () => Get.toNamed(AppRoutes.gameDetail
-                                    .replaceFirst(
-                                        ":id", gamebook.id.toString()))
+                                ? () async {
+                                    final gameController =
+                                        Get.find<GamePlayController>();
+                                    final gameData = await gameController
+                                        .createGameFromScenario(gamebook.id);
+                                    Get.toNamed(AppRoutes.gameDetail
+                                        .replaceFirst(":id",
+                                            gameData['id_game'].toString()));
+                                  }
                                 : null,
                             style: ElevatedButton.styleFrom(
                               padding:

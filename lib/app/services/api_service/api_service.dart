@@ -62,12 +62,15 @@ abstract class ApiService {
   Future<List<Map<String, dynamic>>> getAvailableGamebooks();
   Future<Map<String, dynamic>> getGameBookWithId(int gamebookId);
   Future<List<dynamic>> searchScenarios(String query);
+  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId);
   // TODO: removeScenario();
 
   /* Game endpoints */
   // Future<void> createGame();
   // Future<void> getGameWithId(int id);
   // Future<void> getNearbyGames(int id);
+  Future<Map<String, dynamic>> getCurrentStep(int gameId);
+  Future<Map<String, dynamic>> getGamePlay(int gameId);
   // Future<void> getStep(int id);
   // Future<void> makeStep(int id);
 

@@ -29,6 +29,8 @@ class ProductionApiService extends ApiService {
   static const String getAvailableGamebooksRoute = '/api/scenarios';
   static const String getGameBookWithIdRoute = '/api/scenarios/:id';
   static const String removeScenarioRoute = '/api/scenarios/:id';
+  static const String createGameFromScenarioRoute =
+      '/api/scenarios/createGame/:id';
 
   // Game endpoints
   static const String createGameRoute = '/api/games';
@@ -36,6 +38,7 @@ class ProductionApiService extends ApiService {
   static const String getNearbyGamesRoute = '/api/games/:id';
   static const String getStepRoute = '/api/games/:id/step';
   static const String makeStepRoute = '/api/games/:id/step';
+  static const String playGameRoute = '/api/games/:id/play';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -188,9 +191,54 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId) {
-    // TODO: implement getGameBookWithId
-    throw UnimplementedError();
+  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId) async {
+    try {
+      final endpoint =
+          '$name${getGameBookWithIdRoute.replaceFirst(':id', gamebookId.toString())}';
+      final logger = Get.find<Logger>();
+
+      logger.d('Fetching scenario with ID: $endpoint');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Get scenario response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        return {
+          'id': responseData['id_scenario'] ?? gamebookId,
+          'title': responseData['name'] ?? 'Untitled Scenario',
+          'description':
+              responseData['description'] ?? 'No description available',
+          'startDate':
+              responseData['created_at'] ?? DateTime.now().toIso8601String(),
+          'endDate': responseData['end_date'],
+          'steps': responseData['steps'] ?? [],
+          'authorId': responseData['id_author'] ?? 0,
+          'difficulty': responseData['difficulty'] ?? 'medium',
+          'coverImage': responseData['cover_image'] ?? '',
+        };
+      } else {
+        throw Exception('Failed to get scenario: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error getting scenario: $e');
+      throw Exception('Failed to get scenario: $e');
+    }
   }
 
   // TODO: add logger to log all network activity
@@ -496,6 +544,122 @@ class ProductionApiService extends ApiService {
     } catch (e) {
       logger.e('Error fetching current user profile: $e');
       throw Exception('Profile fetch failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
+    try {
+      final endpoint =
+          '$name${createGameFromScenarioRoute.replaceFirst(':id', scenarioId.toString())}';
+      final logger = Get.find<Logger>();
+
+      logger.d('Creating game from scenario: $endpoint');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Create game response status: ${response.statusCode}');
+      logger.d('Create game response response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to create game: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error creating game: $e');
+      throw Exception('Failed to create game: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCurrentStep(int gameId) async {
+    try {
+      final endpoint =
+          '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
+      final logger = Get.find<Logger>();
+
+      logger.d('Fetching current step for game: $endpoint');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      logger.d('Authorization token: $token');
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Get current step response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to get current step: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error getting current step: $e');
+      throw Exception('Failed to get current step: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getGamePlay(int gameId) async {
+    try {
+      final endpoint =
+          '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
+      final logger = Get.find<Logger>();
+
+      logger.d('Fetching game play data for game ID: $endpoint');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Get game play response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to get game play data: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error getting game play data: $e');
+      throw Exception('Failed to get game play data: $e');
     }
   }
 }

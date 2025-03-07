@@ -127,4 +127,22 @@ class DevelopmentApiService implements ApiService {
     // TODO: implement getCurrentUserProfile
     throw UnimplementedError();
   }
+
+  @override
+  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) {
+    // TODO: implement createGameFromScenario
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCurrentStep(int gameId) {
+    // TODO: implement getCurrentStep
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Map<String, dynamic>> getGamePlay(int gameId) {
+    // TODO: implement getGamePlay
+    throw UnimplementedError();
+  }
 }
