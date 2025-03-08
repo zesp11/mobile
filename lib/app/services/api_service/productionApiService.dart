@@ -715,4 +715,48 @@ class ProductionApiService extends ApiService {
       throw Exception('Failed to get games in progress: $e');
     }
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getGameHistory(int gameId) async {
+    try {
+      final endpoint = '$name/api/games/$gameId/history';
+      final logger = Get.find<Logger>();
+
+      logger.i('Fetching game history from: $endpoint');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.i('Get game history response status: ${response.statusCode}');
+      logger.d('Get game history response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> history = jsonDecode(response.body);
+        logger.i('Found ${history.length} history entries');
+        return history
+            .map<Map<String, dynamic>>(
+                (entry) => Map<String, dynamic>.from(entry))
+            .toList();
+      } else {
+        logger.e('Failed to get game history: ${response.statusCode}');
+        throw Exception('Failed to get game history: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error getting game history: $e');
+      throw Exception('Failed to get game history: $e');
+    }
+  }
 }

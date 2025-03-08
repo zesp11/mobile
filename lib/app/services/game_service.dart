@@ -96,6 +96,16 @@ class GameService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getGameHistory(int gameId) async {
+    try {
+      logger.i("[DEV_DEBUG] Fetching game history for game ID: $gameId");
+      return await apiService.getGameHistory(gameId);
+    } catch (e) {
+      logger.e("[DEV_DEBUG] Error fetching game history: $e");
+      return [];
+    }
+  }
+
   Future<void> fetchGamebookData(int gameId) async {
     try {
       logger.i("[DEV_DEBUG] Fetching gamebook data for game ID: $gameId");

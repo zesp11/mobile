@@ -89,11 +89,33 @@ class GamePlayController extends GetxController with StateMixin {
   Rx<Step?> currentStep = Rx<Step?>(null);
 
   // History to store the sequence of decisions and steps
-  var gameHistory = RxList<String>([]);
+  var gameHistory = RxList<Map<String, dynamic>>([]);
+  var isHistoryLoading = false.obs;
 
   var isCurrentGamebookLoading = false.obs;
 
   GamePlayController({required this.gameService});
+
+  // Fetch game history
+  Future<void> fetchGameHistory(int gameId) async {
+    try {
+      isHistoryLoading.value = true;
+      logger.i("[DEV_DEBUG] Fetching game history for ID: $gameId");
+      final history = await gameService.getGameHistory(gameId);
+      logger.d("[DEV_DEBUG] Game history response: $history");
+
+      // Sort history by start_date in ascending order (oldest first)
+      history.sort((a, b) =>
+          (a['start_date'] as String).compareTo(b['start_date'] as String));
+      gameHistory.assignAll(history);
+
+      logger.i("[DEV_DEBUG] Loaded ${gameHistory.length} history entries");
+    } catch (e) {
+      logger.e("[DEV_DEBUG] Error fetching game history: $e");
+    } finally {
+      isHistoryLoading.value = false;
+    }
+  }
 
   // Create a new game from a scenario
   Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
@@ -194,8 +216,11 @@ class GamePlayController extends GetxController with StateMixin {
       hasArrivedAtLocation.value = false;
       showPostDecisionMessage.value = false;
 
-      // Fetch the current step separately
-      await fetchCurrentStep(id);
+      // Fetch the current step and history
+      await Future.wait([
+        fetchCurrentStep(id),
+        fetchGameHistory(id),
+      ]);
 
       change(null, status: RxStatus.success());
     } catch (e) {
@@ -212,10 +237,20 @@ class GamePlayController extends GetxController with StateMixin {
     showPostDecisionMessage.value = true;
     hasArrivedAtLocation.value = false;
     if (currentStep.value != null) {
-      gameHistory.add("Step: ${currentStep.value!.text}");
+      gameHistory.add({
+        'id_choice': 0, // 0 indicates a step entry
+        'current_step': currentStep.value!.id,
+        'start_date': DateTime.now().toIso8601String(),
+        'text': currentStep.value!.text,
+      });
     }
 
-    gameHistory.add("Decision: ${decision.text}");
+    gameHistory.add({
+      'id_choice': decision.nextStepId, // Use the next step ID as the choice ID
+      'current_step': currentStep.value?.id ?? 0,
+      'start_date': DateTime.now().toIso8601String(),
+      'text': decision.text,
+    });
 
     // Fetch the next step
     if (currentGamebook.value != null) {
