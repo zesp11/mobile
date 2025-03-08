@@ -97,6 +97,9 @@ class GamePlayController extends GetxController with StateMixin {
 
   var isCurrentGamebookLoading = false.obs;
 
+  // Add new observable for game state
+  final isGameEnded = false.obs;
+
   GamePlayController({required this.gameService});
 
   // Fetch game history
@@ -166,7 +169,22 @@ class GamePlayController extends GetxController with StateMixin {
       logger.d("[DEV_DEBUG] Parsed step object: $step");
 
       if (step != null) {
-        final currentStep = Step(
+        // Check for end of game
+        if (step['title'] == 'EOG' && step['text'] == 'END_OF_GAME') {
+          logger.i("[DEV_DEBUG] Game has ended");
+          isGameEnded.value = true;
+          currentStep.value = Step(
+            id: 0,
+            title: 'Game Over',
+            text: 'Congratulations! You have completed the game.',
+            latitude: 0.0,
+            longitude: 0.0,
+            decisions: [],
+          );
+          return;
+        }
+
+        final newStep = Step(
           id: step['id_step'] ?? 1,
           title: step['title'] ?? 'Current Step',
           text: step['text'] ?? '',
@@ -181,10 +199,10 @@ class GamePlayController extends GetxController with StateMixin {
               [],
         );
 
-        logger.i("[DEV_DEBUG] Created Step object: $currentStep");
-        logger.d(
-            "[DEV_DEBUG] Number of choices: ${currentStep.decisions.length}");
-        this.currentStep.value = currentStep;
+        logger.i("[DEV_DEBUG] Created Step object: $newStep");
+        logger.d("[DEV_DEBUG] Number of choices: ${newStep.decisions.length}");
+        currentStep.value = newStep;
+        isGameEnded.value = false;
       } else {
         logger.w("[DEV_DEBUG] No step data found in response");
       }
@@ -198,6 +216,7 @@ class GamePlayController extends GetxController with StateMixin {
   Future<void> fetchGamebookData(int id) async {
     change(null, status: RxStatus.loading());
     gameHistory.clear();
+    isGameEnded.value = false;
     try {
       logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
       final gameData = await gameService.getGamePlay(id);
@@ -277,6 +296,22 @@ class GamePlayController extends GetxController with StateMixin {
         // Update the current step from the response
         if (response['step'] != null) {
           final step = response['step'];
+
+          // Check for end of game in the response
+          if (step['title'] == 'EOG' && step['text'] == 'END_OF_GAME') {
+            logger.i("[DEV_DEBUG] Game has ended after decision");
+            isGameEnded.value = true;
+            currentStep.value = Step(
+              id: 0,
+              title: 'Game Over',
+              text: 'Congratulations! You have completed the game.',
+              latitude: 0.0,
+              longitude: 0.0,
+              decisions: [],
+            );
+            return;
+          }
+
           final newStep = Step(
             id: step['id_step'] ?? 1,
             title: step['title'] ?? 'Current Step',
@@ -314,5 +349,16 @@ class GamePlayController extends GetxController with StateMixin {
     } else {
       return gameHistory.join('\n');
     }
+  }
+
+  void onReturnToSelection() {
+    isGameEnded.value = false;
+    currentStep.value = null;
+    Get.offNamed('/game-selection');
+  }
+
+  @override
+  void onClose() {
+    // ... existing code ...
   }
 }
