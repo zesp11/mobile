@@ -12,7 +12,7 @@ import 'package:gotale/app/controllers/auth_controller.dart';
  TODO: fix above but
  */
 class LoginScreen extends GetView<AuthController> {
-  final emailController = TextEditingController();
+  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
   @override
@@ -59,7 +59,7 @@ class LoginScreen extends GetView<AuthController> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Email input with animation
+                  // Username input with animation
                   TweenAnimationBuilder(
                     duration: Duration(milliseconds: 600),
                     tween:
@@ -71,12 +71,12 @@ class LoginScreen extends GetView<AuthController> {
                       );
                     },
                     child: TextField(
-                      controller: emailController,
+                      controller: usernameController,
                       decoration: InputDecoration(
-                        labelText: 'email'.tr,
-                        hintText: 'enter_email'.tr,
+                        labelText: 'username'.tr,
+                        hintText: 'enter_username'.tr,
                         prefixIcon: Icon(
-                          Icons.email_outlined,
+                          Icons.person_outline,
                           color: theme.colorScheme.tertiary,
                         ),
                         filled: true,
@@ -110,7 +110,6 @@ class LoginScreen extends GetView<AuthController> {
                           vertical: 16,
                         ),
                       ),
-                      keyboardType: TextInputType.emailAddress,
                       style: theme.textTheme.bodyLarge,
                       cursorColor: theme.colorScheme.secondary,
                     ),
@@ -263,10 +262,10 @@ class LoginScreen extends GetView<AuthController> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () async {
-                                final email = emailController.text.trim();
+                                final username = usernameController.text.trim();
                                 final password = passwordController.text.trim();
 
-                                if (email.isEmpty || password.isEmpty) {
+                                if (username.isEmpty || password.isEmpty) {
                                   Get.snackbar(
                                     'error'.tr,
                                     'credentials_required'.tr,
@@ -280,7 +279,7 @@ class LoginScreen extends GetView<AuthController> {
                                   return;
                                 }
 
-                                await controller.login(email, password);
+                                await controller.login(username, password);
                               },
                               style: ElevatedButton.styleFrom(
                                 padding:
