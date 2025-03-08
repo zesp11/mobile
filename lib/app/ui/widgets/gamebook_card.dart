@@ -55,13 +55,21 @@ class GamebookCard extends StatelessWidget {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer,
+                      color: isDark
+                          ? theme.colorScheme.secondaryContainer
+                          : theme.colorScheme.secondary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: theme.colorScheme.secondary.withOpacity(0.2),
+                        width: 1,
+                      ),
                     ),
                     child: Icon(
                       Icons.auto_stories,
                       size: 32,
-                      color: theme.colorScheme.onSecondaryContainer,
+                      color: isDark
+                          ? theme.colorScheme.onSecondaryContainer
+                          : theme.colorScheme.secondary,
                     ),
                   ),
                   const SizedBox(width: 16),

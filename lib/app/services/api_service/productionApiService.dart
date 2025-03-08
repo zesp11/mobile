@@ -759,4 +759,46 @@ class ProductionApiService extends ApiService {
       throw Exception('Failed to get game history: $e');
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId) async {
+    try {
+      final endpoint =
+          '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
+      final logger = Get.find<Logger>();
+
+      logger.d('Making decision for game $gameId with choice $choiceId');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: headers,
+        body: jsonEncode({
+          'id_choice': choiceId,
+        }),
+      );
+
+      logger.d('Make decision response status: ${response.statusCode}');
+      logger.d('Make decision response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to make decision: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error making decision: $e');
+      throw Exception('Failed to make decision: $e');
+    }
+  }
 }
