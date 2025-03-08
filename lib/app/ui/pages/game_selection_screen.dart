@@ -21,9 +21,10 @@ class GameSelectionScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 600;
+    final isAuthenticated = authController.isAuthenticated;
 
     return DefaultTabController(
-      length: 2,
+      length: isAuthenticated ? 2 : 1,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -41,7 +42,7 @@ class GameSelectionScreen extends StatelessWidget {
             indicatorWeight: 3,
             tabs: [
               Tab(text: 'scenarios'.tr),
-              Tab(text: 'games_in_progress'.tr),
+              if (isAuthenticated) Tab(text: 'games_in_progress'.tr),
             ],
           ),
         ),
@@ -109,92 +110,93 @@ class GameSelectionScreen extends StatelessWidget {
                   );
                 }),
               ),
-              // Games in Progress Tab
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
-                  vertical: 16.0,
-                ),
-                child: Obx(() {
-                  if (controller.isGamesInProgressLoading.value) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            color: theme.colorScheme.secondary,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'loading_games'.tr,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: theme.colorScheme.onBackground
-                                  .withOpacity(0.7),
+              // Games in Progress Tab (only shown when authenticated)
+              if (isAuthenticated)
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
+                    vertical: 16.0,
+                  ),
+                  child: Obx(() {
+                    if (controller.isGamesInProgressLoading.value) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                              color: theme.colorScheme.secondary,
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (controller.gamesInProgress.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.games_outlined,
-                            size: 64,
-                            color:
-                                theme.colorScheme.onBackground.withOpacity(0.3),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'no_games_in_progress'.tr,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onBackground
-                                  .withOpacity(0.7),
+                            const SizedBox(height: 16),
+                            Text(
+                              'loading_games'.tr,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.colorScheme.onBackground
+                                    .withOpacity(0.7),
+                              ),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: controller.gamesInProgress.length,
-                    itemBuilder: (context, index) {
-                      final game = controller.gamesInProgress[index];
-                      final startTime = DateTime.parse(game['startTime']);
-                      final formattedDate =
-                          '${startTime.day}/${startTime.month}/${startTime.year}';
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: ListTile(
-                          title: Text('Game #${game['id']}'),
-                          subtitle: Text(
-                            'started_on'.trParams({
-                              'date': formattedDate,
-                            }),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.play_arrow),
-                            onPressed: () {
-                              Get.toNamed(
-                                AppRoutes.gameDetail
-                                    .replaceFirst(':id', game['id'].toString()),
-                              );
-                              onGameSelected();
-                            },
-                          ),
+                          ],
                         ),
                       );
-                    },
-                  );
-                }),
-              ),
+                    }
+
+                    if (controller.gamesInProgress.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.games_outlined,
+                              size: 64,
+                              color: theme.colorScheme.onBackground
+                                  .withOpacity(0.3),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'no_games_in_progress'.tr,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.onBackground
+                                    .withOpacity(0.7),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: controller.gamesInProgress.length,
+                      itemBuilder: (context, index) {
+                        final game = controller.gamesInProgress[index];
+                        final startTime = DateTime.parse(game['startTime']);
+                        final formattedDate =
+                            '${startTime.day}/${startTime.month}/${startTime.year}';
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: ListTile(
+                            title: Text('Game #${game['id']}'),
+                            subtitle: Text(
+                              'started_on'.trParams({
+                                'date': formattedDate,
+                              }),
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.play_arrow),
+                              onPressed: () {
+                                Get.toNamed(
+                                  AppRoutes.gameDetail.replaceFirst(
+                                      ':id', game['id'].toString()),
+                                );
+                                onGameSelected();
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }),
+                ),
             ],
           ),
         ),
