@@ -327,6 +327,7 @@ class RegisterScreen extends GetView<AuthController> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
+                      elevation: 0,
                     ),
                     child: Text('register'.tr),
                   ),

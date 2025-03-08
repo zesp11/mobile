@@ -11,6 +11,7 @@ class ProfileScreen extends GetView<AuthController> {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 600;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: controller.obx(
@@ -157,6 +158,12 @@ class ProfileScreen extends GetView<AuthController> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
+                          backgroundColor: isDark
+                              ? theme.colorScheme.secondary
+                              : theme.colorScheme.primary,
+                          foregroundColor: isDark
+                              ? theme.colorScheme.onSecondary
+                              : theme.colorScheme.onPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),

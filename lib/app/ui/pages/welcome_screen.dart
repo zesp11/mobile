@@ -74,9 +74,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        color: Color(0xFFF3E8CA),
+        color: theme.scaffoldBackgroundColor,
         child: Stack(
           children: [
             PageView(
@@ -93,7 +96,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 top: 40,
                 left: 20,
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Color(0xFF322505)),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: theme.colorScheme.onBackground,
+                  ),
                   onPressed: () {
                     _pageController.previousPage(
                       duration: Duration(milliseconds: 400),
@@ -112,7 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   child: Text(
                     'Skip',
                     style: TextStyle(
-                      color: Color(0xFF322505),
+                      color: theme.colorScheme.onBackground,
                       fontSize: 16,
                       fontFamily: 'Merriweather',
                     ),
@@ -135,14 +141,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         return Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    Color(0xFFFA802F).withOpacity(0.3 * value),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              ),
-                            ],
                           ),
                           child: child,
                         );
@@ -159,13 +157,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF322505),
+                          backgroundColor: isDark
+                              ? theme.colorScheme.secondary
+                              : theme.colorScheme.primary,
                           padding: EdgeInsets.symmetric(
                               horizontal: 40, vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                             side: BorderSide(
-                              color: Color(0xFFFA802F),
+                              color: theme.colorScheme.secondary,
                               width: 2,
                             ),
                           ),
@@ -175,7 +175,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                               ? 'Begin Adventure'
                               : 'Next',
                           style: TextStyle(
-                            color: Color(0xFFF3E8CA),
+                            color: isDark
+                                ? theme.colorScheme.onSecondary
+                                : theme.colorScheme.onPrimary,
                             fontSize: 18,
                             fontFamily: 'MedievalSharp',
                             letterSpacing: 1.1,
@@ -196,18 +198,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         height: 8,
                         decoration: BoxDecoration(
                           color: _currentPage == index
-                              ? Color(0xFFFA802F)
-                              : Color(0xFF9C8B73).withOpacity(0.4),
+                              ? theme.colorScheme.secondary
+                              : theme.colorScheme.onBackground.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(4),
-                          boxShadow: _currentPage == index
-                              ? [
-                                  BoxShadow(
-                                    color: Color(0xFFFA802F).withOpacity(0.4),
-                                    blurRadius: 8,
-                                    spreadRadius: 1,
-                                  ),
-                                ]
-                              : null,
                         ),
                       );
                     }),
@@ -237,6 +230,9 @@ class _OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.all(40.0),
       child: Column(
@@ -254,24 +250,17 @@ class _OnboardingPage extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: theme.colorScheme.secondary.withOpacity(0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: color,
+                  color: theme.colorScheme.secondary,
                   width: 2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
               ),
               child: Icon(
                 icon,
                 size: 60,
-                color: color,
+                color: theme.colorScheme.secondary,
               ),
             ),
           ),
@@ -296,7 +285,7 @@ class _OnboardingPage extends StatelessWidget {
                     foreground: Paint()
                       ..style = PaintingStyle.stroke
                       ..strokeWidth = 2
-                      ..color = Color(0xFF322505),
+                      ..color = theme.colorScheme.secondary.withOpacity(0.5),
                   ),
                 ),
                 Text(
@@ -305,7 +294,7 @@ class _OnboardingPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 32,
                     fontFamily: 'MedievalSharp',
-                    color: color,
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
               ],
@@ -329,7 +318,8 @@ class _OnboardingPage extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
-                color: Color(0xFF322505),
+                color: theme.colorScheme.onBackground
+                    .withOpacity(isDark ? 0.7 : 0.8),
                 height: 1.4,
                 fontFamily: 'Merriweather',
               ),
