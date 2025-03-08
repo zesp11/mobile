@@ -262,6 +262,47 @@ class DecisionTab extends StatelessWidget {
       );
     }
 
+    // Check if game has ended
+    if (controller.isGameEnded.value) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.celebration,
+              size: 60,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Congratulations!",
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+            ),
+            const SizedBox(height: 15),
+            Text(
+              "You have completed the game",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              icon: Icon(Icons.replay,
+                  color: Theme.of(context).colorScheme.onSecondary),
+              label: Text(
+                "Play Again",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              onPressed: () => controller.onReturnToSelection(),
+            ),
+          ],
+        ),
+      );
+    }
+
     final decisions = currentStep.decisions;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
 
