@@ -176,4 +176,10 @@ class DevelopmentApiService implements ApiService {
       },
     ];
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getGameHistory(int gameId) {
+    // TODO: implement getGameHistory
+    throw UnimplementedError();
+  }
 }

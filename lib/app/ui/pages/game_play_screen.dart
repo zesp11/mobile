@@ -607,17 +607,13 @@ class _OSMFlutterMapState extends State<MapWidget> {
 //}
 
 class StoryTab extends StatelessWidget {
-  /* 
-  TODO: improve the story tab, becasue there should be username with 
-  user avatar what decision have been made 
-  FIXME: when there is no history it should be shown
-  */
   StoryTab({super.key});
   final controller = Get.find<GamePlayController>();
   final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
+    // Scroll to bottom when history updates
     ever(controller.gameHistory, (_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
@@ -628,37 +624,64 @@ class StoryTab extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Obx(
-        () => controller.gameHistory.isEmpty
-            ? Center(
-                child: Text(
-                  "No history yet",
-                  style: Theme.of(context).textTheme.bodyLarge,
+      child: Obx(() {
+        if (controller.isHistoryLoading.value) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          );
+        }
+
+        if (controller.gameHistory.isEmpty) {
+          return Center(
+            child: Text(
+              "No history yet",
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          );
+        }
+
+        return ListView.builder(
+          controller: _scrollController,
+          itemCount: controller.gameHistory.length,
+          itemBuilder: (context, index) {
+            final entry = controller.gameHistory[index];
+            final startDate = DateTime.parse(entry['start_date']);
+            final formattedDate =
+                '${startDate.day}/${startDate.month}/${startDate.year}';
+
+            // Hardcoded text for now
+            String actionText = "Made a decision";
+            if (entry['id_choice'] == 0) {
+              actionText = "Started the game";
+            }
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  child: Icon(
+                    entry['id_choice'] == 0
+                        ? Icons.play_arrow
+                        : Icons.check_circle,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  ),
                 ),
-              )
-            : ListView.builder(
-                controller: _scrollController,
-                reverse: true,
-                itemCount: controller.gameHistory.length,
-                itemBuilder: (context, index) {
-                  final reversedIndex =
-                      controller.gameHistory.length - 1 - index;
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      child: Icon(
-                        Icons.person,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                    ),
-                    title: Text(
-                      controller.gameHistory[reversedIndex],
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  );
-                },
+                title: Text(
+                  actionText,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                subtitle: Text(
+                  "Step ${entry['current_step']} • $formattedDate",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
-      ),
+            );
+          },
+        );
+      }),
     );
   }
 }
