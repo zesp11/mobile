@@ -106,6 +106,19 @@ class GameService {
     }
   }
 
+  Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId) async {
+    try {
+      logger.i(
+          "[DEV_DEBUG] Making decision for game ID: $gameId with choice: $choiceId");
+      final response = await apiService.makeDecision(gameId, choiceId);
+      logger.d("[DEV_DEBUG] Decision response: $response");
+      return response;
+    } catch (e) {
+      logger.e("[DEV_DEBUG] Error making decision: $e");
+      throw Exception("Failed to make decision: $e");
+    }
+  }
+
   Future<void> fetchGamebookData(int gameId) async {
     try {
       logger.i("[DEV_DEBUG] Fetching gamebook data for game ID: $gameId");

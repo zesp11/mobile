@@ -182,4 +182,10 @@ class DevelopmentApiService implements ApiService {
     // TODO: implement getGameHistory
     throw UnimplementedError();
   }
+
+  @override
+  Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId) {
+    // TODO: implement makeDecision
+    throw UnimplementedError();
+  }
 }
