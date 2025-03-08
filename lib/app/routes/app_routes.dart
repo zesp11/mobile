@@ -116,15 +116,17 @@ class AppRoutes {
           name: settings,
           page: () => SettingsScreen(),
         ),
+
+        // Auth routes
+        GetPage(
+          name: login,
+          page: () => LoginScreen(),
+        ),
+        GetPage(
+          name: register,
+          page: () => RegisterScreen(),
+        ),
       ],
-    ),
-    GetPage(
-      name: login,
-      page: () => LoginScreen(),
-    ),
-    GetPage(
-      name: register,
-      page: () => RegisterScreen(),
     ),
     // Add welcome screen as separate page
     GetPage(

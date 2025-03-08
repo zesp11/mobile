@@ -80,6 +80,9 @@ class AuthController extends GetxController with StateMixin<UserProfile> {
 
       await _fetchUserProfile(response.userId.toString());
       logger.i("[AUTH_DEBUG] Logged in successfully");
+
+      // Navigate to home screen after successful login
+      Get.offAllNamed('/');
     } catch (e) {
       logger.e("Login failed: $e");
       change(null, status: RxStatus.error("Login failed: ${e.toString()}"));
@@ -155,8 +158,11 @@ class AuthController extends GetxController with StateMixin<UserProfile> {
         duration: Duration(seconds: 3),
       );
 
-      await Future.delayed(Duration(seconds: 1));
-      Get.offNamed('/login');
+      // Reset loading state before navigation
+      change(null, status: RxStatus.empty());
+
+      // Navigate to login screen while preserving root layout
+      Get.toNamed('/login');
     } catch (e) {
       logger.e("Registration failed: $e");
       change(null, status: RxStatus.error(e.toString()));

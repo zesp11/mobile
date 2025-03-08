@@ -11,38 +11,42 @@ class RootLayout extends StatelessWidget {
       routerDelegate: Get.rootDelegate,
       builder: (context, delegate, currentRoute) {
         final currentIndex = _currentIndex(currentRoute?.uri.toString() ?? '');
+        final isAuthRoute = currentRoute?.uri.toString() == AppRoutes.login ||
+            currentRoute?.uri.toString() == AppRoutes.register;
 
         return Scaffold(
           body: GetRouterOutlet(
             initialRoute: AppRoutes.home,
           ),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: currentIndex,
-            onDestinationSelected: (index) =>
-                _handleNavigation(index, delegate),
-            destinations: [
-              NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: 'home'.tr,
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.play_arrow_outlined),
-                selectedIcon: Icon(Icons.play_arrow),
-                label: 'game'.tr,
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.search_outlined),
-                selectedIcon: Icon(Icons.search),
-                label: 'search'.tr,
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: 'profile'.tr,
-              ),
-            ],
-          ),
+          bottomNavigationBar: isAuthRoute
+              ? null
+              : NavigationBar(
+                  selectedIndex: currentIndex,
+                  onDestinationSelected: (index) =>
+                      _handleNavigation(index, delegate),
+                  destinations: [
+                    NavigationDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: 'home'.tr,
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.play_arrow_outlined),
+                      selectedIcon: Icon(Icons.play_arrow),
+                      label: 'game'.tr,
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.search_outlined),
+                      selectedIcon: Icon(Icons.search),
+                      label: 'search'.tr,
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.person_outline),
+                      selectedIcon: Icon(Icons.person),
+                      label: 'profile'.tr,
+                    ),
+                  ],
+                ),
         );
       },
     );
