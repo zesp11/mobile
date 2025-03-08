@@ -617,7 +617,15 @@ class StoryTab extends StatelessWidget {
     ever(controller.gameHistory, (_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+          // Check if content fills the screen
+          final contentHeight = _scrollController.position.maxScrollExtent;
+          final viewportHeight = _scrollController.position.viewportDimension;
+
+          if (contentHeight > viewportHeight) {
+            // If content is taller than viewport, scroll to bottom
+            _scrollController
+                .jumpTo(_scrollController.position.maxScrollExtent);
+          }
         }
       });
     });
@@ -644,9 +652,11 @@ class StoryTab extends StatelessWidget {
 
         return ListView.builder(
           controller: _scrollController,
+          reverse: true, // Keep list reversed for proper ordering
           itemCount: controller.gameHistory.length,
           itemBuilder: (context, index) {
-            final entry = controller.gameHistory[index];
+            final entry = controller
+                .gameHistory[controller.gameHistory.length - 1 - index];
             final startDate = DateTime.parse(entry['start_date']);
             final formattedDate =
                 '${startDate.day}/${startDate.month}/${startDate.year}';

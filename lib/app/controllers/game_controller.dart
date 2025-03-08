@@ -75,6 +75,9 @@ class GamePlayController extends GetxController with StateMixin {
   final GameService gameService;
   final logger = Get.find<Logger>();
 
+  // Development mode flag - set to true for development, false for production
+  static const bool isDevelopmentMode = true;
+
   // Reactive variable for the selected gamebook
   Rx<Gamebook?> currentGamebook = Rx<Gamebook?>(null);
 
@@ -234,8 +237,18 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   void makeDecision(Decision decision) async {
-    showPostDecisionMessage.value = true;
-    hasArrivedAtLocation.value = false;
+    if (isDevelopmentMode) {
+      // In development mode, skip location verification
+      _processDecision(decision);
+    } else {
+      // In production mode, require location verification
+      showPostDecisionMessage.value = true;
+      hasArrivedAtLocation.value = false;
+      _processDecision(decision);
+    }
+  }
+
+  void _processDecision(Decision decision) async {
     if (currentStep.value != null) {
       gameHistory.add({
         'id_choice': 0, // 0 indicates a step entry
