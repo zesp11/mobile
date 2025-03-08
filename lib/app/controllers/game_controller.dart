@@ -133,8 +133,12 @@ class GamePlayController extends GetxController with StateMixin {
   // Fetch the current step of the game
   Future<void> fetchCurrentStep(int gameId) async {
     try {
+      logger.i("[DEV_DEBUG] Fetching current step for game ID: $gameId");
       final stepData = await gameService.getCurrentStep(gameId);
+      logger.d("[DEV_DEBUG] Step data response: $stepData");
+
       final step = stepData['step'];
+      logger.d("[DEV_DEBUG] Parsed step object: $step");
 
       if (step != null) {
         final currentStep = Step(
@@ -152,10 +156,15 @@ class GamePlayController extends GetxController with StateMixin {
               [],
         );
 
+        logger.i("[DEV_DEBUG] Created Step object: $currentStep");
+        logger.d(
+            "[DEV_DEBUG] Number of choices: ${currentStep.decisions.length}");
         this.currentStep.value = currentStep;
+      } else {
+        logger.w("[DEV_DEBUG] No step data found in response");
       }
     } catch (e) {
-      logger.e("Error fetching current step: $e");
+      logger.e("[DEV_DEBUG] Error fetching current step: $e");
       throw Exception("Failed to fetch current step: $e");
     }
   }
@@ -165,7 +174,9 @@ class GamePlayController extends GetxController with StateMixin {
     change(null, status: RxStatus.loading());
     gameHistory.clear();
     try {
+      logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
       final gameData = await gameService.getGamePlay(id);
+      logger.d("[DEV_DEBUG] Game data response: $gameData");
 
       // Create Gamebook from the response
       final gamebook = Gamebook(
@@ -178,34 +189,17 @@ class GamePlayController extends GetxController with StateMixin {
         authorId: gameData['id_author'] ?? 0,
       );
 
+      logger.i("[DEV_DEBUG] Created Gamebook object: $gamebook");
       currentGamebook.value = gamebook;
       hasArrivedAtLocation.value = false;
       showPostDecisionMessage.value = false;
 
-      // Handle the current step from the response
-      final step = gameData['first_step'];
-      if (step != null) {
-        final currentStep = Step(
-          id: step['id_step'] ?? 1,
-          title: step['title'] ?? 'Current Step',
-          text: step['text'] ?? '',
-          latitude: step['latitude']?.toDouble() ?? 0.0,
-          longitude: step['longitude']?.toDouble() ?? 0.0,
-          decisions: (step['choices'] as List?)
-                  ?.map((choice) => Decision(
-                        text: choice['text'] ?? '',
-                        nextStepId: choice['id_next_step'] ?? 0,
-                      ))
-                  .toList() ??
-              [],
-        );
-
-        this.currentStep.value = currentStep;
-      }
+      // Fetch the current step separately
+      await fetchCurrentStep(id);
 
       change(null, status: RxStatus.success());
     } catch (e) {
-      logger.e("Error fetching gamebook: $e");
+      logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
       change(null, status: RxStatus.error("Error fetching gamebook"));
     }
   }
