@@ -27,19 +27,24 @@ class GameSelectionScreen extends StatelessWidget {
       length: isAuthenticated ? 2 : 1,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: theme.colorScheme.surface,
           title: Text(
             'game_selection'.tr,
             style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.onBackground,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           centerTitle: true,
           bottom: TabBar(
             indicatorColor: theme.colorScheme.secondary,
             labelColor: theme.colorScheme.secondary,
-            unselectedLabelColor:
-                theme.colorScheme.onBackground.withOpacity(0.6),
+            unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.7),
+            labelStyle: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            unselectedLabelStyle: theme.textTheme.titleMedium,
             indicatorWeight: 3,
+            dividerColor: Colors.transparent,
             tabs: [
               Tab(text: 'scenarios'.tr),
               if (isAuthenticated) Tab(text: 'games_in_progress'.tr),
