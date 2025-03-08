@@ -97,12 +97,12 @@ class SettingsScreen extends StatelessWidget {
                           value: settingsController.layoutStyle.value,
                           items: [
                             DropdownMenuItem(
-                              value: 'stacked',
+                              value: 'vertical',
                               child: Text('vertical'.tr),
                             ),
                             DropdownMenuItem(
-                              value: 'horizontal',
-                              child: Text('horizontal'.tr),
+                              value: 'matrix',
+                              child: Text('matrix'.tr),
                             ),
                           ],
                           onChanged: (value) {
