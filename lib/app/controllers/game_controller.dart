@@ -277,21 +277,8 @@ class GamePlayController extends GetxController with StateMixin {
 
         logger.d("[DEV_DEBUG] Decision response: $response");
 
-        // Add the current step to history
-        gameHistory.add({
-          'id_choice': 0, // 0 indicates a step entry
-          'current_step': currentStep.value!.id,
-          'start_date': DateTime.now().toIso8601String(),
-          'text': currentStep.value!.text,
-        });
-
-        // Add the decision to history
-        gameHistory.add({
-          'id_choice': decision.nextStepId,
-          'current_step': currentStep.value?.id ?? 0,
-          'start_date': DateTime.now().toIso8601String(),
-          'text': decision.text,
-        });
+        // Fetch updated history after making the decision
+        await fetchGameHistory(currentGamebook.value!.id);
 
         // Update the current step from the response
         if (response['step'] != null) {
@@ -309,6 +296,8 @@ class GamePlayController extends GetxController with StateMixin {
               longitude: 0.0,
               decisions: [],
             );
+            // Fetch final history update
+            await fetchGameHistory(currentGamebook.value!.id);
             return;
           }
 
