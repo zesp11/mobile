@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
 import 'package:gotale/app/ui/widgets/recommend_games_section.dart';
+import 'package:gotale/app/ui/widgets/resume_last_game_section.dart';
 import 'package:gotale/app/ui/widgets/search_game_section.dart';
 import 'package:gotale/app/ui/widgets/user_summary.dart';
 
@@ -20,6 +21,8 @@ class HomeScreen extends StatelessWidget {
           children: [
             if (authController.isAuthenticated) ...[
               UserSummaryWidget(),
+              const Divider(),
+              ResumeLastGameSection(),
               const Divider(),
             ],
             const SearchGamesSection(),
