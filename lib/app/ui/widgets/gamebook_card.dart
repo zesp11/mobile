@@ -7,168 +7,250 @@ import 'package:gotale/app/routes/app_routes.dart';
 class GamebookCard extends StatelessWidget {
   final Gamebook gamebook;
   final AuthController authController;
+  final VoidCallback onGameSelected;
+  final VoidCallback onScenarioSelected;
 
-  GamebookCard({required this.gamebook, required this.authController});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              gamebook.title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              gamebook.description,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 12),
-            GamebookButtons(
-              gamebook: gamebook,
-              authController: authController,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class GamebookButtons extends StatelessWidget {
-  final Gamebook gamebook;
-  final AuthController authController;
-
-  GamebookButtons({required this.gamebook, required this.authController});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        GamebookDescriptionButton(gamebook: gamebook),
-        SizedBox(width: 10),
-        GamebookSelectButton(
-            gamebook: gamebook, authController: authController),
-      ],
-    );
-  }
-}
-
-class GamebookDescriptionButton extends StatelessWidget {
-  final Gamebook gamebook;
-
-  GamebookDescriptionButton({required this.gamebook});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        Get.toNamed(
-          '${AppRoutes.scenario}/${gamebook.id}',
-          arguments: gamebook,
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        backgroundColor: Color(0xFFFA802F), // Accent color
-      ),
-      child: Icon(
-        Icons.info_outline,
-        color: Color(0xFFF3E8CA), // Background color
-        size: 24,
-      ),
-    );
-  }
-}
-
-class GamebookSelectButton extends StatelessWidget {
-  final Gamebook gamebook;
-  final AuthController authController;
-
-  GamebookSelectButton({
+  const GamebookCard({
+    Key? key,
     required this.gamebook,
     required this.authController,
-  });
+    required this.onGameSelected,
+    required this.onScenarioSelected,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: authController.isAuthenticated
-          ? () {
-              final gamebookRoute = AppRoutes.gameDetail
-                  .replaceFirst(':id', gamebook.id.toString());
-              Get.toNamed(gamebookRoute);
-            }
-          : () => _showLoginDialog(context),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outline.withOpacity(0.1),
         ),
-        backgroundColor: authController.isAuthenticated
-            ? Color(0xFFFA802F) // Accent color
-            : Color(0xFF9C8B73).withOpacity(0.3), // Secondary color
       ),
-      child: Icon(
-        Icons.play_arrow,
-        color: authController.isAuthenticated
-            ? Color(0xFFF3E8CA) // Background color
-            : Color(0xFF9C8B73).withOpacity(0.6), // Secondary color
-        size: 24,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Get.toNamed(
+            '${AppRoutes.scenario}/${gamebook.id}',
+            arguments: gamebook,
+          );
+          onScenarioSelected();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Gamebook Cover/Icon
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.auto_stories,
+                      size: 32,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Gamebook Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          gamebook.title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            _buildInfoChip(
+                              context,
+                              icon: Icons.person_outline,
+                              label: 'ID: ${gamebook.authorId}',
+                            ),
+                            const SizedBox(width: 8),
+                            if (gamebook.startDate != null)
+                              _buildInfoChip(
+                                context,
+                                icon: Icons.calendar_today_outlined,
+                                label:
+                                    gamebook.startDate.toString().split(' ')[0],
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (gamebook.description.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  gamebook.description,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface
+                        .withOpacity(isDark ? 0.7 : 0.8),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Info Button
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Get.toNamed(
+                        '${AppRoutes.scenario}/${gamebook.id}',
+                        arguments: gamebook,
+                      );
+                      onScenarioSelected();
+                    },
+                    icon: Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: isDark
+                          ? theme.colorScheme.secondary
+                          : theme.colorScheme.primary,
+                    ),
+                    label: Text(
+                      'details'.tr,
+                      style: TextStyle(
+                        color: isDark
+                            ? theme.colorScheme.secondary
+                            : theme.colorScheme.primary,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      side: BorderSide(
+                        color: (isDark
+                                ? theme.colorScheme.secondary
+                                : theme.colorScheme.primary)
+                            .withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Play Button
+                  ElevatedButton.icon(
+                    onPressed: authController.isAuthenticated
+                        ? () {
+                            final gameRoute = AppRoutes.gameDetail
+                                .replaceFirst(':id', gamebook.id.toString());
+                            Get.toNamed(gameRoute);
+                            onGameSelected();
+                          }
+                        : () => _showLoginDialog(context),
+                    icon: Icon(
+                      Icons.play_arrow_rounded,
+                      size: 20,
+                    ),
+                    label: Text('play'.tr),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer
+            .withOpacity(isDark ? 0.3 : 0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: theme.colorScheme.secondary,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.secondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   void _showLoginDialog(BuildContext context) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xFFF3E8CA), // Background color
           title: Text(
-            'Please Log In',
-            style: TextStyle(color: Color(0xFF322505)), // Foreground color
+            'login_required'.tr,
+            style: theme.textTheme.titleLarge,
           ),
           content: Text(
-            'You need to log in to play the game.',
-            style: TextStyle(color: Color(0xFF9C8B73)), // Secondary color
+            'login_to_play_message'.tr,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+            ),
           ),
           actions: [
             TextButton(
+              onPressed: () => Get.back(),
+              child: Text(
+                'cancel'.tr,
+                style: TextStyle(
+                  color: theme.colorScheme.secondary,
+                ),
+              ),
+            ),
+            ElevatedButton(
               onPressed: () {
                 Get.back();
                 Get.toNamed(AppRoutes.profile);
               },
-              child: Text(
-                'Log In',
-                style: TextStyle(color: Color(0xFFFA802F)), // Accent color
-              ),
-            ),
-            TextButton(
-              onPressed: () => Get.back(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Color(0xFF9C8B73)), // Secondary color
-              ),
+              child: Text('login'.tr),
             ),
           ],
         );

@@ -18,6 +18,7 @@ class LoginScreen extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
@@ -246,7 +247,7 @@ class LoginScreen extends GetView<AuthController> {
                     (state) => const SizedBox.shrink(),
                   ),
 
-                  // Login Button with animation and glow
+                  // Login Button with animation
                   TweenAnimationBuilder(
                     duration: Duration(milliseconds: 600),
                     tween: Tween<double>(begin: 0, end: 1),
@@ -257,63 +258,62 @@ class LoginScreen extends GetView<AuthController> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.colorScheme.secondary
-                                    .withOpacity(0.3 * value),
-                                blurRadius: 15,
-                                spreadRadius: 1,
-                              ),
-                            ],
                           ),
-                          child: child,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final email = emailController.text.trim();
+                                final password = passwordController.text.trim();
+
+                                if (email.isEmpty || password.isEmpty) {
+                                  Get.snackbar(
+                                    'error'.tr,
+                                    'credentials_required'.tr,
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor: theme.colorScheme.error
+                                        .withOpacity(0.1),
+                                    colorText: theme.colorScheme.error,
+                                    margin: const EdgeInsets.all(16),
+                                    borderRadius: 12,
+                                  );
+                                  return;
+                                }
+
+                                await controller.login(email, password);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: isDark
+                                    ? theme.colorScheme.secondary
+                                    : theme.colorScheme.primary,
+                                foregroundColor: isDark
+                                    ? theme.colorScheme.onSecondary
+                                    : theme.colorScheme.onPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                'login'.tr,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       );
                     },
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final email = emailController.text.trim();
-                          final password = passwordController.text.trim();
-
-                          if (email.isEmpty || password.isEmpty) {
-                            Get.snackbar(
-                              'error'.tr,
-                              'credentials_required'.tr,
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor:
-                                  theme.colorScheme.error.withOpacity(0.1),
-                              colorText: theme.colorScheme.error,
-                              margin: const EdgeInsets.all(16),
-                              borderRadius: 12,
-                            );
-                            return;
-                          }
-
-                          await controller.login(email, password);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: theme.colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'login'.tr,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: const SizedBox.shrink(),
                   ),
                   const SizedBox(height: 24),
 
-                  // Register Link with animation and glow
+                  // Register Link with animation
                   TweenAnimationBuilder(
                     duration: Duration(milliseconds: 800),
                     tween: Tween<double>(begin: 0, end: 1),
@@ -324,14 +324,6 @@ class LoginScreen extends GetView<AuthController> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.colorScheme.secondary
-                                    .withOpacity(0.2 * value),
-                                blurRadius: 10,
-                                spreadRadius: -2,
-                              ),
-                            ],
                           ),
                           child: child,
                         ),
@@ -375,13 +367,6 @@ class LoginScreen extends GetView<AuthController> {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.colorScheme.secondary.withOpacity(0.3 * value),
-                    blurRadius: 12,
-                    spreadRadius: 2,
-                  ),
-                ],
               ),
               child: child,
             ),
@@ -391,6 +376,7 @@ class LoginScreen extends GetView<AuthController> {
           heroTag: 'login_settings_fab',
           onPressed: () => Get.toNamed('/settings'),
           backgroundColor: theme.colorScheme.secondary,
+          elevation: 0,
           child: Icon(Icons.settings),
         ),
       ),
