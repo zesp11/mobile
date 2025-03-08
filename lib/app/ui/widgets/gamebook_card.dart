@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:gotale/app/models/gamebook.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
@@ -155,10 +156,13 @@ class GamebookCard extends StatelessWidget {
                   // Play Button
                   ElevatedButton.icon(
                     onPressed: authController.isAuthenticated
-                        ? () {
-                            final gameRoute = AppRoutes.gameDetail
-                                .replaceFirst(':id', gamebook.id.toString());
-                            Get.toNamed(gameRoute);
+                        ? () async {
+                            final gameController =
+                                Get.find<GamePlayController>();
+                            final gameData = await gameController
+                                .createGameFromScenario(gamebook.id);
+                            Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                                ':id', gameData['id_game'].toString()));
                             onGameSelected();
                           }
                         : () => _showLoginDialog(context),
