@@ -29,6 +29,11 @@ class GamePlayScreen extends StatelessWidget {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGamebookData(int.parse(gamebookId));
 
+    logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
+    logger
+        .d("[DEV_DEBUG] Current gamebook: ${controller.currentGamebook.value}");
+    logger.d("[DEV_DEBUG] Current step: ${controller.currentStep.value}");
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -157,9 +162,11 @@ class DecisionTab extends StatelessWidget {
       if (controller.showPostDecisionMessage.value) {
         return _buildDecisionSuccessMessage(context);
       }
-      if (!controller.hasArrivedAtLocation.value) {
-        return _buildArrivalRequiredMessage(context);
-      }
+
+      // TODO: uncomment in production
+      // if (!controller.hasArrivedAtLocation.value) {
+      //   return _buildArrivalRequiredMessage(context);
+      // }
       return _buildDecisionContent(context);
     });
   }

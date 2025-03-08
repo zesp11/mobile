@@ -16,12 +16,17 @@ class GameSelectionController extends GetxController {
   var availableGamebooks = <Gamebook>[].obs;
   var isAvailableGamebooksLoading = false.obs;
 
+  // List of games in progress
+  var gamesInProgress = <Map<String, dynamic>>[].obs;
+  var isGamesInProgressLoading = false.obs;
+
   GameSelectionController({required this.gameService});
 
   @override
   void onInit() {
     super.onInit();
     fetchAvailableGamebooks();
+    fetchGamesInProgress();
   }
 
   // Fetch the list of available gamebooks
@@ -35,6 +40,33 @@ class GameSelectionController extends GetxController {
       logger.e("Error fetching available gamebooks: $e");
     } finally {
       isAvailableGamebooksLoading.value = false;
+    }
+  }
+
+  // Fetch games in progress
+  Future<void> fetchGamesInProgress() async {
+    isGamesInProgressLoading.value = true;
+    try {
+      logger.i("[DEV_DEBUG] Fetching games in progress");
+      final games = await gameService.fetchGamesInProgress();
+      logger.i("[DEV_DEBUG] Found ${games.length} games in progress");
+      logger.d("[DEV_DEBUG] Games data: $games");
+      gamesInProgress.assignAll(games);
+    } catch (e) {
+      logger.e("Error fetching games in progress: $e");
+    } finally {
+      isGamesInProgressLoading.value = false;
+    }
+  }
+
+  // Resume a game
+  Future<void> resumeGame(int gameId) async {
+    try {
+      logger.i("[DEV_DEBUG] Resuming game with ID: $gameId");
+      await gameService.fetchGamebookData(gameId);
+    } catch (e) {
+      logger.e("Error resuming game: $e");
+      rethrow;
     }
   }
 }
