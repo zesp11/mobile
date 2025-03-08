@@ -16,7 +16,7 @@ class SettingsService extends GetxService {
 
   // Default values
   final ThemeMode defaultTheme = ThemeMode.system;
-  final String defaultLayoutStyle = 'stacked';
+  final String defaultLayoutStyle = 'vertical';
   final String defaultLanguage = 'en';
   final bool defaultNotifications = true;
   final bool defaultFirstLaunch = true;
@@ -49,7 +49,6 @@ class SettingsService extends GetxService {
 
   // Get layout style
   String getLayoutStyle() {
-    // _storage.erase();
     return _storage.read(_layoutKey) ?? defaultLayoutStyle;
   }
 
