@@ -205,7 +205,7 @@ class GamePlayController extends GetxController with StateMixin {
 
       // Create Gamebook from the response
       final gamebook = Gamebook(
-        id: gameData['id_game'] ?? 0,
+        id: id,
         title: gameData['name'] ?? 'Untitled Game',
         description: 'Game in progress',
         startDate: DateTime.now(),
@@ -215,6 +215,7 @@ class GamePlayController extends GetxController with StateMixin {
       );
 
       logger.i("[DEV_DEBUG] Created Gamebook object: $gamebook");
+      logger.d("[DEV_DEBUG] Game ID: ${gamebook.id}");
       currentGamebook.value = gamebook;
       hasArrivedAtLocation.value = false;
       showPostDecisionMessage.value = false;
@@ -249,25 +250,57 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   void _processDecision(Decision decision) async {
-    if (currentStep.value != null) {
-      gameHistory.add({
-        'id_choice': 0, // 0 indicates a step entry
-        'current_step': currentStep.value!.id,
-        'start_date': DateTime.now().toIso8601String(),
-        'text': currentStep.value!.text,
-      });
-    }
+    if (currentStep.value != null && currentGamebook.value != null) {
+      try {
+        // Make the decision through the API
+        final response = await gameService.makeDecision(
+            currentGamebook.value!.id, decision.nextStepId);
 
-    gameHistory.add({
-      'id_choice': decision.nextStepId, // Use the next step ID as the choice ID
-      'current_step': currentStep.value?.id ?? 0,
-      'start_date': DateTime.now().toIso8601String(),
-      'text': decision.text,
-    });
+        logger.d("[DEV_DEBUG] Decision response: $response");
 
-    // Fetch the next step
-    if (currentGamebook.value != null) {
-      await fetchCurrentStep(currentGamebook.value!.id);
+        // Add the current step to history
+        gameHistory.add({
+          'id_choice': 0, // 0 indicates a step entry
+          'current_step': currentStep.value!.id,
+          'start_date': DateTime.now().toIso8601String(),
+          'text': currentStep.value!.text,
+        });
+
+        // Add the decision to history
+        gameHistory.add({
+          'id_choice': decision.nextStepId,
+          'current_step': currentStep.value?.id ?? 0,
+          'start_date': DateTime.now().toIso8601String(),
+          'text': decision.text,
+        });
+
+        // Update the current step from the response
+        if (response['step'] != null) {
+          final step = response['step'];
+          final newStep = Step(
+            id: step['id_step'] ?? 1,
+            title: step['title'] ?? 'Current Step',
+            text: step['text'] ?? '',
+            latitude: step['latitude']?.toDouble() ?? 0.0,
+            longitude: step['longitude']?.toDouble() ?? 0.0,
+            decisions: (step['choices'] as List?)
+                    ?.map((choice) => Decision(
+                          text: choice['text'] ?? '',
+                          nextStepId: choice['id_next_step'] ?? 0,
+                        ))
+                    .toList() ??
+                [],
+          );
+          currentStep.value = newStep;
+          logger.i("[DEV_DEBUG] Updated step from decision response: $newStep");
+        } else {
+          // If no step in response, fetch the next step
+          await fetchCurrentStep(currentGamebook.value!.id);
+        }
+      } catch (e) {
+        logger.e("[DEV_DEBUG] Error processing decision: $e");
+        throw Exception("Failed to process decision: $e");
+      }
     }
   }
 
