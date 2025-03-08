@@ -39,6 +39,7 @@ class ProductionApiService extends ApiService {
   static const String getStepRoute = '/api/games/:id/step';
   static const String makeStepRoute = '/api/games/:id/step';
   static const String playGameRoute = '/api/games/:id/play';
+  static const String getUserGamesRoute = '/api/games/user';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -660,6 +661,58 @@ class ProductionApiService extends ApiService {
     } catch (e) {
       Get.find<Logger>().e('Error getting game play data: $e');
       throw Exception('Failed to get game play data: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getGamesInProgress() async {
+    try {
+      final endpoint = '$name$getUserGamesRoute';
+      final logger = Get.find<Logger>();
+
+      logger.i('Fetching user games in progress from: $endpoint');
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.i('Get games in progress response status: ${response.statusCode}');
+      logger.d('Get games in progress response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> games = jsonDecode(response.body);
+        logger.i('Found ${games.length} games in progress');
+
+        return games.map<Map<String, dynamic>>((game) {
+          final gameData = {
+            'id': game['id_game'] ?? 0,
+            'scenarioId': game['id_scen'] ?? 0,
+            'startTime': game['startTime'] ?? DateTime.now().toIso8601String(),
+            'endTime': game['endTime'],
+          };
+          logger.d('Processed game data: $gameData');
+          return gameData;
+        }).toList();
+      } else {
+        logger.e('Failed to get games in progress: ${response.statusCode}');
+        throw Exception(
+            'Failed to get games in progress: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error getting games in progress: $e');
+      throw Exception('Failed to get games in progress: $e');
     }
   }
 }

@@ -145,4 +145,35 @@ class DevelopmentApiService implements ApiService {
     // TODO: implement getGamePlay
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getGamesInProgress() async {
+    await Future.delayed(delay); // delay for development
+
+    // Return mock data for games in progress
+    return [
+      {
+        'id': 1,
+        'scenarioId': 1,
+        'scenarioName': 'The Lost City',
+        'currentStep': 3,
+        'totalSteps': 10,
+        'startedAt':
+            DateTime.now().subtract(Duration(days: 1)).toIso8601String(),
+        'lastPlayedAt':
+            DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
+      },
+      {
+        'id': 2,
+        'scenarioId': 2,
+        'scenarioName': 'Mystery of the Ancient Temple',
+        'currentStep': 1,
+        'totalSteps': 8,
+        'startedAt':
+            DateTime.now().subtract(Duration(days: 2)).toIso8601String(),
+        'lastPlayedAt':
+            DateTime.now().subtract(Duration(hours: 5)).toIso8601String(),
+      },
+    ];
+  }
 }

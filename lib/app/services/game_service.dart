@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/models/decision.dart';
+import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
 
@@ -81,6 +83,58 @@ class GameService {
     } catch (e) {
       logger.e("Error getting game play data: $e");
       throw Exception("Failed to get game play data: $e");
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGamesInProgress() async {
+    try {
+      logger.i("[DEV_DEBUG] Fetching games in progress from API");
+      return await apiService.getGamesInProgress();
+    } catch (e) {
+      logger.e("Error fetching games in progress: $e");
+      return [];
+    }
+  }
+
+  Future<void> fetchGamebookData(int gameId) async {
+    try {
+      logger.i("[DEV_DEBUG] Fetching gamebook data for game ID: $gameId");
+      final gameData = await apiService.getGamePlay(gameId);
+
+      // Create Gamebook from the response
+      final gamebook = Gamebook(
+        id: gameData['id_game'] ?? 0,
+        title: gameData['name'] ?? 'Untitled Game',
+        description: 'Game in progress',
+        startDate: DateTime.now(),
+        endDate: null,
+        steps: [], // We'll populate this with the current step
+        authorId: gameData['id_author'] ?? 0,
+      );
+
+      // Handle the current step from the response
+      final step = gameData['first_step'];
+      if (step != null) {
+        final currentStep = Step(
+          id: step['id_step'] ?? 1,
+          title: step['title'] ?? 'Current Step',
+          text: step['text'] ?? '',
+          latitude: step['latitude']?.toDouble() ?? 0.0,
+          longitude: step['longitude']?.toDouble() ?? 0.0,
+          decisions: (step['choices'] as List?)
+                  ?.map((choice) => Decision(
+                        text: choice['text'] ?? '',
+                        nextStepId: choice['id_next_step'] ?? 0,
+                      ))
+                  .toList() ??
+              [],
+        );
+
+        gamebook.steps.add(currentStep);
+      }
+    } catch (e) {
+      logger.e("Error fetching gamebook data: $e");
+      rethrow;
     }
   }
 }
