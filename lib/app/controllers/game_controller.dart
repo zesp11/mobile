@@ -3,6 +3,8 @@ import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:flutter/material.dart' as material;
 
 // This screen focuses on the active game session.
 // It manages the game logic, decisions, and interactions with other players.
