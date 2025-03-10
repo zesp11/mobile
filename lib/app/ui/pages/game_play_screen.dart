@@ -381,10 +381,13 @@ class MapWidget extends StatefulWidget {
   const MapWidget({super.key});
 */
 
-class _OSMFlutterMapState extends State<MapWidget> {
+class _OSMFlutterMapState extends State<MapWidget> with AutomaticKeepAliveClientMixin{
   late MapController mapController;
 
   final GamePlayController gamePlayController = Get.find<GamePlayController>();
+
+  @override
+  bool get wantKeepAlive => true;
 
   LatLng? currentPosition;
   double currentZoom = 8.0;
@@ -465,17 +468,19 @@ class _OSMFlutterMapState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Obx((){
     Color secondaryColor = Theme.of(context).colorScheme.secondary;
     Color primaryColor = Theme.of(context).colorScheme.primary;
 
     final double distanceToWaypoint =
-        (currentPosition != null && markers.isNotEmpty)
-            ? calculateDistance(currentPosition!, markers.last.point)
+        (currentPosition != null && gamePlayController.waypoints.isNotEmpty)
+            ? calculateDistance(currentPosition!, gamePlayController.waypoints.last)
             : 0.0;
 
     
     return Scaffold(
+      
       body: Stack(children: [
         FlutterMap(
           options: MapOptions(
@@ -582,7 +587,7 @@ class _OSMFlutterMapState extends State<MapWidget> {
         AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            bottom: isTracking && markers.isNotEmpty == true ? 20 : -100,
+            bottom: isTracking && gamePlayController.waypoints.isNotEmpty == true ? 20 : -100,
             left: 20,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
