@@ -424,7 +424,7 @@ class _OSMFlutterMapState extends State<MapWidget> {
 
   void addWaypoint(LatLng point, Color markerColor) {
     setState(() {
-      print(markers.length);
+      /*print(markers.length);
       markers.clear();
       markers.add(
         Marker(
@@ -441,7 +441,9 @@ class _OSMFlutterMapState extends State<MapWidget> {
           alignment: Alignment.topCenter,
           //anchorPos: const Offset(0.5, 0.5)
         ),
-      );
+      );*/
+
+      gamePlayController.waypoints.add(point);
     });
   }
 
