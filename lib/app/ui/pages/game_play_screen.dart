@@ -383,6 +383,9 @@ class MapWidget extends StatefulWidget {
 
 class _OSMFlutterMapState extends State<MapWidget> {
   late MapController mapController;
+
+  final GamePlayController gamePlayController = Get.find<GamePlayController>();
+
   LatLng? currentPosition;
   double currentZoom = 8.0;
   List<Marker> markers = [];
@@ -421,6 +424,7 @@ class _OSMFlutterMapState extends State<MapWidget> {
 
   void addWaypoint(LatLng point, Color markerColor) {
     setState(() {
+      print(markers.length);
       markers.clear();
       markers.add(
         Marker(
@@ -459,6 +463,7 @@ class _OSMFlutterMapState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return Obx((){
     Color secondaryColor = Theme.of(context).colorScheme.secondary;
     Color primaryColor = Theme.of(context).colorScheme.primary;
 
@@ -467,6 +472,7 @@ class _OSMFlutterMapState extends State<MapWidget> {
             ? calculateDistance(currentPosition!, markers.last.point)
             : 0.0;
 
+    
     return Scaffold(
       body: Stack(children: [
         FlutterMap(
@@ -501,7 +507,21 @@ class _OSMFlutterMapState extends State<MapWidget> {
                   markerDirection: MarkerDirection.heading,
                 ),
               ),
-            MarkerLayer(markers: markers),
+            MarkerLayer(
+              markers: gamePlayController.waypoints.map((waypoint) {
+                return Marker(
+                  point: waypoint,
+                  width: 37,
+                  height: 37,
+                  rotate: true,
+                  child: Icon(
+                    Icons.location_pin,
+                    color: Get.theme.colorScheme.secondary, //Colors.red,
+                    size: 40,
+                  ),
+                  alignment: Alignment.topCenter,
+                );
+              }).toList(),),
           ],
         ),
         Positioned(
@@ -582,70 +602,10 @@ class _OSMFlutterMapState extends State<MapWidget> {
             )),
       ]),
     );
+  });
   }
 }
 
-/* @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<GamePlayController>();
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Current Location",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 20),
-          Obx(() => Text(
-                controller.hasArrivedAtLocation.value
-                    ? "You've arrived at the location!"
-                    : "Travel to the marked location...",
-                style: Theme.of(context).textTheme.bodyLarge,
-              )),
-          const SizedBox(height: 30),
-          Obx(() {
-            if (controller.hasArrivedAtLocation.value) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () =>
-                        DefaultTabController.of(context)?.animateTo(0),
-                    child: Text(
-                      "Go to Decisions",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Icon(
-                    Icons.check_circle,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 30,
-                  ),
-                ],
-              );
-            }
-            return ElevatedButton(
-              onPressed: () => controller.confirmArrival(),
-              child: Text(
-                "Confirm Arrival",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-    
-  }
-  */
-//}
 
 class StoryTab extends StatelessWidget {
   StoryTab({super.key});
