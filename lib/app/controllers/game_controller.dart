@@ -208,8 +208,8 @@ class GamePlayController extends GetxController with StateMixin {
     
       // If the coords are not 0, then add new waypoint
       if (newStep.latitude != 0.0 && newStep.longitude != 0.0) {
-        //addWaypoint(newStep.latitude, newStep.longitude);
-        addWaypoint(52.06516, 19.25248);
+        addWaypoint(newStep.latitude, newStep.longitude);
+        //addWaypoint(52.06516, 19.25248);
         logger.i("[DEV_DEBUG] Added waypoint: (${newStep.latitude}, ${newStep.longitude})");
       }
 
