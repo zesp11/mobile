@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
@@ -7,6 +8,21 @@ class RootLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Set system UI overlay style
+    SystemChrome.setSystemUIOverlayStyle(
+      Theme.of(context).brightness == Brightness.dark
+          ? SystemUiOverlayStyle.light.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor:
+                  Theme.of(context).scaffoldBackgroundColor,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor:
+                  Theme.of(context).scaffoldBackgroundColor,
+            ),
+    );
+
     return GetRouterOutlet.builder(
       routerDelegate: Get.rootDelegate,
       builder: (context, delegate, currentRoute) {
@@ -14,39 +30,44 @@ class RootLayout extends StatelessWidget {
         final isAuthRoute = currentRoute?.uri.toString() == AppRoutes.login ||
             currentRoute?.uri.toString() == AppRoutes.register;
 
-        return Scaffold(
-          body: GetRouterOutlet(
-            initialRoute: AppRoutes.home,
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: Theme.of(context).brightness == Brightness.dark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark,
+          child: Scaffold(
+            body: GetRouterOutlet(
+              initialRoute: AppRoutes.home,
+            ),
+            bottomNavigationBar: isAuthRoute
+                ? null
+                : NavigationBar(
+                    selectedIndex: currentIndex,
+                    onDestinationSelected: (index) =>
+                        _handleNavigation(index, delegate),
+                    destinations: [
+                      NavigationDestination(
+                        icon: Icon(Icons.home_outlined),
+                        selectedIcon: Icon(Icons.home),
+                        label: 'home'.tr,
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.play_arrow_outlined),
+                        selectedIcon: Icon(Icons.play_arrow),
+                        label: 'game'.tr,
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.search_outlined),
+                        selectedIcon: Icon(Icons.search),
+                        label: 'search'.tr,
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.person_outline),
+                        selectedIcon: Icon(Icons.person),
+                        label: 'profile'.tr,
+                      ),
+                    ],
+                  ),
           ),
-          bottomNavigationBar: isAuthRoute
-              ? null
-              : NavigationBar(
-                  selectedIndex: currentIndex,
-                  onDestinationSelected: (index) =>
-                      _handleNavigation(index, delegate),
-                  destinations: [
-                    NavigationDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home),
-                      label: 'home'.tr,
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.play_arrow_outlined),
-                      selectedIcon: Icon(Icons.play_arrow),
-                      label: 'game'.tr,
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.search_outlined),
-                      selectedIcon: Icon(Icons.search),
-                      label: 'search'.tr,
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.person_outline),
-                      selectedIcon: Icon(Icons.person),
-                      label: 'profile'.tr,
-                    ),
-                  ],
-                ),
         );
       },
     );
