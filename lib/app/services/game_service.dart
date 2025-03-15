@@ -25,6 +25,7 @@ class GameService {
   Future<Gamebook> fetchScenarioDetails(int scenarioId) async {
     try {
       final response = await apiService.getGameBookWithId(scenarioId);
+      print('game_service:$response');
       return Gamebook.fromJson(response);
     } catch (e) {
       throw Exception("Error fetching scenario details: $e");

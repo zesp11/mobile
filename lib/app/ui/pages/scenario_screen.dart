@@ -19,9 +19,7 @@ class ScenarioScreen extends StatelessWidget {
 
     return Scaffold(
       body: FutureBuilder<Gamebook>(
-        future: Get.arguments == null
-            ? service.fetchScenarioDetails(int.parse(id))
-            : Future.value(Get.arguments as Gamebook),
+        future: service.fetchScenarioDetails(int.parse(id)),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
