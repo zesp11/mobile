@@ -3,10 +3,12 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/services/search_service.dart';
 import 'package:gotale/main.dart';
+import 'package:logger/logger.dart';
 
 class SearchController extends GetxController
     with StateMixin<List<Map<String, String>>> {
   final SearchService searchService;
+  final logger = Get.find<Logger>();
 
   var query = ''.obs; // Reactive query for search
 
@@ -22,6 +24,15 @@ class SearchController extends GetxController
 
   SearchController({required this.searchService});
 
+  @override
+  void onInit() {
+    super.onInit();
+    // Initialize with empty state
+    change([], status: RxStatus.success());
+    // Load initial items
+    searchItems('');
+  }
+
   // Update the query value and perform search
   void updateQuery(String value) {
     query.value = value;
@@ -31,43 +42,46 @@ class SearchController extends GetxController
   // Fetch all items or filter based on the query
   Future<void> searchItems(String query) async {
     try {
-      change(null, status: RxStatus.loading());
+      // Only show loading state if we don't have any items yet
+      if (state == null || state!.isEmpty) {
+        change(null, status: RxStatus.loading());
+      }
 
       List<Map<String, String>> results = [];
       final filters = selectedFilters.value;
 
       // Debug logging
-      print('Current filters: $filters');
-      print('Current query: $query');
+      logger.d('Current filters: $filters');
+      logger.d('Current query: $query');
 
       // Only search for selected types
       if (filters.isEmpty || filters.contains('user'.tr)) {
-        print('Searching for users...');
+        logger.d('Searching for users...');
         final userResults = await searchService.searchUsers(query);
-        print('Found ${userResults.length} users');
+        logger.d('Found ${userResults.length} users');
         results.addAll(userResults);
       }
 
       if (filters.isEmpty || filters.contains('scenario'.tr)) {
-        print('Searching for scenarios...');
+        logger.d('Searching for scenarios...');
         final scenarioResults = await searchService.searchScenarios(query);
-        print('Found ${scenarioResults.length} scenarios');
+        logger.d('Found ${scenarioResults.length} scenarios');
         results.addAll(scenarioResults);
       }
 
-      print('Total results: ${results.length}');
+      logger.d('Total results: ${results.length}');
       allItems.value = results;
       filteredItems.value = results;
       change(results, status: RxStatus.success());
     } catch (e) {
-      print('Search error: $e');
+      logger.e('Search error: $e');
       change(null, status: RxStatus.error("Failed to load items: $e"));
     }
   }
 
   // Filter items based on the selected filters
   void filterItemsByTypes(RxList<String> filters) {
-    print('Setting filters to: $filters');
+    logger.d('Setting filters to: $filters');
     selectedFilters.value = filters;
     searchItems(query.value); // Re-search with current query and new filters
   }
