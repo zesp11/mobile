@@ -198,17 +198,17 @@ class ProductionApiService extends ApiService {
           '$name${getGameBookWithIdRoute.replaceFirst(':id', gamebookId.toString())}';
       final logger = Get.find<Logger>();
 
-      logger.d('Fetching scenario with ID: $endpoint');
+      // logger.d('Fetching scenario with ID: $endpoint');
 
-      final token =
-          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
-      if (token == null) {
-        throw Exception('No authentication token found');
-      }
+      // final token =
+      //     await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      // if (token == null) {
+      //   throw Exception('No authentication token found');
+      // }
 
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+        // 'Authorization': 'Bearer $token',
       };
 
       final response = await http.get(
