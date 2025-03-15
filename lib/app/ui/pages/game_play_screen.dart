@@ -144,7 +144,7 @@ class GameTitle extends StatelessWidget {
       },
       child: Obx(() {
         return Text(
-          controller.currentGamebook.value!.title,
+          controller.currentGamebook.value!.name,
           style: Theme.of(context).textTheme.titleLarge,
         );
       }),
@@ -303,7 +303,7 @@ class DecisionTab extends StatelessWidget {
       );
     }
 
-    final decisions = currentStep.decisions;
+    final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
 
     if (decisions.isEmpty) {

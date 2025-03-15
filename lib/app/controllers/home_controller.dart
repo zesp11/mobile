@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/services/home_service.dart';
 import 'package:logger/logger.dart';
 
@@ -8,7 +8,7 @@ class HomeController extends GetxController {
   final logger = Get.find<Logger>();
 
   // Observables for state management
-  var lastGame = Rx<Gamebook?>(null);
+  var lastGame = Rx<Scenario?>(null);
 
   // Constructor accepting HomeService
   HomeController({required this.homeService});

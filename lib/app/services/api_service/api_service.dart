@@ -2,6 +2,9 @@
 // specification for the REST API can be found in rest-api-specification.md
 // https://github.com/Serp-ent/zesp11/blob/feature/backend/rest-api-specification/rest_api_specification.md
 // WARNING: the link may expire after merge
+import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/user.dart';
+
 abstract class ApiService {
   /* (TODO: reconsider those endpoints)
   Fetch games that can be resumed
@@ -50,7 +53,7 @@ abstract class ApiService {
   // TODO: Future<void> refreshToken();
 
   /* User endpoints */
-  Future<Map<String, dynamic>> getUserProfile(String id);
+  Future<User> getUserProfile(String id);
   Future<List<dynamic>> searchUsers(String query);
   Future<Map<String, dynamic>> getCurrentUserProfile();
   Future<void> updateUserProfile(Map<String, dynamic> profile);
@@ -60,7 +63,7 @@ abstract class ApiService {
   /* Scenario endpoints */
   // INFO: the mobile app doesn't allow for scenario creation
   Future<List<Map<String, dynamic>>> getAvailableGamebooks();
-  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId);
+  Future<Scenario> getScenarioWithId(int gamebookId);
   Future<List<dynamic>> searchScenarios(String query);
   Future<Map<String, dynamic>> createGameFromScenario(int scenarioId);
   // TODO: removeScenario();

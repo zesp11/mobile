@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'dart:convert';
+import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -192,23 +195,23 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId) async {
+  Future<Scenario> getScenarioWithId(int gamebookId) async {
     try {
+      final logger = Get.find<Logger>();
       final endpoint =
           '$name${getGameBookWithIdRoute.replaceFirst(':id', gamebookId.toString())}';
-      final logger = Get.find<Logger>();
 
-      // logger.d('Fetching scenario with ID: $endpoint');
+      logger.d('Fetching scenario with ID: $endpoint');
 
-      // final token =
-      //     await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
-      // if (token == null) {
-      //   throw Exception('No authentication token found');
-      // }
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
 
       final headers = {
         'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $token',
       };
 
       final response = await http.get(
@@ -217,22 +220,10 @@ class ProductionApiService extends ApiService {
       );
 
       logger.d('Get scenario response status: ${response.statusCode}');
-
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        return {
-          'id': responseData['id_scenario'] ?? gamebookId,
-          'title': responseData['name'] ?? 'Untitled Scenario',
-          'description':
-              responseData['description'] ?? 'No description available',
-          'startDate':
-              responseData['created_at'] ?? DateTime.now().toIso8601String(),
-          'endDate': responseData['end_date'],
-          'steps': responseData['steps'] ?? [],
-          'authorId': responseData['id_author'] ?? 0,
-          'difficulty': responseData['difficulty'] ?? 'medium',
-          'coverImage': responseData['cover_image'] ?? '',
-        };
+        final data = json.decode(response.body);
+        data['id'] = gamebookId;
+        return Scenario.fromJson(data);
       } else {
         throw Exception('Failed to get scenario: ${response.statusCode}');
       }
@@ -242,37 +233,32 @@ class ProductionApiService extends ApiService {
     }
   }
 
-  // TODO: add logger to log all network activity
   @override
-  Future<Map<String, dynamic>> getUserProfile(String id) async {
+  Future<User> getUserProfile(String id) async {
+    logger.i('Fetching profile for user ID: $id');
     try {
       final endpoint = '$name${getUserProfileRoute.replaceAll(':id', id)}';
-      final response = await http.get(Uri.parse(endpoint));
+      logger.d('API Endpoint: $endpoint');
 
-      logger.d(response.body);
+      final response = await http.get(Uri.parse(endpoint));
+      logger.d('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        // Convert JSON to Map<String, dynamic>
-        final dynamic parsed = jsonDecode(response.body);
-        final userData = Map<String, dynamic>.from(parsed);
-
-        return {
-          'id': userData['id_user']?.toString() ?? '0',
-          'name': userData['login']?.toString() ?? 'Unknown User',
-          'email': userData['email']?.toString() ?? '',
-          'bio': userData['bio']?.toString() ?? '',
-          'gamesPlayed': (userData['gamesPlayed'] as int?) ?? 0,
-          'gamesFinished': (userData['gamesFinished'] as int?) ?? 0,
-          'preferences':
-              Map<String, dynamic>.from(userData['preferences'] ?? {}),
-          'avatar': userData['avatar']?.toString() ?? '',
-        };
-      } else {
-        throw Exception(
-            'Failed to load profile. Status: ${response.statusCode}');
+        logger.d('Response body: ${response.body}');
+        try {
+          final user = userFromJson(response.body);
+          logger.i('Successfully fetched user: ${user.login} (ID: ${user.id})');
+          return user;
+        } catch (e) {
+          logger.e('JSON parsing error: $e');
+          throw Exception('Invalid user data format');
+        }
       }
+      logger.w('Request failed with status: ${response.statusCode}');
+      throw Exception('Failed to fetch user profile');
     } catch (e) {
-      throw Exception('Profile fetch failed: ${e.toString()}');
+      logger.e('User profile fetch error: $e');
+      rethrow;
     }
   }
 

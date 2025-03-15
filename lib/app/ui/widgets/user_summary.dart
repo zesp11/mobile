@@ -17,7 +17,7 @@ class UserSummaryWidget extends StatelessWidget {
     // Fetch current user's profile when widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (auth.state?.id != null) {
-        profile.fetchUserProfile(auth.state!.id);
+        profile.fetchUserProfile(auth.state!.id.toString());
       }
     });
 
@@ -27,32 +27,33 @@ class UserSummaryWidget extends StatelessWidget {
         final userProfile = profile.userProfile.value;
         return Card(
           child: ListTile(
-            leading: userProfile != null && userProfile.avatar.isNotEmpty
-                ? CircleAvatar(
-                    backgroundImage: NetworkImage(userProfile.avatar),
-                    radius: 20,
-                  )
-                : Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+            // leading: userProfile != null && userProfile.avatar.isNotEmpty
+            //     ? CircleAvatar(
+            //         backgroundImage: NetworkImage(userProfile.avatar),
+            //         radius: 20,
+            //       )
+            //     : Icon(
+            //         Icons.person,
+            //         size: 40,
+            //         color: Theme.of(context).colorScheme.secondary,
+            //       ),
             title: Text(
-              userProfile?.name ?? "Guest",
+              userProfile?.login ?? "Guest",
               style: Theme.of(context).textTheme.titleMedium,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Achievements: ${userProfile?.preferences['achievements'] ?? 'None'}",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                Text(
-                  "Last Game Completed: ${userProfile?.preferences['lastGame'] ?? 'N/A'}",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+              // TODO:
+              // children: [
+              //   Text(
+              //     "Achievements: ${userProfile?.preferences['achievements'] ?? 'None'}",
+              //     style: Theme.of(context).textTheme.bodyMedium,
+              //   ),
+              //   Text(
+              //     "Last Game Completed: ${userProfile?.preferences['lastGame'] ?? 'N/A'}",
+              //     style: Theme.of(context).textTheme.bodyMedium,
+              //   ),
+              // ],
             ),
           ),
         );

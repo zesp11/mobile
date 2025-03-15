@@ -47,6 +47,7 @@ dependencies:
   geolocator: 13.0.2
   latlong2: 0.9.1
   flutter_map_location_marker: any
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +60,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   rename_app: ^1.6.2
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

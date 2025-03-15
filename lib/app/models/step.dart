@@ -1,45 +1,38 @@
-import 'package:gotale/app/models/decision.dart';
+import 'package:gotale/app/models/choice.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
+part 'step.g.dart';
+
+Step stepFromJson(String str) => Step.fromJson(json.decode(str));
+
+String stepToJson(Step data) => json.encode(data.toJson());
+
+@JsonSerializable()
 class Step {
-  final int id; // ID of the step
-  final String title; // Title of the step
-  final String text; // Detailed text for this step
-  final double latitude; // Location latitude
-  final double longitude; // Location longitude
-  final List<Decision> decisions; // Up to 4 decisions leading to next steps
+  @JsonKey(name: "title")
+  String title;
+  @JsonKey(name: "text")
+  String text;
+  @JsonKey(name: "longitude")
+  double longitude;
+  @JsonKey(name: "latitude")
+  double latitude;
+  @JsonKey(name: "choices")
+  List<Choice> choices;
+  @JsonKey(name: "id_step")
+  int id;
 
   Step({
-    required this.id,
     required this.title,
     required this.text,
-    required this.latitude,
     required this.longitude,
-    required this.decisions,
+    required this.latitude,
+    required this.choices,
+    required this.id,
   });
 
-  // From JSON constructor
-  factory Step.fromJson(Map<String, dynamic> json) {
-    return Step(
-      id: json['id'],
-      title: json['title'],
-      text: json['text'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
-      decisions: (json['decisions'] as List)
-          .map((decisionJson) => Decision.fromJson(decisionJson))
-          .toList(),
-    );
-  }
+  factory Step.fromJson(Map<String, dynamic> json) => _$StepFromJson(json);
 
-  // To JSON method
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'text': text,
-      'latitude': latitude,
-      'longitude': longitude,
-      'decisions': decisions.map((decision) => decision.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$StepToJson(this);
 }

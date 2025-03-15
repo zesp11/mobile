@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:gotale/app/models/decision.dart';
-import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/models/choice.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
@@ -13,7 +13,7 @@ class GameSelectionController extends GetxController {
   final logger = Get.find<Logger>();
 
   // List of available gamebooks
-  var availableGamebooks = <Gamebook>[].obs;
+  var availableGamebooks = <Scenario>[].obs;
   var isAvailableGamebooksLoading = false.obs;
 
   // List of games in progress
@@ -79,7 +79,7 @@ class GamePlayController extends GetxController with StateMixin {
   static const bool isDevelopmentMode = true;
 
   // Reactive variable for the selected gamebook
-  Rx<Gamebook?> currentGamebook = Rx<Gamebook?>(null);
+  Rx<Scenario?> currentGamebook = Rx<Scenario?>(null);
 
   final showPostDecisionMessage = false.obs;
   final hasArrivedAtLocation = false.obs;
@@ -127,29 +127,31 @@ class GamePlayController extends GetxController with StateMixin {
   Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
     change(null, status: RxStatus.loading());
     try {
-      final gameData = await gameService.createGameFromScenario(scenarioId);
+      // final gameData = await gameService.createGameFromScenario(scenarioId);
 
-      // Create a new Gamebook from the response
-      final gamebook = Gamebook(
-        id: gameData['id_game'] ?? 0,
-        title: gameData['name'] ?? 'Untitled Game',
-        description: 'Game created from scenario',
-        startDate: DateTime.now(),
-        endDate: null,
-        steps: [], // We'll populate this with the first step
-        authorId: gameData['id_author'] ?? 0,
-      );
+      // TODO:
+      throw UnimplementedError("createGameFromScenario is not implemented yet");
+      // // Create a new Gamebook from the response
+      // final gamebook = Scenario(
+      //   id: gameData['id_game'] ?? 0,
+      //   title: gameData['name'] ?? 'Untitled Game',
+      //   description: 'Game created from scenario',
+      //   startDate: DateTime.now(),
+      //   endDate: null,
+      //   steps: [], // We'll populate this with the first step
+      //   authorId: gameData['id_author'] ?? 0,
+      // );
 
-      logger.d("Created game with id: ${gamebook.id}");
+      // logger.d("Created game with id: ${gamebook.id}");
 
-      // Set the current gamebook
-      currentGamebook.value = gamebook;
+      // // Set the current gamebook
+      // currentGamebook.value = gamebook;
 
-      // Fetch the first step
-      await fetchCurrentStep(gamebook.id);
+      // // Fetch the first step
+      // await fetchCurrentStep(gamebook.id);
 
-      change(null, status: RxStatus.success());
-      return gameData;
+      // change(null, status: RxStatus.success());
+      // return gameData;
     } catch (e) {
       logger.e("Error creating game from scenario: $e");
       change(null,
@@ -179,28 +181,15 @@ class GamePlayController extends GetxController with StateMixin {
             text: 'Congratulations! You have completed the game.',
             latitude: 0.0,
             longitude: 0.0,
-            decisions: [],
+            choices: [],
           );
           return;
         }
 
-        final newStep = Step(
-          id: step['id_step'] ?? 1,
-          title: step['title'] ?? 'Current Step',
-          text: step['text'] ?? '',
-          latitude: step['latitude']?.toDouble() ?? 0.0,
-          longitude: step['longitude']?.toDouble() ?? 0.0,
-          decisions: (step['choices'] as List?)
-                  ?.map((choice) => Decision(
-                        text: choice['text'] ?? '',
-                        nextStepId: choice['id_next_step'] ?? 0,
-                      ))
-                  .toList() ??
-              [],
-        );
+        final newStep = stepFromJson(step);
 
         logger.i("[DEV_DEBUG] Created Step object: $newStep");
-        logger.d("[DEV_DEBUG] Number of choices: ${newStep.decisions.length}");
+        logger.d("[DEV_DEBUG] Number of choices: ${newStep.choices.length}");
         currentStep.value = newStep;
         isGameEnded.value = false;
       } else {
@@ -214,49 +203,51 @@ class GamePlayController extends GetxController with StateMixin {
 
   // Fetch the current gamebook data and initialize the first step
   Future<void> fetchGamebookData(int id) async {
-    change(null, status: RxStatus.loading());
-    gameHistory.clear();
-    isGameEnded.value = false;
-    try {
-      logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
-      final gameData = await gameService.getGamePlay(id);
-      logger.d("[DEV_DEBUG] Game data response: $gameData");
+    throw UnimplementedError("fetchGamebookData");
+    // change(null, status: RxStatus.loading());
+    // gameHistory.clear();
+    // isGameEnded.value = false;
+    // try {
+    //   logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
+    //   final gameData = await gameService.getGamePlay(id);
+    //   logger.d("[DEV_DEBUG] Game data response: $gameData");
 
-      // Create Gamebook from the response
-      final gamebook = Gamebook(
-        id: id,
-        title: gameData['name'] ?? 'Untitled Game',
-        description: 'Game in progress',
-        startDate: DateTime.now(),
-        endDate: null,
-        steps: [], // We'll populate this with the current step
-        authorId: gameData['id_author'] ?? 0,
-      );
+    //   // Create Gamebook from the response
+    //   final gamebook = scenarioFromJson(
+    //     id: id,
+    //     cwiid: id,
+    //     title: gameData['name'] ?? 'Untitled Game',
+    //     description: 'Game in progress',
+    //     startDate: DateTime.now(),
+    //     endDate: null,
+    //     steps: [], // We'll populate this with the current step
+    //     authorId: gameData['id_author'] ?? 0,
+    //   );
 
-      logger.i("[DEV_DEBUG] Created Gamebook object: $gamebook");
-      logger.d("[DEV_DEBUG] Game ID: ${gamebook.id}");
-      currentGamebook.value = gamebook;
-      hasArrivedAtLocation.value = false;
-      showPostDecisionMessage.value = false;
+    //   logger.i("[DEV_DEBUG] Created Gamebook object: $gamebook");
+    //   logger.d("[DEV_DEBUG] Game ID: ${gamebook.id}");
+    //   currentGamebook.value = gamebook;
+    //   hasArrivedAtLocation.value = false;
+    //   showPostDecisionMessage.value = false;
 
-      // Fetch the current step and history
-      await Future.wait([
-        fetchCurrentStep(id),
-        fetchGameHistory(id),
-      ]);
+    //   // Fetch the current step and history
+    //   await Future.wait([
+    //     fetchCurrentStep(id),
+    //     fetchGameHistory(id),
+    //   ]);
 
-      change(null, status: RxStatus.success());
-    } catch (e) {
-      logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
-      change(null, status: RxStatus.error("Error fetching gamebook"));
-    }
+    //   change(null, status: RxStatus.success());
+    // } catch (e) {
+    //   logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
+    //   change(null, status: RxStatus.error("Error fetching gamebook"));
+    // }
   }
 
   void updateCurrentGamebook(int id) {
     fetchGamebookData(id);
   }
 
-  void makeDecision(Decision decision) async {
+  void makeDecision(Choice decision) async {
     if (isDevelopmentMode) {
       // In development mode, skip location verification
       _processDecision(decision);
@@ -268,7 +259,7 @@ class GamePlayController extends GetxController with StateMixin {
     }
   }
 
-  void _processDecision(Decision decision) async {
+  void _processDecision(Choice decision) async {
     if (currentStep.value != null && currentGamebook.value != null) {
       try {
         // Make the decision through the API
@@ -294,27 +285,14 @@ class GamePlayController extends GetxController with StateMixin {
               text: 'Congratulations! You have completed the game.',
               latitude: 0.0,
               longitude: 0.0,
-              decisions: [],
+              choices: [],
             );
             // Fetch final history update
             await fetchGameHistory(currentGamebook.value!.id);
             return;
           }
 
-          final newStep = Step(
-            id: step['id_step'] ?? 1,
-            title: step['title'] ?? 'Current Step',
-            text: step['text'] ?? '',
-            latitude: step['latitude']?.toDouble() ?? 0.0,
-            longitude: step['longitude']?.toDouble() ?? 0.0,
-            decisions: (step['choices'] as List?)
-                    ?.map((choice) => Decision(
-                          text: choice['text'] ?? '',
-                          nextStepId: choice['id_next_step'] ?? 0,
-                        ))
-                    .toList() ??
-                [],
-          );
+          final newStep = stepFromJson(step);
           currentStep.value = newStep;
           logger.i("[DEV_DEBUG] Updated step from decision response: $newStep");
         } else {

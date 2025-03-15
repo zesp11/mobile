@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
-import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
 class GamebookCard extends StatelessWidget {
-  final Gamebook gamebook;
+  final Scenario gamebook;
   final AuthController authController;
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
@@ -79,7 +79,7 @@ class GamebookCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          gamebook.title,
+                          gamebook.name,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: theme.colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
@@ -91,16 +91,16 @@ class GamebookCard extends StatelessWidget {
                             _buildInfoChip(
                               context,
                               icon: Icons.person_outline,
-                              label: 'ID: ${gamebook.authorId}',
+                              label: 'ID: ${gamebook.author.id}',
                             ),
                             const SizedBox(width: 8),
-                            if (gamebook.startDate != null)
-                              _buildInfoChip(
-                                context,
-                                icon: Icons.calendar_today_outlined,
-                                label:
-                                    gamebook.startDate.toString().split(' ')[0],
-                              ),
+                            _buildInfoChip(
+                              context,
+                              icon: Icons.calendar_today_outlined,
+                              label: gamebook.creationDate
+                                  .toString()
+                                  .split(' ')[0],
+                            ),
                           ],
                         ),
                       ],

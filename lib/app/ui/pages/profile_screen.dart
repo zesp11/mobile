@@ -37,7 +37,7 @@ class ProfileScreen extends GetView<AuthController> {
                             backgroundColor:
                                 theme.colorScheme.secondary.withOpacity(0.1),
                             child: Text(
-                              (userProfile?.name.substring(0, 1) ?? '?')
+                              (userProfile?.login.substring(0, 1) ?? '?')
                                   .toUpperCase(),
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 color: theme.colorScheme.secondary,
@@ -49,7 +49,7 @@ class ProfileScreen extends GetView<AuthController> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          userProfile?.name ?? '',
+                          userProfile?.email ?? '',
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -68,32 +68,33 @@ class ProfileScreen extends GetView<AuthController> {
                   ),
                   const SizedBox(height: 32),
 
+                  // TODO:
                   // Bio Section
-                  if (userProfile?.bio?.isNotEmpty ?? false) ...[
-                    Text(
-                      'bio'.tr,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.cardTheme.color,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: theme.colorScheme.outline.withOpacity(0.1),
-                        ),
-                      ),
-                      child: Text(
-                        userProfile?.bio ?? '',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                  // if (userProfile?.bio?.isNotEmpty ?? false) ...[
+                  //   Text(
+                  //     'bio'.tr,
+                  //     style: theme.textTheme.titleMedium?.copyWith(
+                  //       fontWeight: FontWeight.w600,
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   Container(
+                  //     width: double.infinity,
+                  //     padding: const EdgeInsets.all(16),
+                  //     decoration: BoxDecoration(
+                  //       color: theme.cardTheme.color,
+                  //       borderRadius: BorderRadius.circular(16),
+                  //       border: Border.all(
+                  //         color: theme.colorScheme.outline.withOpacity(0.1),
+                  //       ),
+                  //     ),
+                  //     child: Text(
+                  //       userProfile?.bio ?? '',
+                  //       style: theme.textTheme.bodyLarge,
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 32),
+                  // ],
 
                   // Stats Section
                   Container(
@@ -116,7 +117,7 @@ class ProfileScreen extends GetView<AuthController> {
                             _buildStatItem(
                               context,
                               'games_played'.tr,
-                              '${userProfile?.gamesPlayed ?? 0}',
+                              '${0}',
                               Icons.sports_esports,
                               isSmallScreen,
                             ),

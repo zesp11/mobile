@@ -7,19 +7,18 @@ class UserService {
 
   UserService({required this.apiService});
 
-  Future<UserProfile> fetchUserProfile(String id) async {
+  Future<User> fetchUserProfile(String id) async {
     try {
-      final response = await apiService.getUserProfile(id);
-      return UserProfile.fromJson(response);
+      return apiService.getUserProfile(id);
     } catch (e) {
       throw Exception('Failed to fetch user profile: $e');
     }
   }
 
-  Future<UserProfile> fetchCurrentUserProfile() async {
+  Future<User> fetchCurrentUserProfile() async {
     try {
       final response = await apiService.getCurrentUserProfile();
-      return UserProfile.fromJson(response);
+      return User.fromJson(response);
     } catch (e) {
       throw Exception('Failed to fetch current user profile: $e');
     }

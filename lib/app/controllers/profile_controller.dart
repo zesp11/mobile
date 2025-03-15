@@ -30,13 +30,13 @@ import 'package:logger/logger.dart';
 // Here we manage the state and logic for a specific page or feature.
 // It should use the types defined in the service layer, ensuring it knows what
 // kind of data it's dealing with
-class ProfileController extends GetxController with StateMixin<UserProfile> {
+class ProfileController extends GetxController with StateMixin<User> {
   final UserService userService; // Declare the UserService dependency
   final logger = Get.find<Logger>();
 
   ProfileController({required this.userService});
 
-  var userProfile = Rx<UserProfile?>(null);
+  var userProfile = Rx<User?>(null);
 
   @override
   void onInit() {
@@ -81,8 +81,9 @@ class ProfileController extends GetxController with StateMixin<UserProfile> {
       }
 
       // Update the profile locally
-      userProfile.value!.name = name;
-      userProfile.value!.bio = bio;
+      // TODO:
+      // userProfile.value!.name = name;
+      // userProfile.value!.bio = bio;
       userProfile.value!.email = email;
 
       // Create update data
