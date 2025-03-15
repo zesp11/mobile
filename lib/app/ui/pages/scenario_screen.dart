@@ -12,16 +12,14 @@ class ScenarioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String id = Get.parameters['id'] ?? 'Unknown';
+    final String id = Get.parameters['id']!;
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 600;
 
     return Scaffold(
       body: FutureBuilder<Gamebook>(
-        future: Get.arguments == null
-            ? service.fetchScenarioDetails(int.tryParse(id) ?? 0)
-            : Future.value(Get.arguments as Gamebook),
+        future: service.fetchScenarioDetails(int.parse(id)),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(

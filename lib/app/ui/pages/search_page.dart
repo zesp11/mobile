@@ -21,9 +21,6 @@ class SearchScreen extends GetView<goTaleSearch.SearchController> {
 
   @override
   Widget build(BuildContext context) {
-    // Initially load all available items
-    controller.searchItems('');
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -41,10 +38,36 @@ class SearchScreen extends GetView<goTaleSearch.SearchController> {
   }
 }
 
-class SearchBar extends StatelessWidget {
+class SearchBar extends StatefulWidget {
   final goTaleSearch.SearchController controller;
 
   SearchBar({required this.controller});
+
+  @override
+  State<SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
+  late final TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController =
+        TextEditingController(text: widget.controller.query.value);
+    // Update text controller when query changes
+    widget.controller.query.listen((value) {
+      if (_textController.text != value) {
+        _textController.text = value;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +76,7 @@ class SearchBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: TextField(
+        controller: _textController,
         decoration: InputDecoration(
           hintText: 'search_hint'.tr,
           hintStyle: theme.textTheme.bodyMedium,
@@ -77,7 +101,7 @@ class SearchBar extends StatelessWidget {
               const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
         style: theme.textTheme.bodyLarge,
-        onChanged: controller.updateQuery,
+        onChanged: widget.controller.updateQuery,
       ),
     );
   }
