@@ -27,7 +27,7 @@ class GamePlayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
-    controller.fetchGamebookData(int.parse(gamebookId));
+    controller.fetchGameData(int.parse(gamebookId));
 
     logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
     logger.d("[DEV_DEBUG] Current gamebook: ${controller.currentGame.value}");

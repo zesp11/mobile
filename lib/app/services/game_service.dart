@@ -69,9 +69,9 @@ class GameService {
     }
   }
 
-  Future<Map<String, dynamic>> getGamePlay(int gameId) async {
+  Future<Map<String, dynamic>> getGameplay(int gameId) async {
     try {
-      final response = await apiService.getGamePlay(gameId);
+      final response = await apiService.getGameplay(gameId);
       return response;
     } catch (e) {
       logger.e("Error getting game play data: $e");

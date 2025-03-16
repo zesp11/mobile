@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
-import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/step.dart';
-import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 
@@ -136,14 +134,14 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   // Fetch the current gamebook data and initialize the first step
-  Future<void> fetchGamebookData(int id) async {
+  Future<void> fetchGameData(int id) async {
     change(null, status: RxStatus.loading());
     gameHistory.clear();
     isGameEnded.value = false;
     // try {
-    //   logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
-    //   final gameData = await gameService.getGamePlay(id);
-    //   logger.d("[DEV_DEBUG] Game data response: $gameData");
+    logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
+    final gameData = await gameService.getGameplay(id);
+    logger.d("[DEV_DEBUG] Game data response: $gameData");
 
     //   // Create Gamebook from the response
     //   final gamebook = scenarioFromJson(
@@ -165,7 +163,7 @@ class GamePlayController extends GetxController with StateMixin {
 
     //   // Fetch the current step and history
     await Future.wait([
-      fetchCurrentStep(id),
+      // fetchCurrentStep(id),
       // fetchGameHistory(id),
     ]);
 
@@ -177,7 +175,7 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   void updateCurrentGamebook(int id) {
-    fetchGamebookData(id);
+    fetchGameData(id);
   }
 
   void makeDecision(Choice decision) async {

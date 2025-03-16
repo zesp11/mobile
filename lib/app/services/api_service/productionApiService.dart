@@ -595,7 +595,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getGamePlay(int gameId) async {
+  Future<Map<String, dynamic>> getGameplay(int gameId) async {
     try {
       final endpoint =
           '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
