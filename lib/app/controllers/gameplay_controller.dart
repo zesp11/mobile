@@ -256,9 +256,4 @@ class GamePlayController extends GetxController with StateMixin {
     currentStep.value = null;
     Get.offNamed('/game-selection');
   }
-
-  @override
-  void onClose() {
-    // ... existing code ...
-  }
 }

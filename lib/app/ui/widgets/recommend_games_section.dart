@@ -2,11 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
+import 'package:gotale/app/controllers/scenario_controller.dart';
 import 'package:gotale/app/ui/widgets/section_widget.dart';
 
-class RecommendedGamesWidget extends StatelessWidget {
-  final GameSelectionController controller = Get.find();
-
+class RecommendedGamesWidget extends GetView<ScenarioController> {
   RecommendedGamesWidget({Key? key}) : super(key: key);
 
   @override
@@ -15,25 +14,8 @@ class RecommendedGamesWidget extends StatelessWidget {
 
     return SectionWidget(
       title: "recommended_games".tr,
-      child: Obx(() {
-        if (controller.isAvailableGamebooksLoading.value) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: theme.colorScheme.secondary,
-            ),
-          );
-        }
-
-        if (controller.availableGamebooks.isEmpty) {
-          return Center(
-            child: Text(
-              "no_recommended_games".tr,
-              style: theme.textTheme.bodyMedium,
-            ),
-          );
-        }
-
-        return Column(
+      child: controller.obx(
+        (scenarios) => Column(
           children: controller.availableGamebooks.map((gamebook) {
             return Container(
               height: 90,
@@ -129,8 +111,19 @@ class RecommendedGamesWidget extends StatelessWidget {
               ),
             );
           }).toList(),
-        );
-      }),
+        ),
+        onLoading: Center(
+          child: CircularProgressIndicator(
+            color: theme.colorScheme.secondary,
+          ),
+        ),
+        onEmpty: Center(
+          child: Text(
+            "no_recommended_games".tr,
+            style: theme.textTheme.bodyMedium,
+          ),
+        ),
+      ),
     );
   }
 }
