@@ -15,7 +15,6 @@ class GameSelectionController extends GetxController
   @override
   void onInit() {
     super.onInit();
-    // fetchAvailableGamebooks();
     fetchGamesInProgress();
 
     super.onReady();
