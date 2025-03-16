@@ -30,8 +30,7 @@ class GamePlayScreen extends StatelessWidget {
     controller.fetchGamebookData(int.parse(gamebookId));
 
     logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
-    logger
-        .d("[DEV_DEBUG] Current gamebook: ${controller.currentGamebook.value}");
+    logger.d("[DEV_DEBUG] Current gamebook: ${controller.currentGame.value}");
     logger.d("[DEV_DEBUG] Current step: ${controller.currentStep.value}");
 
     return DefaultTabController(
@@ -135,16 +134,17 @@ class GameTitle extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         logger.i(
-            "User wants to see /scenario/${controller.currentGamebook.value!.id}");
-        if (controller.currentGamebook.value == null) return;
-        final gameBookId = controller.currentGamebook.value!.id;
+            "User wants to see /scenario/${controller.currentGame.value!.idScen}");
+        if (controller.currentGame.value == null) return;
+
+        final scenarioId = controller.currentGame.value!.idScen;
         final scenarioLink =
-            AppRoutes.scenarioDetail.replaceFirst(":id", gameBookId.toString());
-        Get.toNamed(scenarioLink, arguments: controller.currentGamebook.value);
+            AppRoutes.scenarioDetail.replaceFirst(":id", scenarioId.toString());
+        Get.toNamed(scenarioLink, arguments: controller.currentGame.value);
       },
       child: Obx(() {
         return Text(
-          controller.currentGamebook.value!.name,
+          controller.currentGame.value!.scenarioName,
           style: Theme.of(context).textTheme.titleLarge,
         );
       }),
@@ -323,8 +323,12 @@ class DecisionTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => controller
-                  .fetchGamebookData(controller.currentGamebook.value!.id),
+              // onPressed: () => controller
+              //     .fetchGamebookData(controller.currentGamebook.value!.id),
+              onPressed: () {
+                throw UnimplementedError(
+                    'starting from scratch is not implemented yet');
+              },
               child: Text(
                 "Start From the Beginning",
                 style: TextStyle(

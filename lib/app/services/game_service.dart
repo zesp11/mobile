@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
+import 'package:gotale/app/models/created_game.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
 
@@ -49,20 +51,18 @@ class GameService {
     }
   }
 
-  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
+  Future<CreatedGame> createGameFromScenario(int scenarioId) async {
     try {
-      final response = await apiService.createGameFromScenario(scenarioId);
-      return response;
+      return await apiService.createGameFromScenario(scenarioId);
     } catch (e) {
       logger.e("Error creating game from scenario: $e");
       throw Exception("Failed to create game from scenario: $e");
     }
   }
 
-  Future<Map<String, dynamic>> getCurrentStep(int gameId) async {
+  Future<Step> getCurrentStep(int gameId) async {
     try {
-      final response = await apiService.getCurrentStep(gameId);
-      return response;
+      return await apiService.getCurrentStep(gameId);
     } catch (e) {
       logger.e("Error getting current step: $e");
       throw Exception("Failed to get current step: $e");

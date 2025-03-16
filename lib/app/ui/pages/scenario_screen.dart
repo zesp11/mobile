@@ -370,10 +370,12 @@ class ScenarioScreen extends StatelessWidget {
                           ? () async {
                               final gameController =
                                   Get.find<GamePlayController>();
-                              final gameData = await gameController
+                              await gameController
                                   .createGameFromScenario(gamebook.id);
                               Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                  ":id", gameData['id_game'].toString()));
+                                  ":id",
+                                  gameController.currentGame.value!.idGame
+                                      .toString()));
                             }
                           : null,
                       icon: Icon(

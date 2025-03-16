@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
+import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/step.dart';
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 
@@ -13,7 +15,7 @@ class GamePlayController extends GetxController with StateMixin {
   static const bool isDevelopmentMode = true;
 
   // Reactive variable for the selected gamebook
-  Rx<Scenario?> currentGamebook = Rx<Scenario?>(null);
+  Rx<Game?> currentGame = Rx<Game?>(null);
 
   final showPostDecisionMessage = false.obs;
   final hasArrivedAtLocation = false.obs;
@@ -58,34 +60,42 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   // Create a new game from a scenario
-  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
+  Future<void> createGameFromScenario(int scenarioId) async {
     change(null, status: RxStatus.loading());
     try {
-      // final gameData = await gameService.createGameFromScenario(scenarioId);
-
-      // TODO:
-      throw UnimplementedError("createGameFromScenario is not implemented yet");
-      // // Create a new Gamebook from the response
+      final createdGame = await gameService.createGameFromScenario(scenarioId);
+      // Create a new Gamebook from the response
       // final gamebook = Scenario(
-      //   id: gameData['id_game'] ?? 0,
-      //   title: gameData['name'] ?? 'Untitled Game',
-      //   description: 'Game created from scenario',
-      //   startDate: DateTime.now(),
-      //   endDate: null,
-      //   steps: [], // We'll populate this with the first step
-      //   authorId: gameData['id_author'] ?? 0,
+      //   id: -999,
+      //   author: Author(
+      //     id: -1,
+      //     login: "authorLogin",
+      //     email: "email",
+      //     creationDate: DateTime.now(),
+      //   ),
+      //   limitPlayers: -1,
+      //   name: "mockedName",
+      //   description: 'mockedDescription',
+      //   creationDate: DateTime.now(),
+      //   idPhoto: -1,
       // );
 
-      // logger.d("Created game with id: ${gamebook.id}");
+      logger.d("Created game $createdGame");
 
-      // // Set the current gamebook
-      // currentGamebook.value = gamebook;
+      // cast to correct game object, because incorrect backend response
+      currentGame.value = Game(
+        startTime: DateTime.now(),
+        currentStepText: createdGame.firstStep.text,
+        scenarioName: createdGame.name,
+        idGame: createdGame.idGame,
+        idScen: scenarioId,
+        currentStep: createdGame.firstStep.id,
+      );
 
-      // // Fetch the first step
-      // await fetchCurrentStep(gamebook.id);
+      // Fetch the first step
+      await fetchCurrentStep(currentGame.value!.idGame);
 
-      // change(null, status: RxStatus.success());
-      // return gameData;
+      change(null, status: RxStatus.success());
     } catch (e) {
       logger.e("Error creating game from scenario: $e");
       change(null,
@@ -98,37 +108,27 @@ class GamePlayController extends GetxController with StateMixin {
   Future<void> fetchCurrentStep(int gameId) async {
     try {
       logger.i("[DEV_DEBUG] Fetching current step for game ID: $gameId");
-      final stepData = await gameService.getCurrentStep(gameId);
-      logger.d("[DEV_DEBUG] Step data response: $stepData");
-
-      final step = stepData['step'];
+      final step = await gameService.getCurrentStep(gameId);
       logger.d("[DEV_DEBUG] Parsed step object: $step");
 
-      if (step != null) {
-        // Check for end of game
-        if (step['title'] == 'EOG' && step['text'] == 'END_OF_GAME') {
-          logger.i("[DEV_DEBUG] Game has ended");
-          isGameEnded.value = true;
-          currentStep.value = Step(
-            id: 0,
-            title: 'Game Over',
-            text: 'Congratulations! You have completed the game.',
-            latitude: 0.0,
-            longitude: 0.0,
-            choices: [],
-          );
-          return;
-        }
-
-        final newStep = stepFromJson(step);
-
-        logger.i("[DEV_DEBUG] Created Step object: $newStep");
-        logger.d("[DEV_DEBUG] Number of choices: ${newStep.choices.length}");
-        currentStep.value = newStep;
-        isGameEnded.value = false;
-      } else {
-        logger.w("[DEV_DEBUG] No step data found in response");
+      // Check for end of game
+      if (step.title == 'EOG' && step.title == 'END_OF_GAME') {
+        logger.i("[DEV_DEBUG] Game has ended");
+        isGameEnded.value = true;
+        currentStep.value = Step(
+          id: 0,
+          title: 'Game Over',
+          text: 'Congratulations! You have completed the game.',
+          latitude: 0.0,
+          longitude: 0.0,
+          choices: [],
+        );
+        return;
       }
+      logger.i("[DEV_DEBUG] Created Step object: $step");
+      logger.d("[DEV_DEBUG] Number of choices: ${step.choices.length}");
+      currentStep.value = step;
+      isGameEnded.value = false;
     } catch (e) {
       logger.e("[DEV_DEBUG] Error fetching current step: $e");
       throw Exception("Failed to fetch current step: $e");
@@ -137,10 +137,9 @@ class GamePlayController extends GetxController with StateMixin {
 
   // Fetch the current gamebook data and initialize the first step
   Future<void> fetchGamebookData(int id) async {
-    throw UnimplementedError("fetchGamebookData");
-    // change(null, status: RxStatus.loading());
-    // gameHistory.clear();
-    // isGameEnded.value = false;
+    change(null, status: RxStatus.loading());
+    gameHistory.clear();
+    isGameEnded.value = false;
     // try {
     //   logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
     //   final gameData = await gameService.getGamePlay(id);
@@ -165,12 +164,12 @@ class GamePlayController extends GetxController with StateMixin {
     //   showPostDecisionMessage.value = false;
 
     //   // Fetch the current step and history
-    //   await Future.wait([
-    //     fetchCurrentStep(id),
-    //     fetchGameHistory(id),
-    //   ]);
+    await Future.wait([
+      fetchCurrentStep(id),
+      // fetchGameHistory(id),
+    ]);
 
-    //   change(null, status: RxStatus.success());
+    change(null, status: RxStatus.success());
     // } catch (e) {
     //   logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
     //   change(null, status: RxStatus.error("Error fetching gamebook"));
@@ -194,16 +193,16 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   void _processDecision(Choice decision) async {
-    if (currentStep.value != null && currentGamebook.value != null) {
+    if (currentStep.value != null && currentGame.value != null) {
       try {
         // Make the decision through the API
         final response = await gameService.makeDecision(
-            currentGamebook.value!.id, decision.nextStepId);
+            currentGame.value!.idGame, decision.nextStepId);
 
         logger.d("[DEV_DEBUG] Decision response: $response");
 
         // Fetch updated history after making the decision
-        await fetchGameHistory(currentGamebook.value!.id);
+        await fetchGameHistory(currentGame.value!.idGame);
 
         // Update the current step from the response
         if (response['step'] != null) {
@@ -222,7 +221,7 @@ class GamePlayController extends GetxController with StateMixin {
               choices: [],
             );
             // Fetch final history update
-            await fetchGameHistory(currentGamebook.value!.id);
+            await fetchGameHistory(currentGame.value!.idGame);
             return;
           }
 
@@ -231,7 +230,7 @@ class GamePlayController extends GetxController with StateMixin {
           logger.i("[DEV_DEBUG] Updated step from decision response: $newStep");
         } else {
           // If no step in response, fetch the next step
-          await fetchCurrentStep(currentGamebook.value!.id);
+          await fetchCurrentStep(currentGame.value!.idGame);
         }
       } catch (e) {
         logger.e("[DEV_DEBUG] Error processing decision: $e");
@@ -241,7 +240,7 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   bool isGamebookSelected() {
-    return currentGamebook.value != null;
+    return currentGame.value != null;
   }
 
   String getGameHistory() {

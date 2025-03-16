@@ -142,17 +142,19 @@ class _DecisionButton extends StatelessWidget {
           child: Center(
             child: Padding(
               padding: EdgeInsets.all(isNarrow ? 8.0 : 16.0),
-              child: Text(
-                decision.text,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSecondary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: isNarrow ? 12 : 14,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: (decision.text != null)
+                  ? Text(
+                      decision.text!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSecondary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isNarrow ? 12 : 14,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : Text('decision.text == null'),
             ),
           ),
         ),

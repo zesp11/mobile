@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
+import 'package:gotale/app/models/created_game.dart';
 import 'package:gotale/app/models/game.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
@@ -514,7 +516,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
+  Future<CreatedGame> createGameFromScenario(int scenarioId) async {
     try {
       final endpoint =
           '$name${createGameFromScenarioRoute.replaceFirst(':id', scenarioId.toString())}';
@@ -539,10 +541,10 @@ class ProductionApiService extends ApiService {
       );
 
       logger.d('Create game response status: ${response.statusCode}');
-      logger.d('Create game response response: ${response.body}');
+      logger.d('Create game response: ${response.body}');
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return createdGameFromJson(response.body);
       } else {
         throw Exception('Failed to create game: ${response.statusCode}');
       }
@@ -553,7 +555,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getCurrentStep(int gameId) async {
+  Future<Step> getCurrentStep(int gameId) async {
     try {
       final endpoint =
           '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
@@ -581,7 +583,11 @@ class ProductionApiService extends ApiService {
       logger.d('Get current step response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final responseJson = jsonDecode(response.body);
+        // Extract the nested 'step' object
+        final stepJson = responseJson['step'] as Map<String, dynamic>;
+        print(stepJson);
+        return Step.fromJson(stepJson);
       } else {
         throw Exception('Failed to get current step: ${response.statusCode}');
       }

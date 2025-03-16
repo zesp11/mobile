@@ -3,6 +3,8 @@ import 'dart:convert';
 
 part 'game.g.dart';
 
+Game gameFromJson(String str) => Game.fromJson(json.decode(str));
+
 List<Game> gameListFromJson(String str) =>
     List<Game>.from(json.decode(str).map((x) => Game.fromJson(x)));
 
@@ -29,7 +31,7 @@ class Game {
   Game({
     required this.startTime,
     required this.currentStepText,
-    required this.endTime,
+    this.endTime,
     required this.scenarioName,
     required this.idGame,
     required this.idScen,

@@ -2,8 +2,10 @@
 // specification for the REST API can be found in rest-api-specification.md
 // https://github.com/Serp-ent/zesp11/blob/feature/backend/rest-api-specification/rest_api_specification.md
 // WARNING: the link may expire after merge
+import 'package:gotale/app/models/created_game.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/models/user.dart';
 
 abstract class ApiService {
@@ -66,14 +68,14 @@ abstract class ApiService {
   Future<List<Scenario>> getAvailableGamebooks();
   Future<Scenario> getScenarioWithId(int gamebookId);
   Future<List<dynamic>> searchScenarios(String query);
-  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId);
+  Future<CreatedGame> createGameFromScenario(int scenarioId);
   // TODO: removeScenario();
 
   /* Game endpoints */
   // Future<void> createGame();
   // Future<void> getGameWithId(int id);
   // Future<void> getNearbyGames(int id);
-  Future<Map<String, dynamic>> getCurrentStep(int gameId);
+  Future<Step> getCurrentStep(int gameId);
   Future<Map<String, dynamic>> getGamePlay(int gameId);
   Future<List<Game>> getGamesInProgress();
   Future<List<Map<String, dynamic>>> getGameHistory(int gameId);
