@@ -1,6 +1,3 @@
-import 'package:gotale/app/models/step.dart';
-import 'package:gotale/app/models/user.dart';
-
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 

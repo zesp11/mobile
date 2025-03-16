@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:gotale/app/controllers/search_controller.dart';

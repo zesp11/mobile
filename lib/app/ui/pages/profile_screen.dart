@@ -2,8 +2,6 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/ui/pages/login_screen.dart';
-import 'package:gotale/app/ui/widgets/user_profile.dart';
-import 'package:gotale/app/ui/widgets/user_profile_actions.dart';
 
 class ProfileScreen extends GetView<AuthController> {
   @override

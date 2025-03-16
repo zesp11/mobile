@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gotale/app/controllers/game_controller.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
@@ -204,7 +204,7 @@ class DecisionTab extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context)?.animateTo(2),
+            onPressed: () => DefaultTabController.of(context).animateTo(2),
           ),
         ],
       ),
@@ -244,7 +244,7 @@ class DecisionTab extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context)?.animateTo(2),
+            onPressed: () => DefaultTabController.of(context).animateTo(2),
           ),
         ],
       ),

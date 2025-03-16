@@ -1,8 +1,6 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
-import 'package:gotale/app/models/choice.dart';
-import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
 

@@ -1,12 +1,10 @@
 import 'package:get/get.dart';
-import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/models/game.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:logger/logger.dart';

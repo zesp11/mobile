@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
-import 'package:gotale/app/controllers/game_controller.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
