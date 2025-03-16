@@ -4,10 +4,9 @@ import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 
-// This screen focuses on the active game session.
-// It manages the game logic, decisions, and interactions with other players.
-// TODO: split this into GameRunning and GamesController
-class GameSelectionController extends GetxController {
+// TODO: split this into game selection scenario controller
+class GameSelectionController extends GetxController
+    with StateMixin<List<Game>> {
   final GameService gameService;
   final logger = Get.find<Logger>();
 
@@ -26,6 +25,8 @@ class GameSelectionController extends GetxController {
     super.onInit();
     fetchAvailableGamebooks();
     fetchGamesInProgress();
+
+    super.onReady();
   }
 
   // Fetch the list of available gamebooks
@@ -46,10 +47,16 @@ class GameSelectionController extends GetxController {
   Future<void> fetchGamesInProgress() async {
     isGamesInProgressLoading.value = true;
     try {
+      change([], status: RxStatus.loading());
       final games = await gameService.fetchGamesInProgress();
-      gamesInProgress.assignAll(games);
+      if (games.isEmpty) {
+        change([], status: RxStatus.empty());
+      } else {
+        change(games, status: RxStatus.success());
+      }
     } catch (e) {
       logger.e("Error fetching games in progress: $e");
+      change([], status: RxStatus.error(e.toString()));
     } finally {
       isGamesInProgressLoading.value = false;
     }
