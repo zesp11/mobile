@@ -39,6 +39,7 @@ class GamePlayController extends GetxController with StateMixin {
   // Fetch game history
   Future<void> fetchGameHistory(int gameId) async {
     try {
+      // TODO: add typing to history
       isHistoryLoading.value = true;
       logger.i("[DEV_DEBUG] Fetching game history for ID: $gameId");
       final history = await gameService.getGameHistory(gameId);
@@ -62,21 +63,6 @@ class GamePlayController extends GetxController with StateMixin {
     change(null, status: RxStatus.loading());
     try {
       final createdGame = await gameService.createGameFromScenario(scenarioId);
-      // Create a new Gamebook from the response
-      // final gamebook = Scenario(
-      //   id: -999,
-      //   author: Author(
-      //     id: -1,
-      //     login: "authorLogin",
-      //     email: "email",
-      //     creationDate: DateTime.now(),
-      //   ),
-      //   limitPlayers: -1,
-      //   name: "mockedName",
-      //   description: 'mockedDescription',
-      //   creationDate: DateTime.now(),
-      //   idPhoto: -1,
-      // );
 
       logger.d("Created game $createdGame");
 
@@ -107,8 +93,8 @@ class GamePlayController extends GetxController with StateMixin {
     try {
       logger.i("[DEV_DEBUG] Fetching current step for game ID: $gameId");
       final step = await gameService.getCurrentStep(gameId);
+      step.choices.forEach((c) => logger.d("in controller ${c.text}"));
       logger.d("[DEV_DEBUG] Parsed step object: $step");
-
       // Check for end of game
       if (step.title == 'EOG' && step.title == 'END_OF_GAME') {
         logger.i("[DEV_DEBUG] Game has ended");
@@ -134,60 +120,44 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   // Fetch the current gamebook data and initialize the first step
-  Future<void> fetchGameData(int id) async {
+  Future<void> fetchGameWithId(int id) async {
     change(null, status: RxStatus.loading());
     gameHistory.clear();
     isGameEnded.value = false;
-    // try {
-    logger.i("[DEV_DEBUG] Fetching game data for ID: $id");
-    final gameData = await gameService.getGameplay(id);
-    logger.d("[DEV_DEBUG] Game data response: $gameData");
+    try {
+      logger.i("[DEV_DEBUG] Fetching game data for game id=$id");
+      final game = await gameService.getGameWithId(id);
+      logger.d("[DEV_DEBUG] Game data response: $game");
 
-    //   // Create Gamebook from the response
-    //   final gamebook = scenarioFromJson(
-    //     id: id,
-    //     cwiid: id,
-    //     title: gameData['name'] ?? 'Untitled Game',
-    //     description: 'Game in progress',
-    //     startDate: DateTime.now(),
-    //     endDate: null,
-    //     steps: [], // We'll populate this with the current step
-    //     authorId: gameData['id_author'] ?? 0,
-    //   );
+      currentGame.value = game;
+      hasArrivedAtLocation.value = false;
+      showPostDecisionMessage.value = false;
 
-    //   logger.i("[DEV_DEBUG] Created Gamebook object: $gamebook");
-    //   logger.d("[DEV_DEBUG] Game ID: ${gamebook.id}");
-    //   currentGamebook.value = gamebook;
-    //   hasArrivedAtLocation.value = false;
-    //   showPostDecisionMessage.value = false;
+      //   // Fetch the current step and history
+      await Future.wait([
+        fetchCurrentStep(id),
+        fetchGameHistory(id),
+      ]);
 
-    //   // Fetch the current step and history
-    await Future.wait([
-      // fetchCurrentStep(id),
-      // fetchGameHistory(id),
-    ]);
-
-    change(null, status: RxStatus.success());
-    // } catch (e) {
-    //   logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
-    //   change(null, status: RxStatus.error("Error fetching gamebook"));
-    // }
+      change(null, status: RxStatus.success());
+    } catch (e) {
+      logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
+      change(null, status: RxStatus.error("Error fetching gamebook"));
+    }
   }
 
   void updateCurrentGamebook(int id) {
-    fetchGameData(id);
+    fetchGameWithId(id);
   }
 
   void makeDecision(Choice decision) async {
-    if (isDevelopmentMode) {
-      // In development mode, skip location verification
-      _processDecision(decision);
-    } else {
+    logger.d('user makes following decision ${decision.idChoice}');
+    if (!isDevelopmentMode) {
       // In production mode, require location verification
       showPostDecisionMessage.value = true;
       hasArrivedAtLocation.value = false;
-      _processDecision(decision);
     }
+    _processDecision(decision);
   }
 
   void _processDecision(Choice decision) async {
@@ -195,41 +165,15 @@ class GamePlayController extends GetxController with StateMixin {
       try {
         // Make the decision through the API
         final response = await gameService.makeDecision(
-            currentGame.value!.idGame, decision.nextStepId);
+            currentGame.value!.idGame, decision.idChoice);
 
         logger.d("[DEV_DEBUG] Decision response: $response");
 
         // Fetch updated history after making the decision
-        await fetchGameHistory(currentGame.value!.idGame);
-
-        // Update the current step from the response
-        if (response['step'] != null) {
-          final step = response['step'];
-
-          // Check for end of game in the response
-          if (step['title'] == 'EOG' && step['text'] == 'END_OF_GAME') {
-            logger.i("[DEV_DEBUG] Game has ended after decision");
-            isGameEnded.value = true;
-            currentStep.value = Step(
-              id: 0,
-              title: 'Game Over',
-              text: 'Congratulations! You have completed the game.',
-              latitude: 0.0,
-              longitude: 0.0,
-              choices: [],
-            );
-            // Fetch final history update
-            await fetchGameHistory(currentGame.value!.idGame);
-            return;
-          }
-
-          final newStep = stepFromJson(step);
-          currentStep.value = newStep;
-          logger.i("[DEV_DEBUG] Updated step from decision response: $newStep");
-        } else {
-          // If no step in response, fetch the next step
-          await fetchCurrentStep(currentGame.value!.idGame);
-        }
+        Future.wait([
+          fetchGameHistory(currentGame.value!.idGame),
+          fetchCurrentStep(currentGame.value!.idGame),
+        ]);
       } catch (e) {
         logger.e("[DEV_DEBUG] Error processing decision: $e");
         throw Exception("Failed to process decision: $e");

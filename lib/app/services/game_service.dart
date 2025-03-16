@@ -62,17 +62,18 @@ class GameService {
 
   Future<Step> getCurrentStep(int gameId) async {
     try {
-      return await apiService.getCurrentStep(gameId);
+      final step = await apiService.getCurrentStep(gameId);
+      step.choices.forEach((c) => logger.d("in service ${c.text}"));
+      return step;
     } catch (e) {
       logger.e("Error getting current step: $e");
       throw Exception("Failed to get current step: $e");
     }
   }
 
-  Future<Map<String, dynamic>> getGameplay(int gameId) async {
+  Future<Game> getGameWithId(int gameId) async {
     try {
-      final response = await apiService.getGameplay(gameId);
-      return response;
+      return await apiService.getGameWithId(gameId);
     } catch (e) {
       logger.e("Error getting game play data: $e");
       throw Exception("Failed to get game play data: $e");
