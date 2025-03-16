@@ -67,7 +67,7 @@ class Author {
   String email;
   @JsonKey(name: "bio")
   String? bio;
-  @JsonKey(name: "creationDate")
+  @JsonKey(name: "creation_date")
   DateTime creationDate;
 
   Author({
