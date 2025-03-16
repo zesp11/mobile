@@ -26,8 +26,6 @@ class HomeScreen extends StatelessWidget {
               const Divider(),
             ],
             const SearchGamesSection(),
-            // const Divider(),
-            // const LastGameWidget(),
             // TODO:
             // const Divider(),
             // const NearbyGamesWidget(),

@@ -276,9 +276,6 @@ class ProductionApiService extends ApiService {
 
   @override
   Future<Map<String, dynamic>> login(String username, String password) async {
-    logger.d('username=$username');
-    logger.d('password=$password');
-
     try {
       final endpoint = '$name$loginRoute';
       final response = await http.post(
@@ -294,10 +291,10 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final dynamic parsed = jsonDecode(response.body);
-
         if (parsed is Map<String, dynamic>) {
+          logger.d('parsed=$parsed');
           final token = parsed['token'] as String;
-          final refreshToken = parsed['refreshToken'] as String;
+          final refreshToken = parsed['refresh_token'] as String;
           final user = parsed['user'] as Map<String, dynamic>;
 
           final userId = user['id_user'] as int;
