@@ -48,6 +48,7 @@ dependencies:
   latlong2: 0.9.1
   flutter_map_location_marker: any
   json_annotation: ^4.9.0
+  skeletonizer: ^1.4.3
 
 dev_dependencies:
   flutter_test:
