@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
+import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/step.dart';
 import 'package:gotale/app/services/game_service.dart';
@@ -17,7 +18,7 @@ class GameSelectionController extends GetxController {
   var isAvailableGamebooksLoading = false.obs;
 
   // List of games in progress
-  var gamesInProgress = <Map<String, dynamic>>[].obs;
+  var gamesInProgress = RxList<Game>();
   var isGamesInProgressLoading = false.obs;
 
   GameSelectionController({required this.gameService});
@@ -26,7 +27,7 @@ class GameSelectionController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAvailableGamebooks();
-    // fetchGamesInProgress();
+    fetchGamesInProgress();
   }
 
   // Fetch the list of available gamebooks
@@ -47,10 +48,7 @@ class GameSelectionController extends GetxController {
   Future<void> fetchGamesInProgress() async {
     isGamesInProgressLoading.value = true;
     try {
-      logger.i("[DEV_DEBUG] Fetching games in progress");
       final games = await gameService.fetchGamesInProgress();
-      logger.i("[DEV_DEBUG] Found ${games.length} games in progress");
-      logger.d("[DEV_DEBUG] Games data: $games");
       gamesInProgress.assignAll(games);
     } catch (e) {
       logger.e("Error fetching games in progress: $e");

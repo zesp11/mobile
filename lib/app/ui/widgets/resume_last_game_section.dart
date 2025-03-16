@@ -21,7 +21,7 @@ class ResumeLastGameSection extends StatelessWidget {
 
       // Get the most recent game
       final lastGame = controller.gamesInProgress.first;
-      final startTime = DateTime.parse(lastGame['startTime']);
+      final startTime = lastGame.startTime;
       final formattedDate =
           '${startTime.day}/${startTime.month}/${startTime.year}';
 
@@ -51,7 +51,7 @@ class ResumeLastGameSection extends StatelessWidget {
                 onTap: () {
                   Get.toNamed(
                     AppRoutes.gameDetail
-                        .replaceFirst(':id', lastGame['id'].toString()),
+                        .replaceFirst(':id', lastGame.idGame.toString()),
                   );
                 },
                 child: Padding(
@@ -63,7 +63,7 @@ class ResumeLastGameSection extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Game #${lastGame['id']}',
+                              '(${lastGame.idGame}) ${lastGame.scenarioName}',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ),

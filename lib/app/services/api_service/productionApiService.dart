@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/models/game.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
@@ -631,7 +632,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getGamesInProgress() async {
+  Future<List<Game>> getGamesInProgress() async {
     try {
       final endpoint = '$name$getUserGamesRoute';
       final logger = Get.find<Logger>();
@@ -655,22 +656,8 @@ class ProductionApiService extends ApiService {
       );
 
       logger.i('Get games in progress response status: ${response.statusCode}');
-      logger.d('Get games in progress response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> games = jsonDecode(response.body);
-        logger.i('Found ${games.length} games in progress');
-
-        return games.map<Map<String, dynamic>>((game) {
-          final gameData = {
-            'id': game['id_game'] ?? 0,
-            'scenarioId': game['id_scen'] ?? 0,
-            'startTime': game['startTime'] ?? DateTime.now().toIso8601String(),
-            'endTime': game['endTime'],
-          };
-          logger.d('Processed game data: $gameData');
-          return gameData;
-        }).toList();
+        return gameListFromJson(response.body);
       } else {
         logger.e('Failed to get games in progress: ${response.statusCode}');
         throw Exception(

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/step.dart';
@@ -80,9 +81,8 @@ class GameService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchGamesInProgress() async {
+  Future<List<Game>> fetchGamesInProgress() async {
     try {
-      logger.i("[DEV_DEBUG] Fetching games in progress from API");
       return await apiService.getGamesInProgress();
     } catch (e) {
       logger.e("Error fetching games in progress: $e");

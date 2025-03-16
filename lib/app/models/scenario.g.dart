@@ -6,23 +6,20 @@ part of 'scenario.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Scenario _$ScenarioFromJson(Map<String, dynamic> json) {
-  print(json);
-  return Scenario(
-    id: (json['id'] as num).toInt(),
-    firstStep: json['first_step'] == null
-        ? null
-        : FirstStep.fromJson(json['first_step'] as Map<String, dynamic>),
-    author: Author.fromJson(json['author'] as Map<String, dynamic>),
-    limitPlayers:
-        (json['limit_players'] ?? json['limitPlayers'] as num).toInt(),
-    name: json['name'] as String,
-    description: json['description'],
-    creationDate:
-        DateTime.parse(json['creation_date'] ?? json['creationDate'] as String),
-    idPhoto: (json['id_photo'] ?? json['idPhoto'] as num).toInt(),
-  );
-}
+Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
+      id: (json['id'] as num).toInt(),
+      firstStep: json['first_step'] == null
+          ? null
+          : FirstStep.fromJson(json['first_step'] as Map<String, dynamic>),
+      author: Author.fromJson(json['author'] as Map<String, dynamic>),
+      limitPlayers:
+          (json['limit_players'] ?? json['limitPlayers'] as num).toInt(),
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      creationDate: DateTime.parse(
+          json['creation_date'] ?? json['creationDate'] as String),
+      idPhoto: (json['id_photo'] ?? json['idPhoto'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$ScenarioToJson(Scenario instance) => <String, dynamic>{
       'id': instance.id,
