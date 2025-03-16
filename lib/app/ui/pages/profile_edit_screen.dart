@@ -55,9 +55,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             }
 
             // Update text controllers with current values
-            nameController.text = userProfile.name;
+            // TODO:
+            // nameController.text = userProfile.name;
             emailController.text = userProfile.email;
-            bioController.text = userProfile.bio;
+            // bioController.text = userProfile.bio;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),

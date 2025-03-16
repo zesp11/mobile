@@ -173,14 +173,16 @@ class GameSelectionScreen extends StatelessWidget {
                       itemCount: controller.gamesInProgress.length,
                       itemBuilder: (context, index) {
                         final game = controller.gamesInProgress[index];
-                        final startTime = DateTime.parse(game['startTime']);
+                        final startTime =
+                            DateTime.parse(game.startTime.toString());
                         final formattedDate =
                             '${startTime.day}/${startTime.month}/${startTime.year}';
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
                           child: ListTile(
-                            title: Text('Game #${game['id']}'),
+                            title:
+                                Text('(${game.idGame}) ${game.scenarioName}'),
                             subtitle: Text(
                               'started_on'.trParams({
                                 'date': formattedDate,
@@ -191,7 +193,7 @@ class GameSelectionScreen extends StatelessWidget {
                               onPressed: () {
                                 Get.toNamed(
                                   AppRoutes.gameDetail.replaceFirst(
-                                      ':id', game['id'].toString()),
+                                      ':id', game.idGame.toString()),
                                 );
                                 onGameSelected();
                               },

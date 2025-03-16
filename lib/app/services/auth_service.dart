@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/loginResponse.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
-import 'package:gotale/main.dart';
 import 'package:gotale/utils/env_config.dart';
 import 'package:logger/logger.dart';
 

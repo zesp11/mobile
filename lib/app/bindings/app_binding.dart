@@ -2,11 +2,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:gotale/app/controllers/search_controller.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
-import 'package:gotale/app/services/api_service/developmentApiService.dart';
 import 'package:gotale/app/services/api_service/productionApiService.dart';
 import 'package:gotale/app/services/auth_service.dart';
 import 'package:gotale/app/services/game_service.dart';
@@ -55,8 +55,10 @@ class AppBindings extends Bindings {
       Get.lazyPut<ApiService>(() => ProductionApiService());
     } else {
       logger.d("Registering development API service.");
-      Get.lazyPut<ApiService>(
-          () => DevelopmentApiService(delay: Duration(seconds: 2)));
+      logger.e("Unimplemented");
+      UnimplementedError("Development server is not implemented");
+      // Get.lazyPut<ApiService>(
+      //     () => DevelopmentApiService(delay: Duration(seconds: 2)));
     }
   }
 }

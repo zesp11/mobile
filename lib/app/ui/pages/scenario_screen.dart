@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
-import 'package:gotale/app/controllers/game_controller.dart';
-import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/game_service.dart';
 
@@ -18,7 +18,7 @@ class ScenarioScreen extends StatelessWidget {
     final isSmallScreen = size.width < 600;
 
     return Scaffold(
-      body: FutureBuilder<Gamebook>(
+      body: FutureBuilder<Scenario>(
         future: service.fetchScenarioDetails(int.parse(id)),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -108,7 +108,7 @@ class ScenarioScreen extends StatelessWidget {
                     backgroundColor: theme.colorScheme.surface,
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(
-                        gamebook.title,
+                        gamebook.name,
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: theme.colorScheme.onSurface,
                           shadows: [
@@ -161,7 +161,7 @@ class ScenarioScreen extends StatelessWidget {
                           ),
                           child: InkWell(
                             onTap: () =>
-                                Get.toNamed('/profile/${gamebook.authorId}'),
+                                Get.toNamed('/profile/${gamebook.author.id}'),
                             borderRadius: BorderRadius.circular(16),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -190,7 +190,7 @@ class ScenarioScreen extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          'ID: ${gamebook.authorId}',
+                                          'ID: ${gamebook.author.id}',
                                           style: theme.textTheme.titleMedium,
                                         ),
                                       ],
@@ -226,7 +226,8 @@ class ScenarioScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            gamebook.description,
+                            gamebook.description ??
+                                "No description available TODO: translation",
                             style: theme.textTheme.bodyLarge,
                           ),
                         ),
@@ -274,7 +275,7 @@ class ScenarioScreen extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          gamebook.startDate
+                                          gamebook.creationDate
                                               .toLocal()
                                               .toString()
                                               .split(' ')[0],
@@ -284,40 +285,6 @@ class ScenarioScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                if (gamebook.endDate != null) ...[
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.event,
-                                        size: 20,
-                                        color: theme.colorScheme.secondary,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'end_date'.tr,
-                                            style: theme.textTheme.bodyMedium
-                                                ?.copyWith(
-                                              color: theme.colorScheme.onSurface
-                                                  .withOpacity(0.7),
-                                            ),
-                                          ),
-                                          Text(
-                                            gamebook.endDate!
-                                                .toLocal()
-                                                .toString()
-                                                .split(' ')[0],
-                                            style: theme.textTheme.titleMedium,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
                               ],
                             ),
                           ),
@@ -332,81 +299,44 @@ class ScenarioScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        if (gamebook.steps.isNotEmpty)
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: gamebook.steps.length,
-                            itemBuilder: (context, index) {
-                              final step = gamebook.steps[index];
-                              return Card(
-                                elevation: 0,
-                                margin: const EdgeInsets.only(bottom: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(
-                                    color: theme.colorScheme.outline
-                                        .withOpacity(0.1),
-                                  ),
+                        Card(
+                          elevation: 0,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withOpacity(0.1),
+                            ),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: CircleAvatar(
+                              backgroundColor:
+                                  theme.colorScheme.secondary.withOpacity(0.1),
+                              child: Text(
+                                (0).toString(),
+                                style: TextStyle(
+                                  color: theme.colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(16),
-                                  leading: CircleAvatar(
-                                    backgroundColor: theme.colorScheme.secondary
-                                        .withOpacity(0.1),
-                                    child: Text(
-                                      (index + 1).toString(),
-                                      style: TextStyle(
-                                        color: theme.colorScheme.secondary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    step.text,
-                                    style: theme.textTheme.bodyLarge,
-                                  ),
-                                  subtitle: Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      'Step ID: ${step.id}',
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onSurface
-                                            .withOpacity(0.6),
-                                      ),
-                                    ),
-                                  ),
+                              ),
+                            ),
+                            title: Text(
+                              gamebook.firstStep!.text,
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                'Step ID: ${gamebook.firstStep!.id}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.6),
                                 ),
-                              );
-                            },
-                          )
-                        else
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.format_list_bulleted,
-                                    size: 48,
-                                    color: theme.colorScheme.onSurface
-                                        .withOpacity(0.3),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'no_steps_available'.tr,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: theme.colorScheme.onSurface
-                                          .withOpacity(0.7),
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
                               ),
                             ),
                           ),
+                        ),
                       ]),
                     ),
                   ),
@@ -440,10 +370,12 @@ class ScenarioScreen extends StatelessWidget {
                           ? () async {
                               final gameController =
                                   Get.find<GamePlayController>();
-                              final gameData = await gameController
+                              await gameController
                                   .createGameFromScenario(gamebook.id);
                               Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                  ":id", gameData['id_game'].toString()));
+                                  ":id",
+                                  gameController.currentGame.value!.idGame
+                                      .toString()));
                             }
                           : null,
                       icon: Icon(

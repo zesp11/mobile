@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
-import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/ui/widgets/gamebook_card.dart';
 
 class GamebookListView extends StatelessWidget {
-  final List<Gamebook> gamebooks;
+  final List<Scenario> gamebooks;
   final AuthController authController;
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;

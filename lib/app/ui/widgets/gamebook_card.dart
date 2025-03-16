@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
-import 'package:gotale/app/controllers/game_controller.dart';
-import 'package:gotale/app/models/gamebook.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
 class GamebookCard extends StatelessWidget {
-  final Gamebook gamebook;
+  final Scenario gamebook;
   final AuthController authController;
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
@@ -79,7 +79,7 @@ class GamebookCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          gamebook.title,
+                          gamebook.name,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: theme.colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
@@ -91,16 +91,16 @@ class GamebookCard extends StatelessWidget {
                             _buildInfoChip(
                               context,
                               icon: Icons.person_outline,
-                              label: 'ID: ${gamebook.authorId}',
+                              label: 'ID: ${gamebook.author.id}',
                             ),
                             const SizedBox(width: 8),
-                            if (gamebook.startDate != null)
-                              _buildInfoChip(
-                                context,
-                                icon: Icons.calendar_today_outlined,
-                                label:
-                                    gamebook.startDate.toString().split(' ')[0],
-                              ),
+                            _buildInfoChip(
+                              context,
+                              icon: Icons.calendar_today_outlined,
+                              label: gamebook.creationDate
+                                  .toString()
+                                  .split(' ')[0],
+                            ),
                           ],
                         ),
                       ],
@@ -108,10 +108,11 @@ class GamebookCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (gamebook.description.isNotEmpty) ...[
+              if (gamebook.description != null &&
+                  gamebook.description!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
-                  gamebook.description,
+                  gamebook.description!,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface
                         .withOpacity(isDark ? 0.7 : 0.8),
@@ -165,12 +166,15 @@ class GamebookCard extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: authController.isAuthenticated
                         ? () async {
+                            // TODO: this is the same as in game selection screen / scenario screen
                             final gameController =
                                 Get.find<GamePlayController>();
-                            final gameData = await gameController
+                            await gameController
                                 .createGameFromScenario(gamebook.id);
                             Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                ':id', gameData['id_game'].toString()));
+                                ':id',
+                                gameController.currentGame.value!.idGame
+                                    .toString()));
                             onGameSelected();
                           }
                         : () => _showLoginDialog(context),

@@ -80,7 +80,7 @@ class RecommendedGamesWidget extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      gamebook.title,
+                                      gamebook.name,
                                       style:
                                           theme.textTheme.titleMedium?.copyWith(
                                         height: 1.2,

@@ -2,7 +2,6 @@
 // like players, gamebooks, or cities.
 import 'package:get/get.dart';
 import 'package:gotale/app/services/search_service.dart';
-import 'package:gotale/main.dart';
 import 'package:logger/logger.dart';
 
 class SearchController extends GetxController

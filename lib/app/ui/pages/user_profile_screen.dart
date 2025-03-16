@@ -66,7 +66,7 @@ class UserProfileScreen extends GetView<ProfileController> {
                           backgroundColor:
                               theme.colorScheme.secondary.withOpacity(0.1),
                           child: Text(
-                            (userProfile.name.substring(0, 1)).toUpperCase(),
+                            (userProfile.login.substring(0, 1)).toUpperCase(),
                             style: theme.textTheme.headlineMedium?.copyWith(
                               color: theme.colorScheme.secondary,
                               fontWeight: FontWeight.bold,
@@ -76,7 +76,7 @@ class UserProfileScreen extends GetView<ProfileController> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          userProfile.name,
+                          userProfile.login,
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -96,31 +96,31 @@ class UserProfileScreen extends GetView<ProfileController> {
                   const SizedBox(height: 32),
 
                   // Bio Section
-                  if (userProfile.bio.isNotEmpty) ...[
-                    Text(
-                      'bio'.tr,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.cardTheme.color,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: theme.colorScheme.outline.withOpacity(0.1),
-                        ),
-                      ),
-                      child: Text(
-                        userProfile.bio,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                  // if (userProfile.bio.isNotEmpty) ...[
+                  //   Text(
+                  //     'bio'.tr,
+                  //     style: theme.textTheme.titleMedium?.copyWith(
+                  //       fontWeight: FontWeight.w600,
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   Container(
+                  //     width: double.infinity,
+                  //     padding: const EdgeInsets.all(16),
+                  //     decoration: BoxDecoration(
+                  //       color: theme.cardTheme.color,
+                  //       borderRadius: BorderRadius.circular(16),
+                  //       border: Border.all(
+                  //         color: theme.colorScheme.outline.withOpacity(0.1),
+                  //       ),
+                  //     ),
+                  //     child: Text(
+                  //       userProfile.bio,
+                  //       style: theme.textTheme.bodyLarge,
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 32),
+                  // ],
 
                   // Stats Section
                   Container(
@@ -143,21 +143,21 @@ class UserProfileScreen extends GetView<ProfileController> {
                             _buildStatItem(
                               context,
                               'games_played'.tr,
-                              '${userProfile.gamesPlayed}',
+                              '${-1}',
                               Icons.sports_esports,
                               isSmallScreen,
                             ),
                             _buildStatItem(
                               context,
                               'scenarios_created'.tr,
-                              '3',
+                              '-1',
                               Icons.create,
                               isSmallScreen,
                             ),
                             _buildStatItem(
                               context,
                               'achievements'.tr,
-                              '5',
+                              '-1',
                               Icons.emoji_events,
                               isSmallScreen,
                             ),

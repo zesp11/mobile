@@ -1,8 +1,12 @@
 import 'package:get/get.dart';
-import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/models/created_game.dart';
+import 'package:gotale/app/models/game.dart';
+import 'dart:convert';
+import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/step.dart';
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:logger/logger.dart';
@@ -103,7 +107,7 @@ class ProductionApiService extends ApiService {
   // }
 
   @override
-  Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
+  Future<List<Scenario>> getAvailableGamebooks() async {
     try {
       final endpoint = '$name$getAvailableGamebooksRoute';
       final logger = Get.find<Logger>();
@@ -126,30 +130,10 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        final List<dynamic> gamebooks = responseBody['data'] ?? [];
+        final List<dynamic> gamebooksJson = responseBody['data'] ?? [];
 
-        final gamebooksResponse =
-            gamebooks.map<Map<String, dynamic>>((gamebook) {
-          // Extract author information
-          final authorData = gamebook['author'] ?? {};
-
-          // Map API response to Gamebook structure
-          return {
-            'id': gamebook['id'] ?? 0,
-            'title': gamebook['name']?.toString() ?? 'Untitled Scenario',
-            'description': gamebook['description']?.toString() ??
-                'No description available',
-            'startDate': _parseDateTime(gamebook['created_at']),
-            'endDate': _parseDateTime(gamebook['end_date']),
-            'steps': _parseSteps(gamebook['steps'] ?? []),
-            'authorId': _parseAuthorId(authorData),
-            // Add additional fields if needed
-            'difficulty': gamebook['difficulty']?.toString() ?? 'medium',
-            'coverImage': gamebook['cover_image']?.toString() ?? '',
-          };
-        }).toList();
-
-        return gamebooksResponse;
+        return List<Scenario>.from(
+            gamebooksJson.map((x) => Scenario.fromJson(x)));
       } else {
         logger.e('Failed to load gamebooks. Status: ${response.statusCode}');
         throw Exception('Failed to load gamebooks: ${response.statusCode}');
@@ -192,23 +176,23 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getGameBookWithId(int gamebookId) async {
+  Future<Scenario> getScenarioWithId(int gamebookId) async {
     try {
+      final logger = Get.find<Logger>();
       final endpoint =
           '$name${getGameBookWithIdRoute.replaceFirst(':id', gamebookId.toString())}';
-      final logger = Get.find<Logger>();
 
-      // logger.d('Fetching scenario with ID: $endpoint');
+      logger.d('Fetching scenario with ID: $endpoint');
 
-      // final token =
-      //     await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
-      // if (token == null) {
-      //   throw Exception('No authentication token found');
-      // }
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
 
       final headers = {
         'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $token',
       };
 
       final response = await http.get(
@@ -217,22 +201,10 @@ class ProductionApiService extends ApiService {
       );
 
       logger.d('Get scenario response status: ${response.statusCode}');
-
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        return {
-          'id': responseData['id_scenario'] ?? gamebookId,
-          'title': responseData['name'] ?? 'Untitled Scenario',
-          'description':
-              responseData['description'] ?? 'No description available',
-          'startDate':
-              responseData['created_at'] ?? DateTime.now().toIso8601String(),
-          'endDate': responseData['end_date'],
-          'steps': responseData['steps'] ?? [],
-          'authorId': responseData['id_author'] ?? 0,
-          'difficulty': responseData['difficulty'] ?? 'medium',
-          'coverImage': responseData['cover_image'] ?? '',
-        };
+        final data = json.decode(response.body);
+        data['id'] = gamebookId;
+        return Scenario.fromJson(data);
       } else {
         throw Exception('Failed to get scenario: ${response.statusCode}');
       }
@@ -242,37 +214,32 @@ class ProductionApiService extends ApiService {
     }
   }
 
-  // TODO: add logger to log all network activity
   @override
-  Future<Map<String, dynamic>> getUserProfile(String id) async {
+  Future<User> getUserProfile(String id) async {
+    logger.i('Fetching profile for user ID: $id');
     try {
       final endpoint = '$name${getUserProfileRoute.replaceAll(':id', id)}';
-      final response = await http.get(Uri.parse(endpoint));
+      logger.d('API Endpoint: $endpoint');
 
-      logger.d(response.body);
+      final response = await http.get(Uri.parse(endpoint));
+      logger.d('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        // Convert JSON to Map<String, dynamic>
-        final dynamic parsed = jsonDecode(response.body);
-        final userData = Map<String, dynamic>.from(parsed);
-
-        return {
-          'id': userData['id_user']?.toString() ?? '0',
-          'name': userData['login']?.toString() ?? 'Unknown User',
-          'email': userData['email']?.toString() ?? '',
-          'bio': userData['bio']?.toString() ?? '',
-          'gamesPlayed': (userData['gamesPlayed'] as int?) ?? 0,
-          'gamesFinished': (userData['gamesFinished'] as int?) ?? 0,
-          'preferences':
-              Map<String, dynamic>.from(userData['preferences'] ?? {}),
-          'avatar': userData['avatar']?.toString() ?? '',
-        };
-      } else {
-        throw Exception(
-            'Failed to load profile. Status: ${response.statusCode}');
+        logger.d('Response body: ${response.body}');
+        try {
+          final user = userFromJson(response.body);
+          logger.i('Successfully fetched user: ${user.login} (ID: ${user.id})');
+          return user;
+        } catch (e) {
+          logger.e('JSON parsing error: $e');
+          throw Exception('Invalid user data format');
+        }
       }
+      logger.w('Request failed with status: ${response.statusCode}');
+      throw Exception('Failed to fetch user profile');
     } catch (e) {
-      throw Exception('Profile fetch failed: ${e.toString()}');
+      logger.e('User profile fetch error: $e');
+      rethrow;
     }
   }
 
@@ -549,7 +516,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> createGameFromScenario(int scenarioId) async {
+  Future<CreatedGame> createGameFromScenario(int scenarioId) async {
     try {
       final endpoint =
           '$name${createGameFromScenarioRoute.replaceFirst(':id', scenarioId.toString())}';
@@ -574,10 +541,10 @@ class ProductionApiService extends ApiService {
       );
 
       logger.d('Create game response status: ${response.statusCode}');
-      logger.d('Create game response response: ${response.body}');
+      logger.d('Create game response: ${response.body}');
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return createdGameFromJson(response.body);
       } else {
         throw Exception('Failed to create game: ${response.statusCode}');
       }
@@ -588,7 +555,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getCurrentStep(int gameId) async {
+  Future<Step> getCurrentStep(int gameId) async {
     try {
       final endpoint =
           '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
@@ -616,7 +583,11 @@ class ProductionApiService extends ApiService {
       logger.d('Get current step response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final responseJson = jsonDecode(response.body);
+        // Extract the nested 'step' object
+        final stepJson = responseJson['step'] as Map<String, dynamic>;
+        print(stepJson);
+        return Step.fromJson(stepJson);
       } else {
         throw Exception('Failed to get current step: ${response.statusCode}');
       }
@@ -665,7 +636,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getGamesInProgress() async {
+  Future<List<Game>> getGamesInProgress() async {
     try {
       final endpoint = '$name$getUserGamesRoute';
       final logger = Get.find<Logger>();
@@ -689,22 +660,8 @@ class ProductionApiService extends ApiService {
       );
 
       logger.i('Get games in progress response status: ${response.statusCode}');
-      logger.d('Get games in progress response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> games = jsonDecode(response.body);
-        logger.i('Found ${games.length} games in progress');
-
-        return games.map<Map<String, dynamic>>((game) {
-          final gameData = {
-            'id': game['id_game'] ?? 0,
-            'scenarioId': game['id_scen'] ?? 0,
-            'startTime': game['startTime'] ?? DateTime.now().toIso8601String(),
-            'endTime': game['endTime'],
-          };
-          logger.d('Processed game data: $gameData');
-          return gameData;
-        }).toList();
+        return gameListFromJson(response.body);
       } else {
         logger.e('Failed to get games in progress: ${response.statusCode}');
         throw Exception(

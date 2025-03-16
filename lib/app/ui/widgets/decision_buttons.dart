@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gotale/app/models/decision.dart';
+import 'package:gotale/app/models/choice.dart';
 
 class DecisionButtonLayout extends StatelessWidget {
-  final List<Decision> decisions;
+  final List<Choice> decisions;
   final String layoutStyle;
-  final Function(Decision) onDecisionMade;
+  final Function(Choice) onDecisionMade;
 
   const DecisionButtonLayout({
     super.key,
@@ -42,8 +42,8 @@ class DecisionButtonLayout extends StatelessWidget {
 }
 
 class _VerticalLayout extends StatelessWidget {
-  final List<Decision> decisions;
-  final Function(Decision) onDecisionMade;
+  final List<Choice> decisions;
+  final Function(Choice) onDecisionMade;
   final bool isNarrow;
 
   const _VerticalLayout({
@@ -75,8 +75,8 @@ class _VerticalLayout extends StatelessWidget {
 }
 
 class _MatrixLayout extends StatelessWidget {
-  final List<Decision> decisions;
-  final Function(Decision) onDecisionMade;
+  final List<Choice> decisions;
+  final Function(Choice) onDecisionMade;
   final bool isNarrow;
 
   const _MatrixLayout({
@@ -108,7 +108,7 @@ class _MatrixLayout extends StatelessWidget {
 }
 
 class _DecisionButton extends StatelessWidget {
-  final Decision decision;
+  final Choice decision;
   final VoidCallback onPressed;
   final bool isNarrow;
 
@@ -142,17 +142,19 @@ class _DecisionButton extends StatelessWidget {
           child: Center(
             child: Padding(
               padding: EdgeInsets.all(isNarrow ? 8.0 : 16.0),
-              child: Text(
-                decision.text,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSecondary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: isNarrow ? 12 : 14,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: (decision.text != null)
+                  ? Text(
+                      decision.text!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSecondary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isNarrow ? 12 : 14,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : Text('decision.text == null'),
             ),
           ),
         ),

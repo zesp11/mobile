@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 // TODO: implement that class fully
 // currently it only mocks user
-class AuthController extends GetxController with StateMixin<UserProfile> {
+class AuthController extends GetxController with StateMixin<User> {
   final UserService userService;
   final AuthService authService;
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
