@@ -9,7 +9,7 @@ class ScenarioController extends GetxController
   final logger = Get.find<Logger>();
 
   // List of available gamebooks
-  var availableGamebooks = <Scenario>[].obs;
+  // var availableGamebooks = <Scenario>[].obs;
   ScenarioController({required this.gameService});
 
   @override
@@ -26,8 +26,8 @@ class ScenarioController extends GetxController
     try {
       logger.i("[DEV_DEBUG] Fetching available gamebooks");
       final gamebooks = await gameService.fetchAvailableGamebooks();
-      availableGamebooks.assignAll(gamebooks);
-      change(availableGamebooks, status: RxStatus.success());
+      // availableGamebooks.assignAll(gamebooks);
+      change(gamebooks, status: RxStatus.success());
     } catch (e) {
       change([], status: RxStatus.error(e.toString()));
       logger.e("Error fetching available gamebooks: $e");
