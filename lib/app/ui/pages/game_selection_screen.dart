@@ -3,7 +3,8 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/scenario_controller.dart';
-import 'package:gotale/app/ui/widgets/gamebook_list.dart';
+import 'package:gotale/app/ui/widgets/scenario_item.dart';
+import 'package:gotale/app/ui/widgets/scenario_list.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
 class GameSelectionScreen extends StatelessWidget {
@@ -94,26 +95,15 @@ class _ScenariosTab extends GetView<ScenarioController> {
         vertical: 16.0,
       ),
       child: controller.obx(
-        (scenarios) => GamebookListView(
+        (scenarios) => ScenarioListView(
           gamebooks: scenarios!,
           authController: authController,
           onGameSelected: onGameSelected,
           onScenarioSelected: onScenarioSelected,
         ),
-        onLoading: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(color: theme.colorScheme.secondary),
-              const SizedBox(height: 16),
-              Text(
-                'loading_gamebooks'.tr,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onBackground.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ),
+        onLoading: ListView.builder(
+          itemCount: 4,
+          itemBuilder: (context, index) => const ScenarioCardSkeleton(),
         ),
         onEmpty: Center(
           child: Column(

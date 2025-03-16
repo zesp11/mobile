@@ -8,8 +8,6 @@ class ScenarioController extends GetxController
   final GameService gameService;
   final logger = Get.find<Logger>();
 
-  // List of available gamebooks
-  // var availableGamebooks = <Scenario>[].obs;
   ScenarioController({required this.gameService});
 
   @override
