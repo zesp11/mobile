@@ -26,7 +26,7 @@ class GameSelectionController extends GetxController {
   void onInit() {
     super.onInit();
     fetchAvailableGamebooks();
-    fetchGamesInProgress();
+    // fetchGamesInProgress();
   }
 
   // Fetch the list of available gamebooks

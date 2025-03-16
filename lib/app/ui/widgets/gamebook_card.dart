@@ -108,10 +108,11 @@ class GamebookCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (gamebook.description.isNotEmpty) ...[
+              if (gamebook.description != null &&
+                  gamebook.description!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
-                  gamebook.description,
+                  gamebook.description!,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface
                         .withOpacity(isDark ? 0.7 : 0.8),

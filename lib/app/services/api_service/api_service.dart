@@ -62,7 +62,7 @@ abstract class ApiService {
 
   /* Scenario endpoints */
   // INFO: the mobile app doesn't allow for scenario creation
-  Future<List<Map<String, dynamic>>> getAvailableGamebooks();
+  Future<List<Scenario>> getAvailableGamebooks();
   Future<Scenario> getScenarioWithId(int gamebookId);
   Future<List<dynamic>> searchScenarios(String query);
   Future<Map<String, dynamic>> createGameFromScenario(int scenarioId);

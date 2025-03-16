@@ -14,6 +14,12 @@ import 'dart:convert';
 
 part 'scenario.g.dart';
 
+List<Scenario> scenarioListFromJson(String str) =>
+    List<Scenario>.from(json.decode(str).map((x) => Scenario.fromJson(x)));
+
+String scenarioListToJson(List<Scenario> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 Scenario scenarioFromJson(String str) => Scenario.fromJson(json.decode(str));
 
 String scenarioToJson(Scenario data) => json.encode(data.toJson());
@@ -23,7 +29,7 @@ class Scenario {
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "first_step")
-  FirstStep firstStep;
+  FirstStep? firstStep;
   @JsonKey(name: "author")
   Author author;
   @JsonKey(name: "limit_players")
@@ -31,7 +37,7 @@ class Scenario {
   @JsonKey(name: "name")
   String name;
   @JsonKey(name: "description")
-  dynamic description;
+  String? description;
   @JsonKey(name: "creation_date")
   DateTime creationDate;
   @JsonKey(name: "id_photo")
@@ -39,7 +45,7 @@ class Scenario {
 
   Scenario({
     required this.id,
-    required this.firstStep,
+    this.firstStep,
     required this.author,
     required this.limitPlayers,
     required this.name,

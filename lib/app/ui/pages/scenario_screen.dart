@@ -226,7 +226,8 @@ class ScenarioScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            gamebook.description,
+                            gamebook.description ??
+                                "No description available TODO: translation",
                             style: theme.textTheme.bodyLarge,
                           ),
                         ),
@@ -321,13 +322,13 @@ class ScenarioScreen extends StatelessWidget {
                               ),
                             ),
                             title: Text(
-                              gamebook.firstStep.text,
+                              gamebook.firstStep!.text,
                               style: theme.textTheme.bodyLarge,
                             ),
                             subtitle: Padding(
                               padding: const EdgeInsets.only(top: 8),
                               child: Text(
-                                'Step ID: ${gamebook.firstStep.id}',
+                                'Step ID: ${gamebook.firstStep!.id}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurface
                                       .withOpacity(0.6),

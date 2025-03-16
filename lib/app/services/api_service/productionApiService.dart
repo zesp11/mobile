@@ -106,7 +106,7 @@ class ProductionApiService extends ApiService {
   // }
 
   @override
-  Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
+  Future<List<Scenario>> getAvailableGamebooks() async {
     try {
       final endpoint = '$name$getAvailableGamebooksRoute';
       final logger = Get.find<Logger>();
@@ -129,30 +129,10 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        final List<dynamic> gamebooks = responseBody['data'] ?? [];
+        final List<dynamic> gamebooksJson = responseBody['data'] ?? [];
 
-        final gamebooksResponse =
-            gamebooks.map<Map<String, dynamic>>((gamebook) {
-          // Extract author information
-          final authorData = gamebook['author'] ?? {};
-
-          // Map API response to Gamebook structure
-          return {
-            'id': gamebook['id'] ?? 0,
-            'title': gamebook['name']?.toString() ?? 'Untitled Scenario',
-            'description': gamebook['description']?.toString() ??
-                'No description available',
-            'startDate': _parseDateTime(gamebook['created_at']),
-            'endDate': _parseDateTime(gamebook['end_date']),
-            'steps': _parseSteps(gamebook['steps'] ?? []),
-            'authorId': _parseAuthorId(authorData),
-            // Add additional fields if needed
-            'difficulty': gamebook['difficulty']?.toString() ?? 'medium',
-            'coverImage': gamebook['cover_image']?.toString() ?? '',
-          };
-        }).toList();
-
-        return gamebooksResponse;
+        return List<Scenario>.from(
+            gamebooksJson.map((x) => Scenario.fromJson(x)));
       } else {
         logger.e('Failed to load gamebooks. Status: ${response.statusCode}');
         throw Exception('Failed to load gamebooks: ${response.statusCode}');

@@ -42,11 +42,7 @@ class GameService {
   Future<List<Scenario>> fetchAvailableGamebooks() async {
     try {
       // Fetch the raw data from the API service
-      List<Map<String, dynamic>> gamebooksJson =
-          await apiService.getAvailableGamebooks();
-
-      // Map the JSON data into a list of Gamebook objects
-      return gamebooksJson.map((json) => Scenario.fromJson(json)).toList();
+      return await apiService.getAvailableGamebooks();
     } catch (e) {
       // Handle errors gracefully
       logger.e("gameServiceError fetching gamebooks: $e");
