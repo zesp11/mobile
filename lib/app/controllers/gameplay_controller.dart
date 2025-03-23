@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
-import 'package:gotale/app/models/step.dart';
+import 'package:gotale/app/models/game_step.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
@@ -24,7 +24,7 @@ class GamePlayController extends GetxController with StateMixin {
   }
 
   // Reactive variable for the current step of the gamebook
-  Rx<Step?> currentStep = Rx<Step?>(null);
+  Rx<GameStep?> currentStep = Rx<GameStep?>(null);
 
   // History to store the sequence of decisions and steps
   var gameHistory = RxList<Map<String, dynamic>>([]);
@@ -100,7 +100,7 @@ class GamePlayController extends GetxController with StateMixin {
       if (step.title == 'EOG' && step.title == 'END_OF_GAME') {
         logger.i("[DEV_DEBUG] Game has ended");
         isGameEnded.value = true;
-        currentStep.value = Step(
+        currentStep.value = GameStep(
           id: 0,
           title: 'Game Over',
           text: 'Congratulations! You have completed the game.',

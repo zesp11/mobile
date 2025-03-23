@@ -1,15 +1,19 @@
+// To parse this JSON data, do
+//
+//     final gameStep = gameStepFromJson(jsonString);
+
 import 'package:gotale/app/models/choice.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
-part 'step.g.dart';
+part 'game_step.g.dart';
 
-Step stepFromJson(String str) => Step.fromJson(json.decode(str));
+GameStep gameStepFromJson(String str) => GameStep.fromJson(json.decode(str));
 
-String stepToJson(Step data) => json.encode(data.toJson());
+String gameStepToJson(GameStep data) => json.encode(data.toJson());
 
 @JsonSerializable()
-class Step {
+class GameStep {
   @JsonKey(name: "title")
   String title;
   @JsonKey(name: "text")
@@ -18,21 +22,25 @@ class Step {
   double longitude;
   @JsonKey(name: "latitude")
   double latitude;
+  @JsonKey(name: "photoUrl")
+  String? photoUrl;
   @JsonKey(name: "choices")
   List<Choice> choices;
   @JsonKey(name: "id_step")
   int id;
 
-  Step({
+  GameStep({
     required this.title,
     required this.text,
     required this.longitude,
     required this.latitude,
+    this.photoUrl,
     required this.choices,
     required this.id,
   });
 
-  factory Step.fromJson(Map<String, dynamic> json) => _$StepFromJson(json);
+  factory GameStep.fromJson(Map<String, dynamic> json) =>
+      _$GameStepFromJson(json);
 
-  Map<String, dynamic> toJson() => _$StepToJson(this);
+  Map<String, dynamic> toJson() => _$GameStepToJson(this);
 }

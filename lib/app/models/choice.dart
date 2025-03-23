@@ -11,16 +11,17 @@ String choiceToJson(Choice data) => json.encode(data.toJson());
 class Choice {
   @JsonKey(name: "id_choice")
   int idChoice;
+  @JsonKey(name: "text")
+  String text;
   @JsonKey(name: "id_next_step")
-  int nextStepId;
-  @JsonKey(name: "choice_text")
-  String? text;
+  int idNextStep;
 
   Choice({
     required this.idChoice,
-    required this.nextStepId,
-    this.text,
+    required this.text,
+    required this.idNextStep,
   });
+
   factory Choice.fromJson(Map<String, dynamic> json) => _$ChoiceFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChoiceToJson(this);
