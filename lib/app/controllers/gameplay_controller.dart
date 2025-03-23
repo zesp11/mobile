@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/step.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 
@@ -112,6 +113,15 @@ class GamePlayController extends GetxController with StateMixin {
       logger.i("[DEV_DEBUG] Created Step object: $step");
       logger.d("[DEV_DEBUG] Number of choices: ${step.choices.length}");
       currentStep.value = step;
+
+      // If the coords are not 0, then add new waypoint
+      if (step.latitude != 0.0 && step.longitude != 0.0) {
+        //addWaypoint(newStep.latitude, newStep.longitude);
+        addWaypoint(52.06516, 19.25248);
+        logger.i(
+            "[DEV_DEBUG] Added waypoint: (${step.latitude}, ${step.longitude})");
+      }
+
       isGameEnded.value = false;
     } catch (e) {
       logger.e("[DEV_DEBUG] Error fetching current step: $e");
@@ -197,5 +207,16 @@ class GamePlayController extends GetxController with StateMixin {
     isGameEnded.value = false;
     currentStep.value = null;
     Get.offNamed('/game-selection');
+  }
+
+  var waypoints = <LatLng>[].obs;
+
+  void addWaypoint(double latitude, double longitude) {
+    waypoints.add(LatLng(latitude, longitude));
+  }
+
+  @override
+  void onClose() {
+    // ... existing code ...
   }
 }
