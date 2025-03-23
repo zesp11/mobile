@@ -385,7 +385,8 @@ class MapWidget extends StatefulWidget {
   const MapWidget({super.key});
 */
 
-class _OSMFlutterMapState extends State<MapWidget> with AutomaticKeepAliveClientMixin{
+class _OSMFlutterMapState extends State<MapWidget>
+    with AutomaticKeepAliveClientMixin {
   late MapController mapController;
 
   final GamePlayController gamePlayController = Get.find<GamePlayController>();
@@ -473,150 +474,155 @@ class _OSMFlutterMapState extends State<MapWidget> with AutomaticKeepAliveClient
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Obx((){
-    Color secondaryColor = Theme.of(context).colorScheme.secondary;
-    Color primaryColor = Theme.of(context).colorScheme.primary;
+    return Obx(() {
+      Color secondaryColor = Theme.of(context).colorScheme.secondary;
+      Color primaryColor = Theme.of(context).colorScheme.primary;
 
-    final double distanceToWaypoint =
-        (currentPosition != null && gamePlayController.waypoints.isNotEmpty)
-            ? calculateDistance(currentPosition!, gamePlayController.waypoints.last)
-            : 0.0;
+      final double distanceToWaypoint =
+          (currentPosition != null && gamePlayController.waypoints.isNotEmpty)
+              ? calculateDistance(
+                  currentPosition!, gamePlayController.waypoints.last)
+              : 0.0;
 
-    
-    return Scaffold(
-      
-      body: Stack(children: [
-        FlutterMap(
-          options: MapOptions(
-            initialCenter: const LatLng(52.06516, 19.25248),
-            initialZoom: 7,
-            minZoom: 0,
-            maxZoom: 19,
-            onLongPress: (tapPosition, point) {
-              addWaypoint(point, secondaryColor);
-            },
-            onPositionChanged: (position, hasGesture) {
-              setState(() {
-                currentZoom = position.zoom;
-              });
-            },
-          ),
-          mapController: mapController,
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName:
-                  'net.tlserver6y.flutter_map_location_marker.example',
+      return Scaffold(
+        body: Stack(children: [
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: const LatLng(52.06516, 19.25248),
+              initialZoom: 7,
+              minZoom: 0,
               maxZoom: 19,
-            ),
-            if (isTracking)
-              CurrentLocationLayer(
-                alignPositionOnUpdate: AlignOnUpdate.once,
-                alignDirectionOnUpdate: AlignOnUpdate.never,
-                style: LocationMarkerStyle(
-                  marker: DefaultLocationMarker(),
-                  markerDirection: MarkerDirection.heading,
-                ),
-              ),
-            MarkerLayer(
-              markers: gamePlayController.waypoints.map((waypoint) {
-                return Marker(
-                  point: waypoint,
-                  width: 37,
-                  height: 37,
-                  rotate: true,
-                  child: Icon(
-                    Icons.location_pin,
-                    color: Get.theme.colorScheme.secondary, //Colors.red,
-                    size: 40,
-                  ),
-                  alignment: Alignment.topCenter,
-                );
-              }).toList(),),
-          ],
-        ),
-        Positioned(
-            bottom: 20,
-            right: 20,
-            child: FloatingActionButton(
-              backgroundColor: isTracking ? primaryColor : secondaryColor,
-              onPressed: () {
-                //backgroundColor: Colors.blue;
-
-                //print("thing happened");
-
+              onLongPress: (tapPosition, point) {
+                addWaypoint(point, secondaryColor);
+              },
+              onPositionChanged: (position, hasGesture) {
                 setState(() {
-                  isTracking = !isTracking;
+                  currentZoom = position.zoom;
                 });
               },
-              child: Icon(
-                isTracking ? Icons.location_searching : Icons.location_disabled,
-                color: isTracking ? secondaryColor : primaryColor,
+            ),
+            mapController: mapController,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName:
+                    'net.tlserver6y.flutter_map_location_marker.example',
+                maxZoom: 19,
               ),
-            )),
-        Positioned(
-            bottom: 100,
-            right: 20,
-            child: FloatingActionButton(
-              backgroundColor: isTracking ? primaryColor : secondaryColor,
-              onPressed: () {
-                //print("another thing happened");
+              if (isTracking)
+                CurrentLocationLayer(
+                  alignPositionOnUpdate: AlignOnUpdate.once,
+                  alignDirectionOnUpdate: AlignOnUpdate.never,
+                  style: LocationMarkerStyle(
+                    marker: DefaultLocationMarker(),
+                    markerDirection: MarkerDirection.heading,
+                  ),
+                ),
+              MarkerLayer(
+                markers: gamePlayController.waypoints.map((waypoint) {
+                  return Marker(
+                    point: waypoint,
+                    width: 37,
+                    height: 37,
+                    rotate: true,
+                    child: Icon(
+                      Icons.location_pin,
+                      color: Get.theme.colorScheme.secondary, //Colors.red,
+                      size: 40,
+                    ),
+                    alignment: Alignment.topCenter,
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          Positioned(
+              bottom: 20,
+              right: 20,
+              child: FloatingActionButton(
+                backgroundColor: isTracking ? primaryColor : secondaryColor,
+                onPressed: () {
+                  //backgroundColor: Colors.blue;
 
-                if (isTracking) {
-                  moveToCurrentPosition();
-                }
-              },
-              child: Icon(
-                isTracking ? Icons.location_on : Icons.location_off,
-                color: isTracking ? secondaryColor : primaryColor,
-              ),
-            )),
-        Positioned(
-            bottom: 180,
-            right: 20,
-            child: FloatingActionButton(
-              backgroundColor: isTracking ? primaryColor : secondaryColor,
-              onPressed: () {
-                markers.clear();
-                mapController.rotate(0.0);
-              },
-              child: Transform.rotate(
-                angle: 135 * pi / 180,
+                  //print("thing happened");
+
+                  setState(() {
+                    isTracking = !isTracking;
+                  });
+                },
                 child: Icon(
-                  Icons.explore,
+                  isTracking
+                      ? Icons.location_searching
+                      : Icons.location_disabled,
                   color: isTracking ? secondaryColor : primaryColor,
                 ),
-              ),
-            )),
-        AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: isTracking && gamePlayController.waypoints.isNotEmpty == true ? 20 : -100,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                  color: primaryColor,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    )
-                  ]),
-              child: Text(
-                '${distanceToWaypoint.toStringAsFixed(0)} m',
-                //'${currentPosition!.latitude.toStringAsFixed(4)}, ${currentPosition!.longitude.toStringAsFixed(4)}',
-                style: TextStyle(color: secondaryColor, fontSize: 16),
-              ),
-            )),
-      ]),
-    );
-  });
+              )),
+          Positioned(
+              bottom: 100,
+              right: 20,
+              child: FloatingActionButton(
+                backgroundColor: isTracking ? primaryColor : secondaryColor,
+                onPressed: () {
+                  //print("another thing happened");
+
+                  if (isTracking) {
+                    moveToCurrentPosition();
+                  }
+                },
+                child: Icon(
+                  isTracking ? Icons.location_on : Icons.location_off,
+                  color: isTracking ? secondaryColor : primaryColor,
+                ),
+              )),
+          Positioned(
+              bottom: 180,
+              right: 20,
+              child: FloatingActionButton(
+                backgroundColor: isTracking ? primaryColor : secondaryColor,
+                onPressed: () {
+                  markers.clear();
+                  mapController.rotate(0.0);
+                },
+                child: Transform.rotate(
+                  angle: 135 * pi / 180,
+                  child: Icon(
+                    Icons.explore,
+                    color: isTracking ? secondaryColor : primaryColor,
+                  ),
+                ),
+              )),
+          AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              bottom:
+                  isTracking && gamePlayController.waypoints.isNotEmpty == true
+                      ? 20
+                      : -100,
+              left: 20,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      )
+                    ]),
+                child: Text(
+                  '${distanceToWaypoint.toStringAsFixed(0)} m',
+                  //'${currentPosition!.latitude.toStringAsFixed(4)}, ${currentPosition!.longitude.toStringAsFixed(4)}',
+                  style: TextStyle(color: secondaryColor, fontSize: 16),
+                ),
+              )),
+        ]),
+      );
+    });
   }
 }
-
 
 class StoryTab extends StatelessWidget {
   StoryTab({super.key});
