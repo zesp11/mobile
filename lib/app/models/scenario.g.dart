@@ -12,13 +12,11 @@ Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
           ? null
           : FirstStep.fromJson(json['first_step'] as Map<String, dynamic>),
       author: Author.fromJson(json['author'] as Map<String, dynamic>),
-      limitPlayers:
-          (json['limit_players'] ?? json['limitPlayers'] as num).toInt(),
+      limitPlayers: (json['limit_players'] as num).toInt(),
       name: json['name'] as String,
       description: json['description'] as String?,
-      creationDate: DateTime.parse(
-          json['creation_date'] ?? json['creationDate'] as String),
-      idPhoto: (json['id_photo'] ?? json['idPhoto'] as num).toInt(),
+      creationDate: DateTime.parse(json['creation_date'] as String),
+      idPhoto: (json['id_photo'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ScenarioToJson(Scenario instance) => <String, dynamic>{
@@ -37,7 +35,7 @@ Author _$AuthorFromJson(Map<String, dynamic> json) => Author(
       login: json['login'] as String,
       email: json['email'] as String,
       bio: json['bio'] as String?,
-      creationDate: DateTime.parse(json['creationDate'] as String),
+      creationDate: DateTime.parse(json['creation_date'] as String),
     );
 
 Map<String, dynamic> _$AuthorToJson(Author instance) => <String, dynamic>{
@@ -45,7 +43,7 @@ Map<String, dynamic> _$AuthorToJson(Author instance) => <String, dynamic>{
       'login': instance.login,
       'email': instance.email,
       'bio': instance.bio,
-      'creationDate': instance.creationDate.toIso8601String(),
+      'creation_date': instance.creationDate.toIso8601String(),
     };
 
 FirstStep _$FirstStepFromJson(Map<String, dynamic> json) => FirstStep(

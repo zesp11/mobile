@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/models/scenario.dart';
-import 'package:gotale/app/ui/widgets/gamebook_card.dart';
+import 'package:gotale/app/ui/widgets/scenario_item.dart';
 
-class GamebookListView extends StatelessWidget {
+class ScenarioListView extends StatelessWidget {
   final List<Scenario> gamebooks;
   final AuthController authController;
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
 
-  const GamebookListView({
+  const ScenarioListView({
     Key? key,
     required this.gamebooks,
     required this.authController,
@@ -24,7 +24,7 @@ class GamebookListView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemBuilder: (context, index) {
         final gamebook = gamebooks[index];
-        return GamebookCard(
+        return ScenarioCard(
           gamebook: gamebook,
           authController: authController,
           onGameSelected: onGameSelected,

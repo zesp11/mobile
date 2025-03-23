@@ -4,14 +4,17 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:intl/intl.dart';
+import 'package:readmore/readmore.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
-class GamebookCard extends StatelessWidget {
+class ScenarioCard extends StatelessWidget {
   final Scenario gamebook;
   final AuthController authController;
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
 
-  const GamebookCard({
+  const ScenarioCard({
     Key? key,
     required this.gamebook,
     required this.authController,
@@ -23,10 +26,11 @@ class GamebookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 0,
+      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
@@ -50,28 +54,8 @@ class GamebookCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Gamebook Cover/Icon
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? theme.colorScheme.secondaryContainer
-                          : theme.colorScheme.secondary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: theme.colorScheme.secondary.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.auto_stories,
-                      size: 32,
-                      color: isDark
-                          ? theme.colorScheme.onSecondaryContainer
-                          : theme.colorScheme.secondary,
-                    ),
-                  ),
+                  // Improved Cover Image
+                  _buildCoverImage(theme),
                   const SizedBox(width: 16),
                   // Gamebook Details
                   Expanded(
@@ -84,22 +68,23 @@ class GamebookCard extends StatelessWidget {
                             color: theme.colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
                           children: [
                             _buildInfoChip(
                               context,
-                              icon: Icons.person_outline,
-                              label: 'ID: ${gamebook.author.id}',
+                              icon: Icons.people_outline,
+                              label: '${gamebook.limitPlayers} players',
                             ),
-                            const SizedBox(width: 8),
                             _buildInfoChip(
                               context,
                               icon: Icons.calendar_today_outlined,
-                              label: gamebook.creationDate
-                                  .toString()
-                                  .split(' ')[0],
+                              label: dateFormat.format(gamebook.creationDate),
                             ),
                           ],
                         ),
@@ -111,90 +96,119 @@ class GamebookCard extends StatelessWidget {
               if (gamebook.description != null &&
                   gamebook.description!.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(
+                ReadMoreText(
                   gamebook.description!,
+                  trimLines: 2,
+                  colorClickableText: theme.colorScheme.primary,
+                  trimMode: TrimMode.Line,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface
                         .withOpacity(isDark ? 0.7 : 0.8),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // Info Button
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      Get.toNamed(
-                        '${AppRoutes.scenario}/${gamebook.id}',
-                        arguments: gamebook,
-                      );
-                      onScenarioSelected();
-                    },
-                    icon: Icon(
-                      Icons.info_outline,
-                      size: 20,
-                      color: isDark
-                          ? theme.colorScheme.secondary
-                          : theme.colorScheme.primary,
-                    ),
-                    label: Text(
-                      'details'.tr,
-                      style: TextStyle(
-                        color: isDark
-                            ? theme.colorScheme.secondary
-                            : theme.colorScheme.primary,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      side: BorderSide(
-                        color: (isDark
-                                ? theme.colorScheme.secondary
-                                : theme.colorScheme.primary)
-                            .withOpacity(0.5),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Play Button
-                  ElevatedButton.icon(
-                    onPressed: authController.isAuthenticated
-                        ? () async {
-                            // TODO: this is the same as in game selection screen / scenario screen
-                            final gameController =
-                                Get.find<GamePlayController>();
-                            await gameController
-                                .createGameFromScenario(gamebook.id);
-                            Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                ':id',
-                                gameController.currentGame.value!.idGame
-                                    .toString()));
-                            onGameSelected();
-                          }
-                        : () => _showLoginDialog(context),
-                    icon: Icon(
-                      Icons.play_arrow_rounded,
-                      size: 20,
-                    ),
-                    label: Text('play'.tr),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              _buildActionButtons(context, theme, isDark),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCoverImage(ThemeData theme) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.secondaryContainer.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: gamebook.idPhoto != 0
+            ? Image.network(
+                'https://picsum.photos/id/${gamebook.idPhoto}/200/200',
+                fit: BoxFit.cover,
+              )
+            : Icon(
+                Icons.auto_stories,
+                size: 32,
+                color: theme.colorScheme.secondary,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+      BuildContext context, ThemeData theme, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Author Info
+        Expanded(
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              backgroundColor: theme.colorScheme.secondaryContainer,
+              child: Text(
+                gamebook.author.login[0].toUpperCase(),
+                style: TextStyle(
+                  color: theme.colorScheme.onSecondaryContainer,
+                ),
+              ),
+            ),
+            title: Text(
+              gamebook.author.login,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        // Action Buttons
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.info_outline,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7)),
+              onPressed: () {
+                Get.toNamed(
+                  '${AppRoutes.scenario}/${gamebook.id}',
+                  arguments: gamebook,
+                );
+                onScenarioSelected();
+              },
+            ),
+            const SizedBox(width: 8),
+            _buildPlayButton(context, theme, isDark),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayButton(BuildContext context, ThemeData theme, bool isDark) {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.play_arrow_rounded, size: 20),
+      label: Text('play'.tr),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        backgroundColor: theme.colorScheme.primaryContainer,
+        foregroundColor: theme.colorScheme.onPrimaryContainer,
+      ),
+      onPressed: authController.isAuthenticated
+          ? () async {
+              final gameController = Get.find<GamePlayController>();
+              await gameController.createGameFromScenario(gamebook.id);
+              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                  ':id', gameController.currentGame.value!.idGame.toString()));
+              onGameSelected();
+            }
+          : () => _showLoginDialog(context),
     );
   }
 

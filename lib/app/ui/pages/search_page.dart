@@ -3,20 +3,7 @@ import 'package:get/get.dart';
 import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
 import 'package:gotale/app/ui/pages/error_screen.dart';
 
-/* TODO: getx documentation
-RouteSettings redirect(String route) {
-  final authService = Get.find<AuthService>();
-  return authService.authed.value ? null : RouteSettings(name: '/login')
-}
-*/
-
-/* TODO: consider if it should have:
-- 3 distinct list 
-- one list with additional field for type
-*/
-
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
-  // Track selected filters
   final RxList<String> selectedFilters = RxList<String>([]);
 
   @override
@@ -61,12 +48,6 @@ class _SearchBarState extends State<SearchBar> {
         _textController.text = value;
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
   }
 
   @override

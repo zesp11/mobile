@@ -276,9 +276,6 @@ class ProductionApiService extends ApiService {
 
   @override
   Future<Map<String, dynamic>> login(String username, String password) async {
-    logger.d('username=$username');
-    logger.d('password=$password');
-
     try {
       final endpoint = '$name$loginRoute';
       final response = await http.post(
@@ -294,10 +291,10 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final dynamic parsed = jsonDecode(response.body);
-
         if (parsed is Map<String, dynamic>) {
+          logger.d('parsed=$parsed');
           final token = parsed['token'] as String;
-          final refreshToken = parsed['refreshToken'] as String;
+          final refreshToken = parsed['refresh_token'] as String;
           final user = parsed['user'] as Map<String, dynamic>;
 
           final userId = user['id_user'] as int;
@@ -586,7 +583,7 @@ class ProductionApiService extends ApiService {
         final responseJson = jsonDecode(response.body);
         // Extract the nested 'step' object
         final stepJson = responseJson['step'] as Map<String, dynamic>;
-        print(stepJson);
+        logger.d('in api service $stepJson');
         return Step.fromJson(stepJson);
       } else {
         throw Exception('Failed to get current step: ${response.statusCode}');
@@ -598,10 +595,10 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getGamePlay(int gameId) async {
+  Future<Game> getGameWithId(int gameId) async {
     try {
       final endpoint =
-          '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
+          '$name${getGameWithIdRoute.replaceFirst(':id', gameId.toString())}';
       final logger = Get.find<Logger>();
 
       logger.d('Fetching game play data for game ID: $endpoint');
@@ -625,7 +622,7 @@ class ProductionApiService extends ApiService {
       logger.d('Get game play response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return gameFromJson(response.body);
       } else {
         throw Exception('Failed to get game play data: ${response.statusCode}');
       }

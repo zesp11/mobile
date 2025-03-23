@@ -9,11 +9,11 @@ part of 'choice.dart';
 Choice _$ChoiceFromJson(Map<String, dynamic> json) => Choice(
       idChoice: (json['id_choice'] as num).toInt(),
       nextStepId: (json['id_next_step'] as num).toInt(),
-      text: json['text'] as String?,
+      text: json['choice_text'] as String?,
     );
 
 Map<String, dynamic> _$ChoiceToJson(Choice instance) => <String, dynamic>{
       'id_choice': instance.idChoice,
       'id_next_step': instance.nextStepId,
-      'text': instance.text,
+      'choice_text': instance.text,
     };

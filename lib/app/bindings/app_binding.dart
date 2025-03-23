@@ -5,6 +5,7 @@ import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
+import 'package:gotale/app/controllers/scenario_controller.dart';
 import 'package:gotale/app/controllers/search_controller.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:gotale/app/services/api_service/productionApiService.dart';
@@ -46,6 +47,7 @@ class AppBindings extends Bindings {
     Get.put<GamePlayController>(GamePlayController(gameService: Get.find()));
     Get.put<GameSelectionController>(
         GameSelectionController(gameService: Get.find()));
+    Get.put<ScenarioController>(ScenarioController(gameService: Get.find()));
     Get.put<SearchController>(SearchController(searchService: Get.find()));
   }
 
