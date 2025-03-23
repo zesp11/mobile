@@ -8,34 +8,31 @@ part of 'scenario.dart';
 
 Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
       id: (json['id'] as num).toInt(),
-      firstStep: json['first_step'] == null
-          ? null
-          : FirstStep.fromJson(json['first_step'] as Map<String, dynamic>),
-      author: Author.fromJson(json['author'] as Map<String, dynamic>),
-      limitPlayers: (json['limit_players'] as num).toInt(),
       name: json['name'] as String,
-      description: json['description'] as String?,
+      author: Author.fromJson(json['author'] as Map<String, dynamic>),
+      description: json['description'],
+      limitPlayers: (json['limit_players'] as num).toInt(),
       creationDate: DateTime.parse(json['creation_date'] as String),
-      idPhoto: (json['id_photo'] as num).toInt(),
+      photoUrl: json['photo_url'] as String?,
     );
 
 Map<String, dynamic> _$ScenarioToJson(Scenario instance) => <String, dynamic>{
       'id': instance.id,
-      'first_step': instance.firstStep,
-      'author': instance.author,
-      'limit_players': instance.limitPlayers,
       'name': instance.name,
+      'author': instance.author,
       'description': instance.description,
+      'limit_players': instance.limitPlayers,
       'creation_date': instance.creationDate.toIso8601String(),
-      'id_photo': instance.idPhoto,
+      'photo_url': instance.photoUrl,
     };
 
 Author _$AuthorFromJson(Map<String, dynamic> json) => Author(
       id: (json['id'] as num).toInt(),
       login: json['login'] as String,
       email: json['email'] as String,
-      bio: json['bio'] as String?,
+      bio: json['bio'] as String,
       creationDate: DateTime.parse(json['creation_date'] as String),
+      photoUrl: json['photo_url'] as String?,
     );
 
 Map<String, dynamic> _$AuthorToJson(Author instance) => <String, dynamic>{
@@ -44,22 +41,5 @@ Map<String, dynamic> _$AuthorToJson(Author instance) => <String, dynamic>{
       'email': instance.email,
       'bio': instance.bio,
       'creation_date': instance.creationDate.toIso8601String(),
-    };
-
-FirstStep _$FirstStepFromJson(Map<String, dynamic> json) => FirstStep(
-      id: (json['id_step'] as num).toInt(),
-      latitude: json['latitude'],
-      text: json['text'],
-      title: json['title'],
-      choices: json['choices'] as List<dynamic>,
-      longitude: json['longitude'],
-    );
-
-Map<String, dynamic> _$FirstStepToJson(FirstStep instance) => <String, dynamic>{
-      'id_step': instance.id,
-      'latitude': instance.latitude,
-      'text': instance.text,
-      'title': instance.title,
-      'choices': instance.choices,
-      'longitude': instance.longitude,
+      'photo_url': instance.photoUrl,
     };
