@@ -26,7 +26,7 @@ class GameCreated {
   @JsonKey(name: "name")
   String name;
   @JsonKey(name: "photo_url")
-  String photoUrl;
+  String? photoUrl;
   @JsonKey(name: "first_step")
   GameStep firstStep;
 
@@ -36,7 +36,7 @@ class GameCreated {
     required this.idAuthor,
     required this.idGame,
     required this.name,
-    required this.photoUrl,
+    this.photoUrl,
     required this.firstStep,
   });
 

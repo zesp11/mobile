@@ -8,9 +8,9 @@ part of 'scenario.dart';
 
 Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
       id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
+      name: json['name'] as String?,
       author: Author.fromJson(json['author'] as Map<String, dynamic>),
-      description: json['description'],
+      description: json['description'] as String?,
       limitPlayers: (json['limit_players'] as num).toInt(),
       creationDate: DateTime.parse(json['creation_date'] as String),
       photoUrl: json['photo_url'] as String?,
@@ -28,9 +28,9 @@ Map<String, dynamic> _$ScenarioToJson(Scenario instance) => <String, dynamic>{
 
 Author _$AuthorFromJson(Map<String, dynamic> json) => Author(
       id: (json['id'] as num).toInt(),
-      login: json['login'] as String,
-      email: json['email'] as String,
-      bio: json['bio'] as String,
+      login: json['login'] as String?,
+      email: json['email'] as String?,
+      bio: json['bio'] as String?,
       creationDate: DateTime.parse(json['creation_date'] as String),
       photoUrl: json['photo_url'] as String?,
     );

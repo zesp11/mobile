@@ -15,13 +15,13 @@ String gameStepToJson(GameStep data) => json.encode(data.toJson());
 @JsonSerializable()
 class GameStep {
   @JsonKey(name: "title")
-  String title;
+  String? title;
   @JsonKey(name: "text")
-  String text;
+  String? text;
   @JsonKey(name: "longitude")
-  double longitude;
+  double? longitude;
   @JsonKey(name: "latitude")
-  double latitude;
+  double? latitude;
   @JsonKey(name: "photoUrl")
   String? photoUrl;
   @JsonKey(name: "choices")
@@ -30,10 +30,10 @@ class GameStep {
   int id;
 
   GameStep({
-    required this.title,
-    required this.text,
-    required this.longitude,
-    required this.latitude,
+    this.title,
+    this.text,
+    this.longitude,
+    this.latitude,
     this.photoUrl,
     required this.choices,
     required this.id,

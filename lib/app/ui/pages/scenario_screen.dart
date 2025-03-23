@@ -108,7 +108,7 @@ class ScenarioScreen extends StatelessWidget {
                     backgroundColor: theme.colorScheme.surface,
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(
-                        gamebook.name,
+                        gamebook.name!,
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: theme.colorScheme.onSurface,
                           shadows: [

@@ -121,8 +121,13 @@ class ProductionApiService extends ApiService {
         // TODO: 'Authorization': 'Bearer ${Get.find<AuthController>().token}',
       };
 
+      final uri = Uri.parse(endpoint).replace(queryParameters: {
+        'page': '1',
+        'limit': '1000',
+      });
+
       final response = await http.get(
-        Uri.parse(endpoint),
+        uri,
         headers: headers,
       );
 
@@ -131,6 +136,8 @@ class ProductionApiService extends ApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         final List<dynamic> gamebooksJson = responseBody['data'] ?? [];
+
+        print(gamebooksJson);
 
         return List<Scenario>.from(
             gamebooksJson.map((x) => Scenario.fromJson(x)));

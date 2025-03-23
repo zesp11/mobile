@@ -7,10 +7,10 @@ part of 'game_step.dart';
 // **************************************************************************
 
 GameStep _$GameStepFromJson(Map<String, dynamic> json) => GameStep(
-      title: json['title'] as String,
-      text: json['text'] as String,
-      longitude: (json['longitude'] as num).toDouble(),
-      latitude: (json['latitude'] as num).toDouble(),
+      title: json['title'] as String?,
+      text: json['text'] as String?,
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
       photoUrl: json['photoUrl'] as String?,
       choices: (json['choices'] as List<dynamic>)
           .map((e) => Choice.fromJson(e as Map<String, dynamic>))

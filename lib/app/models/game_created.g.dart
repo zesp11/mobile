@@ -12,7 +12,7 @@ GameCreated _$GameCreatedFromJson(Map<String, dynamic> json) => GameCreated(
       idAuthor: (json['id_author'] as num).toInt(),
       idGame: (json['id_game'] as num).toInt(),
       name: json['name'] as String,
-      photoUrl: json['photo_url'] as String,
+      photoUrl: json['photo_url'] as String?,
       firstStep: GameStep.fromJson(json['first_step'] as Map<String, dynamic>),
     );
 

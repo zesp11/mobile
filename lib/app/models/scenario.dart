@@ -18,11 +18,11 @@ class Scenario {
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "name")
-  String name;
+  String? name;
   @JsonKey(name: "author")
   Author author;
   @JsonKey(name: "description")
-  dynamic description;
+  String? description;
   @JsonKey(name: "limit_players")
   int limitPlayers;
   @JsonKey(name: "creation_date")
@@ -51,11 +51,11 @@ class Author {
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "login")
-  String login;
+  String? login;
   @JsonKey(name: "email")
-  String email;
+  String? email;
   @JsonKey(name: "bio")
-  String bio;
+  String? bio;
   @JsonKey(name: "creation_date")
   DateTime creationDate;
   @JsonKey(name: "photo_url")

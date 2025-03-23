@@ -63,7 +63,7 @@ class ScenarioCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          gamebook.name,
+                          gamebook.name!,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: theme.colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
@@ -152,14 +152,14 @@ class ScenarioCard extends StatelessWidget {
             leading: CircleAvatar(
               backgroundColor: theme.colorScheme.secondaryContainer,
               child: Text(
-                gamebook.author.login[0].toUpperCase(),
+                gamebook.author.login![0].toUpperCase(),
                 style: TextStyle(
                   color: theme.colorScheme.onSecondaryContainer,
                 ),
               ),
             ),
             title: Text(
-              gamebook.author.login,
+              gamebook.author.login!,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),

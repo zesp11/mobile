@@ -70,7 +70,7 @@ class GamePlayController extends GetxController with StateMixin {
       // cast to correct game object, because incorrect backend response
       currentGame.value = Game(
         startTime: DateTime.now(),
-        currentStepText: createdGame.firstStep.text,
+        currentStepText: createdGame.firstStep.text ?? "Game End",
         scenarioName: createdGame.name,
         idGame: createdGame.idGame,
         idScen: scenarioId,

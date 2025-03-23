@@ -315,7 +315,7 @@ class DecisionTab extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Text(
-                  currentStep.text,
+                  currentStep.text ?? "Game End",
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -349,7 +349,7 @@ class DecisionTab extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Text(
-                currentStep.text,
+                currentStep.text ?? "Game End",
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
