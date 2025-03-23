@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
-import 'package:gotale/app/ui/widgets/recommend_games_section.dart';
+import 'package:gotale/app/ui/widgets/recommended_scenarios_widget.dart';
 import 'package:gotale/app/ui/widgets/resume_last_game_section.dart';
 import 'package:gotale/app/ui/widgets/search_game_section.dart';
-import 'package:gotale/app/ui/widgets/user_summary.dart';
+import 'package:gotale/app/ui/widgets/profile_summary.dart';
 
 class HomeScreen extends StatelessWidget {
   final HomeController controller =
@@ -20,19 +20,17 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (authController.isAuthenticated) ...[
-              UserSummaryWidget(),
+              ProfileSummaryWidget(),
               const Divider(),
               ResumeLastGameSection(),
               const Divider(),
             ],
             const SearchGamesSection(),
-            // const Divider(),
-            // const LastGameWidget(),
             // TODO:
             // const Divider(),
             // const NearbyGamesWidget(),
             const Divider(),
-            RecommendedGamesWidget(),
+            RecommendedScenariosWidget(),
           ],
         ),
       ),

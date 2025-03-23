@@ -13,7 +13,7 @@ class Choice {
   int idChoice;
   @JsonKey(name: "id_next_step")
   int nextStepId;
-  @JsonKey(name: "text")
+  @JsonKey(name: "choice_text")
   String? text;
 
   Choice({
