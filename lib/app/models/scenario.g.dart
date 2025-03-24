@@ -14,6 +14,9 @@ Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
       limitPlayers: (json['limit_players'] as num).toInt(),
       creationDate: DateTime.parse(json['creation_date'] as String),
       photoUrl: json['photo_url'] as String?,
+      firstStep: json['first_step'] == null
+          ? null
+          : GameStep.fromJson(json['first_step'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ScenarioToJson(Scenario instance) => <String, dynamic>{
@@ -24,6 +27,7 @@ Map<String, dynamic> _$ScenarioToJson(Scenario instance) => <String, dynamic>{
       'limit_players': instance.limitPlayers,
       'creation_date': instance.creationDate.toIso8601String(),
       'photo_url': instance.photoUrl,
+      'first_step': instance.firstStep,
     };
 
 Author _$AuthorFromJson(Map<String, dynamic> json) => Author(
