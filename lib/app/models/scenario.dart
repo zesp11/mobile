@@ -2,6 +2,7 @@
 //
 //     final scenario = scenarioFromJson(jsonString);
 
+import 'package:gotale/app/models/game_step.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
@@ -29,6 +30,8 @@ class Scenario {
   DateTime creationDate;
   @JsonKey(name: "photo_url")
   String? photoUrl;
+  @JsonKey(name: "first_step")
+  GameStep? firstStep;
 
   Scenario({
     required this.id,
@@ -38,6 +41,7 @@ class Scenario {
     required this.limitPlayers,
     required this.creationDate,
     required this.photoUrl,
+    this.firstStep,
   });
 
   factory Scenario.fromJson(Map<String, dynamic> json) =>

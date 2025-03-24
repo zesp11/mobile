@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
+import 'package:gotale/app/models/choice.dart';
+import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/game_service.dart';
@@ -150,61 +152,18 @@ class ScenarioScreen extends StatelessWidget {
                       vertical: 24.0,
                     ),
                     sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        _buildAuthorInfo(context, gamebook.author),
-                        const SizedBox(height: 24),
-                        _buildDescriptionSection(context, gamebook.description),
-                        const SizedBox(height: 24),
-                        _buildGameBookInfo(context, gamebook),
-                        const SizedBox(height: 24),
-
-                        // Steps Section
-                        Text(
-                          'steps'.tr,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Card(
-                          elevation: 0,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: theme.colorScheme.outline.withOpacity(0.1),
-                            ),
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: CircleAvatar(
-                              backgroundColor:
-                                  theme.colorScheme.secondary.withOpacity(0.1),
-                              child: Text(
-                                (0).toString(),
-                                style: TextStyle(
-                                  color: theme.colorScheme.secondary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            // title: Text(
-                            //   gamebook.firstStep!.text,
-                            //   style: theme.textTheme.bodyLarge,
-                            // ),
-                            // subtitle: Padding(
-                            //   padding: const EdgeInsets.only(top: 8),
-                            //   child: Text(
-                            //     'Step ID: ${gamebook.firstStep!.id}',
-                            //     style: theme.textTheme.bodySmall?.copyWith(
-                            //       color: theme.colorScheme.onSurface
-                            //           .withOpacity(0.6),
-                            //     ),
-                            //   ),
-                            // ),
-                          ),
-                        ),
-                      ]),
+                      delegate: SliverChildListDelegate(
+                        [
+                          _buildAuthorInfo(context, gamebook.author),
+                          const SizedBox(height: 24),
+                          _buildDescriptionSection(
+                              context, gamebook.description),
+                          const SizedBox(height: 24),
+                          _buildGameBookInfo(context, gamebook),
+                          const SizedBox(height: 24),
+                          _buildJourneyInfo(context, gamebook.firstStep!),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -546,6 +505,132 @@ class ScenarioScreen extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildJourneyInfo(BuildContext context, GameStep step) {
+    final theme = Theme.of(context);
+    final hasLocation = step.latitude != null && step.longitude != null;
+    final hasChoices = step.choices.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.flag_circle_outlined,
+              color: theme.colorScheme.secondary,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'your_journey_begins_here'.tr,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface.withOpacity(0.9),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.1),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Step Header
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor:
+                          theme.colorScheme.secondary.withOpacity(0.1),
+                      child: Icon(
+                        Icons.arrow_circle_right,
+                        color: theme.colorScheme.secondary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            step.title ?? 'first_step'.tr,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            'ID: ${step.id}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Step Content
+                if (step.text?.isNotEmpty ?? false)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      step.text!,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        height: 1.4,
+                        color: theme.colorScheme.onSurface.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+
+                // Location Info
+                if (hasLocation)
+                  _buildInfoChip(
+                    context,
+                    icon: Icons.location_pin,
+                    text: 'location_provided'.tr,
+                    color: theme.colorScheme.tertiary,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoChip(BuildContext context,
+      {required IconData icon, required String text, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Text(text, style: TextStyle(color: color)),
+        ],
+      ),
     );
   }
 }
