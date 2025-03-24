@@ -155,63 +155,7 @@ class ScenarioScreen extends StatelessWidget {
                         const SizedBox(height: 24),
                         _buildDescriptionSection(context, gamebook.description),
                         const SizedBox(height: 24),
-
-                        // Dates Section
-                        Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: theme.colorScheme.outline.withOpacity(0.1),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'dates'.tr,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today,
-                                      size: 20,
-                                      color: theme.colorScheme.secondary,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'start_date'.tr,
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                            color: theme.colorScheme.onSurface
-                                                .withOpacity(0.7),
-                                          ),
-                                        ),
-                                        Text(
-                                          gamebook.creationDate
-                                              .toLocal()
-                                              .toString()
-                                              .split(' ')[0],
-                                          style: theme.textTheme.titleMedium,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        _buildGameBookInfo(context, gamebook),
                         const SizedBox(height: 24),
 
                         // Steps Section
@@ -492,6 +436,114 @@ class ScenarioScreen extends StatelessWidget {
             maxLines: 8,
             overflow: TextOverflow.ellipsis,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGameBookInfo(BuildContext context, Scenario gamebook) {
+    final theme = Theme.of(context);
+    final dateFormatter = DateFormat.yMMMd(); // Formats to "Jul 12, 2023"
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(theme, 'game_info'.tr),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                // Creation Date Section
+                Expanded(
+                  child: _buildInfoItem(
+                    context,
+                    icon: Icons.calendar_today,
+                    label: 'created'.tr,
+                    value: dateFormatter.format(gamebook.creationDate),
+                  ),
+                ),
+                // Players Section
+                Expanded(
+                  child: _buildInfoItem(
+                    context,
+                    icon: Icons.people_alt_outlined,
+                    label: 'max_players'.tr,
+                    value: gamebook.limitPlayers == 0
+                        ? 'no_limit'.tr
+                        : '${gamebook.limitPlayers}',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(ThemeData theme, String text) {
+    return Row(
+      children: [
+        Icon(
+          Icons.info_outline,
+          size: 20,
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final theme = Theme.of(context);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: theme.colorScheme.secondary,
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
         ),
       ],
     );
