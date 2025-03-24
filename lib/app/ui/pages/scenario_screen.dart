@@ -153,31 +153,7 @@ class ScenarioScreen extends StatelessWidget {
                       delegate: SliverChildListDelegate([
                         _buildAuthorInfo(context, gamebook.author),
                         const SizedBox(height: 24),
-
-                        // Description Section
-                        Text(
-                          'description'.tr,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: theme.cardTheme.color,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: theme.colorScheme.outline.withOpacity(0.1),
-                            ),
-                          ),
-                          child: Text(
-                            gamebook.description ??
-                                "No description available TODO: translation",
-                            style: theme.textTheme.bodyLarge,
-                          ),
-                        ),
+                        _buildDescriptionSection(context, gamebook.description),
                         const SizedBox(height: 24),
 
                         // Dates Section
@@ -458,6 +434,65 @@ class ScenarioScreen extends StatelessWidget {
         //     color: theme.colorScheme.onSurface.withOpacity(0.6),
         //   ),
         // ),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionSection(BuildContext context, String? description) {
+    final theme = Theme.of(context);
+    final hasDescription = description?.isNotEmpty ?? false;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Icon(
+                    Icons.text_snippet_outlined,
+                    size: 20,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+                const WidgetSpan(child: SizedBox(width: 8)),
+                TextSpan(
+                  text: 'description'.tr,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.cardTheme.color,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.outline.withOpacity(0.1),
+            ),
+          ),
+          child: Text(
+            hasDescription ? description! : 'no_description_available'.tr,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              height: 1.4,
+              color: hasDescription
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurface.withOpacity(0.4),
+            ),
+            textAlign: TextAlign.left,
+            maxLines: 8,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
