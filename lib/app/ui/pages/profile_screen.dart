@@ -30,20 +30,28 @@ class ProfileScreen extends GetView<AuthController> {
                       children: [
                         Hero(
                           tag: 'profile_avatar',
-                          child: CircleAvatar(
-                            radius: isSmallScreen ? 50 : 60,
-                            backgroundColor:
-                                theme.colorScheme.secondary.withOpacity(0.1),
-                            child: Text(
-                              (userProfile?.login.substring(0, 1) ?? '?')
-                                  .toUpperCase(),
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                color: theme.colorScheme.secondary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: isSmallScreen ? 32 : 40,
-                              ),
-                            ),
-                          ),
+                          child: userProfile?.photoUrl == null
+                              ? CircleAvatar(
+                                  radius: isSmallScreen ? 50 : 60,
+                                  backgroundColor: theme.colorScheme.secondary
+                                      .withOpacity(0.1),
+                                  child: Text(
+                                    (userProfile?.login.substring(0, 1) ?? '?')
+                                        .toUpperCase(),
+                                    style: theme.textTheme.headlineMedium
+                                        ?.copyWith(
+                                      color: theme.colorScheme.secondary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: isSmallScreen ? 32 : 40,
+                                    ),
+                                  ),
+                                )
+                              : CircleAvatar(
+                                  radius: isSmallScreen ? 50 : 60,
+                                  backgroundImage:
+                                      NetworkImage(userProfile!.photoUrl!),
+                                  backgroundColor: Colors.transparent,
+                                ),
                         ),
                         const SizedBox(height: 16),
                         Text(

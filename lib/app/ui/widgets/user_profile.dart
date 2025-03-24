@@ -15,16 +15,15 @@ class UserProfileWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // TODO: avatar
-        // CircleAvatar(
-        //   radius: 60,
-        //   backgroundImage: userProfile.avatar.isNotEmpty
-        //       ? NetworkImage(userProfile.avatar)
-        //       : null,
-        //   child: userProfile.avatar.isEmpty
-        //       ? const Icon(Icons.person, size: 60, color: Colors.white)
-        //       : null,
-        // ),
+        CircleAvatar(
+          radius: 60,
+          backgroundImage: userProfile.photoUrl != null
+              ? NetworkImage(userProfile.photoUrl!)
+              : null,
+          child: userProfile.photoUrl == null
+              ? const Icon(Icons.person, size: 60, color: Colors.white)
+              : null,
+        ),
         const SizedBox(height: 20),
         Text(userProfile.login,
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
