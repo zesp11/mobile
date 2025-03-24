@@ -5,6 +5,7 @@ import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/game_service.dart';
+import 'package:intl/intl.dart';
 
 class ScenarioScreen extends StatelessWidget {
   final GameService service = Get.find<GameService>();
@@ -150,61 +151,7 @@ class ScenarioScreen extends StatelessWidget {
                     ),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
-                        // Author Info
-                        Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: theme.colorScheme.outline.withOpacity(0.1),
-                            ),
-                          ),
-                          child: InkWell(
-                            onTap: () =>
-                                Get.toNamed('/profile/${gamebook.author.id}'),
-                            borderRadius: BorderRadius.circular(16),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: theme.colorScheme.secondary
-                                        .withOpacity(0.1),
-                                    child: Icon(
-                                      Icons.person,
-                                      color: theme.colorScheme.secondary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'author'.tr,
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                            color: theme.colorScheme.onSurface
-                                                .withOpacity(0.7),
-                                          ),
-                                        ),
-                                        Text(
-                                          'ID: ${gamebook.author.id}',
-                                          style: theme.textTheme.titleMedium,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.chevron_right,
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildAuthorInfo(context, gamebook.author),
                         const SizedBox(height: 24),
 
                         // Description Section
@@ -414,6 +361,104 @@ class ScenarioScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildAuthorInfo(BuildContext context, Author author) {
+    final theme = Theme.of(context);
+    final formattedDate = DateFormat.yMMMd().format(author.creationDate);
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+        ),
+      ),
+      child: InkWell(
+        onTap: () => Get.toNamed('/profile/${author.id}'),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              _buildAuthorAvatar(theme, author),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildAuthorName(theme, author),
+                    if (author.bio != null && author.bio!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          author.bio!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Member since $formattedDate',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthorAvatar(ThemeData theme, Author author) {
+    return CircleAvatar(
+      radius: 24,
+      backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
+      foregroundImage:
+          author.photoUrl != null ? NetworkImage(author.photoUrl!) : null,
+      child: author.photoUrl == null
+          ? Icon(
+              Icons.person,
+              color: theme.colorScheme.secondary,
+              size: 24,
+            )
+          : null,
+    );
+  }
+
+  Widget _buildAuthorName(ThemeData theme, Author author) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          author.login ?? 'Anonymous',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        // Text(
+        //   'ID: ${author.id}',
+        //   style: theme.textTheme.bodySmall?.copyWith(
+        //     color: theme.colorScheme.onSurface.withOpacity(0.6),
+        //   ),
+        // ),
+      ],
     );
   }
 }
