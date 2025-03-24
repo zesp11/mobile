@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import 'package:gotale/app/models/created_game.dart';
+import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
-import 'package:gotale/app/models/step.dart';
+import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:http/http.dart' as http;
@@ -121,8 +121,13 @@ class ProductionApiService extends ApiService {
         // TODO: 'Authorization': 'Bearer ${Get.find<AuthController>().token}',
       };
 
+      final uri = Uri.parse(endpoint).replace(queryParameters: {
+        'page': '1',
+        'limit': '1000',
+      });
+
       final response = await http.get(
-        Uri.parse(endpoint),
+        uri,
         headers: headers,
       );
 
@@ -131,6 +136,8 @@ class ProductionApiService extends ApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         final List<dynamic> gamebooksJson = responseBody['data'] ?? [];
+
+        print(gamebooksJson);
 
         return List<Scenario>.from(
             gamebooksJson.map((x) => Scenario.fromJson(x)));
@@ -513,7 +520,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<CreatedGame> createGameFromScenario(int scenarioId) async {
+  Future<GameCreated> createGameFromScenario(int scenarioId) async {
     try {
       final endpoint =
           '$name${createGameFromScenarioRoute.replaceFirst(':id', scenarioId.toString())}';
@@ -541,7 +548,7 @@ class ProductionApiService extends ApiService {
       logger.d('Create game response: ${response.body}');
 
       if (response.statusCode == 200) {
-        return createdGameFromJson(response.body);
+        return gameCreatedFromJson(response.body);
       } else {
         throw Exception('Failed to create game: ${response.statusCode}');
       }
@@ -552,7 +559,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Step> getCurrentStep(int gameId) async {
+  Future<GameStep> getCurrentStep(int gameId) async {
     try {
       final endpoint =
           '$name${playGameRoute.replaceFirst(':id', gameId.toString())}';
@@ -584,7 +591,7 @@ class ProductionApiService extends ApiService {
         // Extract the nested 'step' object
         final stepJson = responseJson['step'] as Map<String, dynamic>;
         logger.d('in api service $stepJson');
-        return Step.fromJson(stepJson);
+        return GameStep.fromJson(stepJson);
       } else {
         throw Exception('Failed to get current step: ${response.statusCode}');
       }

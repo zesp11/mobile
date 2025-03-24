@@ -63,7 +63,7 @@ class ScenarioCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          gamebook.name,
+                          gamebook.name!,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: theme.colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
@@ -126,9 +126,9 @@ class ScenarioCard extends StatelessWidget {
           color: theme.colorScheme.secondaryContainer.withOpacity(0.2),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: gamebook.idPhoto != 0
+        child: gamebook.photoUrl != null
             ? Image.network(
-                'https://picsum.photos/id/${gamebook.idPhoto}/200/200',
+                gamebook.photoUrl!,
                 fit: BoxFit.cover,
               )
             : Icon(
@@ -152,14 +152,14 @@ class ScenarioCard extends StatelessWidget {
             leading: CircleAvatar(
               backgroundColor: theme.colorScheme.secondaryContainer,
               child: Text(
-                gamebook.author.login[0].toUpperCase(),
+                gamebook.author.login![0].toUpperCase(),
                 style: TextStyle(
                   color: theme.colorScheme.onSecondaryContainer,
                 ),
               ),
             ),
             title: Text(
-              gamebook.author.login,
+              gamebook.author.login!,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),

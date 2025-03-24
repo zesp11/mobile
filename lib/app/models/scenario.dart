@@ -1,54 +1,43 @@
+// To parse this JSON data, do
+//
+//     final scenario = scenarioFromJson(jsonString);
+
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
-//   final int id;
-//   final String title;
-//   final String description; // Overview of the gamebook
-//   final DateTime startDate;
-//   final DateTime? endDate;
-//   final List<Step> steps;
-//   final int authorId;
-
 part 'scenario.g.dart';
 
-List<Scenario> scenarioListFromJson(String str) =>
+List<Scenario> scenarioFromJson(String str) =>
     List<Scenario>.from(json.decode(str).map((x) => Scenario.fromJson(x)));
 
-String scenarioListToJson(List<Scenario> data) =>
+String scenarioToJson(List<Scenario> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
-Scenario scenarioFromJson(String str) => Scenario.fromJson(json.decode(str));
-
-String scenarioToJson(Scenario data) => json.encode(data.toJson());
 
 @JsonSerializable()
 class Scenario {
   @JsonKey(name: "id")
   int id;
-  @JsonKey(name: "first_step")
-  FirstStep? firstStep;
+  @JsonKey(name: "name")
+  String? name;
   @JsonKey(name: "author")
   Author author;
-  @JsonKey(name: "limit_players")
-  int limitPlayers;
-  @JsonKey(name: "name")
-  String name;
   @JsonKey(name: "description")
   String? description;
+  @JsonKey(name: "limit_players")
+  int limitPlayers;
   @JsonKey(name: "creation_date")
   DateTime creationDate;
-  @JsonKey(name: "id_photo")
-  int idPhoto;
+  @JsonKey(name: "photo_url")
+  String? photoUrl;
 
   Scenario({
     required this.id,
-    this.firstStep,
-    required this.author,
-    required this.limitPlayers,
     required this.name,
+    required this.author,
     required this.description,
+    required this.limitPlayers,
     required this.creationDate,
-    required this.idPhoto,
+    required this.photoUrl,
   });
 
   factory Scenario.fromJson(Map<String, dynamic> json) =>
@@ -62,53 +51,26 @@ class Author {
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "login")
-  String login;
+  String? login;
   @JsonKey(name: "email")
-  String email;
+  String? email;
   @JsonKey(name: "bio")
   String? bio;
   @JsonKey(name: "creation_date")
   DateTime creationDate;
+  @JsonKey(name: "photo_url")
+  String? photoUrl;
 
   Author({
     required this.id,
     required this.login,
     required this.email,
-    this.bio,
+    required this.bio,
     required this.creationDate,
+    required this.photoUrl,
   });
 
   factory Author.fromJson(Map<String, dynamic> json) => _$AuthorFromJson(json);
 
   Map<String, dynamic> toJson() => _$AuthorToJson(this);
-}
-
-@JsonSerializable()
-class FirstStep {
-  @JsonKey(name: "id_step")
-  int id;
-  @JsonKey(name: "latitude")
-  dynamic latitude;
-  @JsonKey(name: "text")
-  dynamic text;
-  @JsonKey(name: "title")
-  dynamic title;
-  @JsonKey(name: "choices")
-  List<dynamic> choices;
-  @JsonKey(name: "longitude")
-  dynamic longitude;
-
-  FirstStep({
-    required this.id,
-    required this.latitude,
-    required this.text,
-    required this.title,
-    required this.choices,
-    required this.longitude,
-  });
-
-  factory FirstStep.fromJson(Map<String, dynamic> json) =>
-      _$FirstStepFromJson(json);
-
-  Map<String, dynamic> toJson() => _$FirstStepToJson(this);
 }

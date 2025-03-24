@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:gotale/app/models/created_game.dart';
+import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/scenario.dart';
-import 'package:gotale/app/models/step.dart';
+import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
 
@@ -51,7 +51,7 @@ class GameService {
     }
   }
 
-  Future<CreatedGame> createGameFromScenario(int scenarioId) async {
+  Future<GameCreated> createGameFromScenario(int scenarioId) async {
     try {
       return await apiService.createGameFromScenario(scenarioId);
     } catch (e) {
@@ -60,7 +60,7 @@ class GameService {
     }
   }
 
-  Future<Step> getCurrentStep(int gameId) async {
+  Future<GameStep> getCurrentStep(int gameId) async {
     try {
       final step = await apiService.getCurrentStep(gameId);
       step.choices.forEach((c) => logger.d("in service ${c.text}"));

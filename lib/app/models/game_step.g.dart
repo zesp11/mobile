@@ -1,27 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'step.dart';
+part of 'game_step.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Step _$StepFromJson(Map<String, dynamic> json) => Step(
-      title: json['title'] as String,
-      text: json['text'] as String,
-      longitude: (json['longitude'] as num).toDouble(),
-      latitude: (json['latitude'] as num).toDouble(),
+GameStep _$GameStepFromJson(Map<String, dynamic> json) => GameStep(
+      title: json['title'] as String?,
+      text: json['text'] as String?,
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      photoUrl: json['photoUrl'] as String?,
       choices: (json['choices'] as List<dynamic>)
           .map((e) => Choice.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: (json['id_step'] as num).toInt(),
     );
 
-Map<String, dynamic> _$StepToJson(Step instance) => <String, dynamic>{
+Map<String, dynamic> _$GameStepToJson(GameStep instance) => <String, dynamic>{
       'title': instance.title,
       'text': instance.text,
       'longitude': instance.longitude,
       'latitude': instance.latitude,
+      'photoUrl': instance.photoUrl,
       'choices': instance.choices,
       'id_step': instance.id,
     };

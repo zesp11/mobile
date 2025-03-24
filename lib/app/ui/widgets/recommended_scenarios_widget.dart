@@ -62,7 +62,7 @@ class RecommendedScenariosWidget extends GetView<ScenarioController> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      gamebook.name,
+                                      gamebook.name!,
                                       style:
                                           theme.textTheme.titleMedium?.copyWith(
                                         height: 1.2,

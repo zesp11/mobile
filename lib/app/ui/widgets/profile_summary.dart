@@ -52,11 +52,16 @@ class ProfileSummaryWidget extends GetView<ProfileController> {
         onTap: () => Get.rootDelegate.toNamed(AppRoutes.profile),
         borderRadius: BorderRadius.circular(4),
         child: ListTile(
-          leading: Icon(
-            Icons.person,
-            size: 40,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
+          leading: profile!.photoUrl == null
+              ? Icon(
+                  Icons.person,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.secondary,
+                )
+              : CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(profile.photoUrl!),
+                ),
           title: Text(
             profile?.login ?? "Guest",
             style: Theme.of(context).textTheme.titleMedium,

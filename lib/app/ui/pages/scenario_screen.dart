@@ -108,7 +108,7 @@ class ScenarioScreen extends StatelessWidget {
                     backgroundColor: theme.colorScheme.surface,
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(
-                        gamebook.name,
+                        gamebook.name!,
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: theme.colorScheme.onSurface,
                           shadows: [
@@ -321,20 +321,20 @@ class ScenarioScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            title: Text(
-                              gamebook.firstStep!.text,
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                'Step ID: ${gamebook.firstStep!.id}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.6),
-                                ),
-                              ),
-                            ),
+                            // title: Text(
+                            //   gamebook.firstStep!.text,
+                            //   style: theme.textTheme.bodyLarge,
+                            // ),
+                            // subtitle: Padding(
+                            //   padding: const EdgeInsets.only(top: 8),
+                            //   child: Text(
+                            //     'Step ID: ${gamebook.firstStep!.id}',
+                            //     style: theme.textTheme.bodySmall?.copyWith(
+                            //       color: theme.colorScheme.onSurface
+                            //           .withOpacity(0.6),
+                            //     ),
+                            //   ),
+                            // ),
                           ),
                         ),
                       ]),
