@@ -11,7 +11,7 @@ String choiceToJson(Choice data) => json.encode(data.toJson());
 class Choice {
   @JsonKey(name: "id_choice")
   int idChoice;
-  @JsonKey(name: "text")
+  @JsonKey(name: "choice_text")
   String text;
   @JsonKey(name: "id_next_step")
   int idNextStep;
