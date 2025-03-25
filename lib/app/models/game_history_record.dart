@@ -17,7 +17,7 @@ String gameHistoryRecordToJson(List<GameHistoryRecord> data) =>
 @JsonSerializable()
 class GameHistoryRecord {
   @JsonKey(name: "end_date")
-  DateTime endDate;
+  DateTime? endDate;
   @JsonKey(name: "previous_step_text")
   String? previousStepText;
   @JsonKey(name: "id_ses")

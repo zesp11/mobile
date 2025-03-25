@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
+import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
@@ -27,7 +28,7 @@ class GamePlayController extends GetxController with StateMixin {
   Rx<GameStep?> currentStep = Rx<GameStep?>(null);
 
   // History to store the sequence of decisions and steps
-  var gameHistory = RxList<Map<String, dynamic>>([]);
+  var gameHistory = RxList<GameHistoryRecord>([]);
   var isHistoryLoading = false.obs;
 
   var isCurrentGamebookLoading = false.obs;
@@ -47,8 +48,8 @@ class GamePlayController extends GetxController with StateMixin {
       logger.d("[DEV_DEBUG] Game history response: $history");
 
       // Sort history by start_date in ascending order (oldest first)
-      history.sort((a, b) =>
-          (a['start_date'] as String).compareTo(b['start_date'] as String));
+      // history.sort((a, b) =>
+      //     (a['start_date'] as String).compareTo(b['start_date'] as String));
       gameHistory.assignAll(history);
 
       logger.i("[DEV_DEBUG] Loaded ${gameHistory.length} history entries");

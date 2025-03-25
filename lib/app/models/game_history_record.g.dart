@@ -8,7 +8,9 @@ part of 'game_history_record.dart';
 
 GameHistoryRecord _$GameHistoryRecordFromJson(Map<String, dynamic> json) =>
     GameHistoryRecord(
-      endDate: DateTime.parse(json['end_date'] as String),
+      endDate: json['end_date'] == null
+          ? null
+          : DateTime.parse(json['end_date'] as String),
       previousStepText: json['previous_step_text'] as String?,
       idSes: (json['id_ses'] as num).toInt(),
       idUser: (json['id_user'] as num).toInt(),
@@ -20,7 +22,7 @@ GameHistoryRecord _$GameHistoryRecordFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$GameHistoryRecordToJson(GameHistoryRecord instance) =>
     <String, dynamic>{
-      'end_date': instance.endDate.toIso8601String(),
+      'end_date': instance.endDate?.toIso8601String(),
       'previous_step_text': instance.previousStepText,
       'id_ses': instance.idSes,
       'id_user': instance.idUser,
