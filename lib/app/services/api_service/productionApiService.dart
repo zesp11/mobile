@@ -134,7 +134,8 @@ class ProductionApiService extends ApiService {
       logger.d('Gamebooks response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseBody = jsonDecode(decodedResponse);
         final List<dynamic> gamebooksJson = responseBody['data'] ?? [];
 
         print(gamebooksJson);
@@ -209,7 +210,8 @@ class ProductionApiService extends ApiService {
 
       logger.d('Get scenario response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedResponse);
         data['id'] = gamebookId;
         return Scenario.fromJson(data);
       } else {
@@ -232,9 +234,10 @@ class ProductionApiService extends ApiService {
       logger.d('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        logger.d('Response body: ${response.body}');
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        logger.d('Response body: ${decodedResponse}');
         try {
-          final user = userFromJson(response.body);
+          final user = userFromJson(decodedResponse);
           logger.i('Successfully fetched user: ${user.login} (ID: ${user.id})');
           return user;
         } catch (e) {
@@ -260,7 +263,8 @@ class ProductionApiService extends ApiService {
         );
 
         if (response.statusCode == 200) {
-          final List<dynamic> users = jsonDecode(response.body);
+          final decodedResponse = utf8.decode(response.bodyBytes);
+          final List<dynamic> users = jsonDecode(decodedResponse);
           return users
               .map<Map<String, dynamic>>((user) => {
                     'name': user['login'] ?? 'Unknown User',
@@ -297,7 +301,8 @@ class ProductionApiService extends ApiService {
       );
 
       if (response.statusCode == 200) {
-        final dynamic parsed = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final dynamic parsed = jsonDecode(decodedResponse);
         if (parsed is Map<String, dynamic>) {
           logger.d('parsed=$parsed');
           final token = parsed['token'] as String;
@@ -357,7 +362,8 @@ class ProductionApiService extends ApiService {
       logger.d('Registration response status: ${response.statusCode}');
 
       if (response.statusCode == 201) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseData = jsonDecode(decodedResponse);
         logger.d('Registration successful: ${responseData['message']}');
 
         // You can access the user data from responseData['user'] if needed
@@ -402,7 +408,8 @@ class ProductionApiService extends ApiService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseBody = jsonDecode(decodedResponse);
         final List<dynamic> users = responseBody['users'] ?? [];
         return users
             .map((user) => {
@@ -428,7 +435,8 @@ class ProductionApiService extends ApiService {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> responseBody = jsonDecode(decodedResponse);
         final List<dynamic> scenarios = responseBody['data'] ?? [];
         return scenarios
             .map((scenario) => {
@@ -495,7 +503,8 @@ class ProductionApiService extends ApiService {
       );
 
       if (response.statusCode == 200) {
-        final dynamic parsed = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final dynamic parsed = jsonDecode(decodedResponse);
         final userData = Map<String, dynamic>.from(parsed);
 
         return {
@@ -548,7 +557,8 @@ class ProductionApiService extends ApiService {
       logger.d('Create game response: ${response.body}');
 
       if (response.statusCode == 200) {
-        return gameCreatedFromJson(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        return gameCreatedFromJson(decodedResponse);
       } else {
         throw Exception('Failed to create game: ${response.statusCode}');
       }
@@ -587,7 +597,8 @@ class ProductionApiService extends ApiService {
       logger.d('Get current step response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final responseJson = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final responseJson = jsonDecode(decodedResponse);
         // Extract the nested 'step' object
         final stepJson = responseJson['step'] as Map<String, dynamic>;
         logger.d('in api service $stepJson');
@@ -629,7 +640,8 @@ class ProductionApiService extends ApiService {
       logger.d('Get game play response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        return gameFromJson(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        return gameFromJson(decodedResponse);
       } else {
         throw Exception('Failed to get game play data: ${response.statusCode}');
       }
@@ -665,7 +677,8 @@ class ProductionApiService extends ApiService {
 
       logger.i('Get games in progress response status: ${response.statusCode}');
       if (response.statusCode == 200) {
-        return gameListFromJson(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        return gameListFromJson(decodedResponse);
       } else {
         logger.e('Failed to get games in progress: ${response.statusCode}');
         throw Exception(
@@ -705,7 +718,8 @@ class ProductionApiService extends ApiService {
       logger.d('Get game history response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> history = jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final List<dynamic> history = jsonDecode(decodedResponse);
         logger.i('Found ${history.length} history entries');
         return history
             .map<Map<String, dynamic>>(
@@ -753,7 +767,8 @@ class ProductionApiService extends ApiService {
       logger.d('Make decision response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        return jsonDecode(decodedResponse);
       } else {
         throw Exception('Failed to make decision: ${response.statusCode}');
       }
