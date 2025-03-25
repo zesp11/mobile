@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
+import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
@@ -89,7 +90,7 @@ class GameService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getGameHistory(int gameId) async {
+  Future<List<GameHistoryRecord>> getGameHistory(int gameId) async {
     try {
       logger.i("[DEV_DEBUG] Fetching game history for game ID: $gameId");
       return await apiService.getGameHistory(gameId);

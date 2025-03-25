@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
+import 'package:gotale/app/models/game_history_record.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
@@ -691,7 +692,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getGameHistory(int gameId) async {
+  Future<List<GameHistoryRecord>> getGameHistory(int gameId) async {
     try {
       final endpoint = '$name/api/games/$gameId/history';
       final logger = Get.find<Logger>();
@@ -719,12 +720,7 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
-        final List<dynamic> history = jsonDecode(decodedResponse);
-        logger.i('Found ${history.length} history entries');
-        return history
-            .map<Map<String, dynamic>>(
-                (entry) => Map<String, dynamic>.from(entry))
-            .toList();
+        return  gameHistoryRecordFromJson(decodedResponse);
       } else {
         logger.e('Failed to get game history: ${response.statusCode}');
         throw Exception('Failed to get game history: ${response.statusCode}');
