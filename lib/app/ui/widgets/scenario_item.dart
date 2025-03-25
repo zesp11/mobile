@@ -146,26 +146,7 @@ class ScenarioCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Author Info
-        Expanded(
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CircleAvatar(
-              backgroundColor: theme.colorScheme.secondaryContainer,
-              child: Text(
-                gamebook.author.login![0].toUpperCase(),
-                style: TextStyle(
-                  color: theme.colorScheme.onSecondaryContainer,
-                ),
-              ),
-            ),
-            title: Text(
-              gamebook.author.login!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
+        _buildAuthorInfo(context, theme, gamebook.author),
         // Action Buttons
         Row(
           children: [
@@ -285,6 +266,56 @@ class ScenarioCard extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildAuthorInfo(
+      BuildContext context, ThemeData theme, Author author) {
+    final formattedDate = DateFormat.yMMMd().format(author.creationDate);
+    final hasPhoto = author.photoUrl != null && author.photoUrl!.isNotEmpty;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => Get.toNamed('/profile/${author.id}'),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: theme.colorScheme.secondaryContainer,
+              foregroundImage: hasPhoto ? NetworkImage(author.photoUrl!) : null,
+              child: hasPhoto
+                  ? null
+                  : Text(
+                      author.login?.isNotEmpty ?? false
+                          ? author.login![0].toUpperCase()
+                          : '?',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    author.login ?? 'Anonymous',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
