@@ -103,7 +103,6 @@ class ScenarioScreen extends StatelessWidget {
             body: SafeArea(
               child: CustomScrollView(
                 slivers: [
-                  // App Bar
                   SliverAppBar(
                     expandedHeight: 200.0,
                     floating: false,
@@ -111,37 +110,23 @@ class ScenarioScreen extends StatelessWidget {
                     backgroundColor: theme.colorScheme.surface,
                     flexibleSpace: FlexibleSpaceBar(
                       title: Text(
-                        gamebook.name!,
+                        gamebook.name ?? 'Untitled Gamebook',
                         style: theme.textTheme.titleLarge?.copyWith(
-                          color: theme.colorScheme.onSurface,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.3),
-                              offset: const Offset(0, 1),
-                              blurRadius: 3,
-                            ),
-                          ],
+                          color: gamebook.photoUrl != null
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                          shadows: gamebook.photoUrl != null
+                              ? [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    offset: const Offset(0, 1),
+                                    blurRadius: 3,
+                                  ),
+                                ]
+                              : null,
                         ),
                       ),
-                      background: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              theme.colorScheme.primary,
-                              theme.colorScheme.surface,
-                            ],
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.auto_stories,
-                            size: 64,
-                            color: theme.colorScheme.onPrimary.withOpacity(0.8),
-                          ),
-                        ),
-                      ),
+                      background: _buildAppBarBackground(theme, gamebook),
                     ),
                   ),
 
@@ -630,6 +615,58 @@ class ScenarioScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Text(text, style: TextStyle(color: color)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAppBarBackground(ThemeData theme, Scenario gamebook) {
+    if (gamebook.photoUrl != null) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            gamebook.photoUrl!,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildFallbackBackground(theme),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.3),
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.1),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return _buildFallbackBackground(theme);
+  }
+
+  Widget _buildFallbackBackground(ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.surface,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.auto_stories,
+          size: 64,
+          color: theme.colorScheme.onPrimary.withOpacity(0.8),
+        ),
       ),
     );
   }
