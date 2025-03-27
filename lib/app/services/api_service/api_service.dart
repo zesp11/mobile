@@ -4,6 +4,7 @@
 // WARNING: the link may expire after merge
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
+import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/user.dart';
@@ -78,7 +79,7 @@ abstract class ApiService {
   Future<GameStep> getCurrentStep(int gameId);
   Future<Game> getGameWithId(int gameId);
   Future<List<Game>> getGamesInProgress();
-  Future<List<Map<String, dynamic>>> getGameHistory(int gameId);
+  Future<List<GameHistoryRecord>> getGameHistory(int gameId);
   Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId);
   // Future<void> getStep(int id);
   // Future<void> makeStep(int id);

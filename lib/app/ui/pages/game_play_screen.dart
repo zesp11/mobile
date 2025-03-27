@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
+import 'package:gotale/app/models/game_history_record.dart';
+import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/web.dart';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -628,28 +631,20 @@ class StoryTab extends StatelessWidget {
   StoryTab({super.key});
   final controller = Get.find<GamePlayController>();
   final ScrollController _scrollController = ScrollController();
+  final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy • HH:mm');
 
   @override
   Widget build(BuildContext context) {
-    // Scroll to bottom when history updates
     ever(controller.gameHistory, (_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
-          // Check if content fills the screen
-          final contentHeight = _scrollController.position.maxScrollExtent;
-          final viewportHeight = _scrollController.position.viewportDimension;
-
-          if (contentHeight > viewportHeight) {
-            // If content is taller than viewport, scroll to bottom
-            _scrollController
-                .jumpTo(_scrollController.position.maxScrollExtent);
-          }
+          _scrollController.jumpTo(_scrollController.position.minScrollExtent);
         }
       });
     });
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Obx(() {
         if (controller.isHistoryLoading.value) {
           return Center(
@@ -662,54 +657,332 @@ class StoryTab extends StatelessWidget {
         if (controller.gameHistory.isEmpty) {
           return Center(
             child: Text(
-              "No history yet",
-              style: Theme.of(context).textTheme.bodyLarge,
+              "Your story begins here...\nMake choices to fill this page.",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onBackground
+                        .withOpacity(0.6),
+                  ),
+              textAlign: TextAlign.center,
             ),
           );
         }
 
+        final hasCurrentStep = controller.currentStep.value != null;
+        final itemCount =
+            controller.gameHistory.length + (hasCurrentStep ? 1 : 0);
+
         return ListView.builder(
           controller: _scrollController,
-          reverse: true, // Keep list reversed for proper ordering
+          reverse: true,
+          physics: const BouncingScrollPhysics(),
           itemCount: controller.gameHistory.length,
           itemBuilder: (context, index) {
+            if (index == 0 && hasCurrentStep) {
+              return _buildCurrentStep(context, controller.currentStep.value!);
+            }
             final entry = controller
                 .gameHistory[controller.gameHistory.length - 1 - index];
-            final startDate = DateTime.parse(entry['start_date']);
-            final formattedDate =
-                '${startDate.day}/${startDate.month}/${startDate.year}';
+            final isStartEntry = entry.previousStepText == null;
 
-            // Hardcoded text for now
-            String actionText = "Made a decision";
-            if (entry['id_choice'] == 0) {
-              actionText = "Started the game";
-            }
-
-            return Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  child: Icon(
-                    entry['id_choice'] == 0
-                        ? Icons.play_arrow
-                        : Icons.check_circle,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  ),
-                ),
-                title: Text(
-                  actionText,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                subtitle: Text(
-                  "Step ${entry['current_step']} • $formattedDate",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (index == 0) _buildTimelineStart(context),
+                _buildStoryEntry(context, entry, isStartEntry),
+                if (index != controller.gameHistory.length - 1)
+                  _buildTimelineConnector(context),
+              ],
             );
           },
         );
       }),
     );
   }
+
+  Widget _buildStoryEntry(
+      BuildContext context, GameHistoryRecord entry, bool isStart) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _dateFormatter.format(entry.startDate),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  letterSpacing: 0.5,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+              ),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isStart) ...[
+                  Row(
+                    children: [
+                      Text(
+                        "Prologue",
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Text(
+                  entry.previousStepText ?? "The journey begins...",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        height: 1.5,
+                      ),
+                ),
+                if (entry.choiceText != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.choiceText!,
+                            // "You chose: ${entry.choiceText!}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimelineStart(BuildContext context) {
+    return Column(
+      children: [
+        Icon(Icons.star_rounded,
+            color: Theme.of(context).colorScheme.secondary, size: 24),
+        const SizedBox(height: 8),
+        Container(
+          width: 2,
+          height: 20,
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimelineConnector(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        Container(
+          width: 2,
+          height: 20,
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCurrentStep(BuildContext context, GameStep currentStep) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12.0, bottom: 24.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              currentStep.text ?? "Awaiting your next decision...",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    height: 1.5,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
+
+/*
+This is different look for StoryTab don't remove
+*/
+// class StoryTab extends StatelessWidget {
+//   StoryTab({super.key});
+//   final controller = Get.find<GamePlayController>();
+//   final ScrollController _scrollController = ScrollController();
+//   final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy • HH:mm');
+
+//   @override
+//   Widget build(BuildContext context) {
+//     ever(controller.gameHistory, (_) {
+//       WidgetsBinding.instance.addPostFrameCallback((_) {
+//         if (_scrollController.hasClients) {
+//           _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+//         }
+//       });
+//     });
+
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//       child: Obx(() {
+//         if (controller.isHistoryLoading.value) {
+//           return Center(
+//             child: CircularProgressIndicator(
+//               color: Theme.of(context).colorScheme.secondary,
+//             ),
+//           );
+//         }
+
+//         if (controller.gameHistory.isEmpty) {
+//           return Center(
+//             child: Text(
+//               "Your chronicle awaits...\nDecisions will etch themselves here.",
+//               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+//                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+//                   ),
+//               textAlign: TextAlign.center,
+//             ),
+//           );
+//         }
+
+//         return ListView.builder(
+//           controller: _scrollController,
+//           reverse: true,
+//           physics: const BouncingScrollPhysics(),
+//           itemCount: controller.gameHistory.length,
+//           itemBuilder: (context, index) {
+//             final entry = controller.gameHistory[controller.gameHistory.length - 1 - index];
+//             final isStartEntry = entry.previousStepText == null;
+
+//             return Padding(
+//               padding: const EdgeInsets.symmetric(vertical: 8.0),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.stretch,
+//                 children: [
+//                   // Date header
+//                   Padding(
+//                     padding: const EdgeInsets.only(bottom: 8.0),
+//                     child: Text(
+//                       _dateFormatter.format(entry.startDate),
+//                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+//                             color: Theme.of(context).colorScheme.tertiary,
+//                             letterSpacing: 0.3,
+//                           ),
+//                     ),
+//                   ),
+
+//                   // Story content
+//                   Container(
+//                     decoration: BoxDecoration(
+//                       border: Border(
+//                         left: BorderSide(
+//                           color: Theme.of(context).colorScheme.secondary,
+//                           width: 2.0,
+//                         ),
+//                       ),
+//                     ),
+//                     padding: const EdgeInsets.only(left: 16.0),
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.stretch,
+//                       children: [
+//                         // Main story text
+//                         Text(
+//                           entry.previousStepText ?? "The first page turns...",
+//                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                                 color: Theme.of(context).colorScheme.onSurface,
+//                                 height: 1.6,
+//                               ),
+//                         ),
+
+//                         // Decision indicator
+//                         if (entry.choiceText != null) ...[
+//                           const SizedBox(height: 12),
+//                           Row(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Icon(
+//                                 Icons.arrow_right_alt_rounded,
+//                                 color: Theme.of(context).colorScheme.secondary,
+//                                 size: 20,
+//                               ),
+//                               const SizedBox(width: 8),
+//                               Expanded(
+//                                 child: Text(
+//                                   entry.choiceText!,
+//                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+//                                         color: Theme.of(context).colorScheme.secondary,
+//                                         fontStyle: FontStyle.italic,
+//                                       ),
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ],
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             );
+//           },
+//         );
+//       }),
+//     );
+//   }
+// }
