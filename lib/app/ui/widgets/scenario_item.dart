@@ -268,14 +268,16 @@ class ScenarioCard extends StatelessWidget {
   }
 
   Widget _buildInfoChips(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 8,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _buildInfoChip(
           context,
           icon: Icons.people_outline,
           label: '${gamebook.limitPlayers} players',
+        ),
+        SizedBox(
+          width: 8,
         ),
         _buildInfoChip(
           context,
