@@ -432,7 +432,7 @@ class ProductionApiService extends ApiService {
   Future<List<dynamic>> searchScenarios(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('$name$getAvailableGamebooksRoute?search=$query'),
+        Uri.parse('$name$getAvailableGamebooksRoute?limit=1000&search=$query'),
       );
 
       if (response.statusCode == 200) {
