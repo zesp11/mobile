@@ -720,7 +720,7 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
-        return  gameHistoryRecordFromJson(decodedResponse);
+        return gameHistoryRecordFromJson(decodedResponse);
       } else {
         logger.e('Failed to get game history: ${response.statusCode}');
         throw Exception('Failed to get game history: ${response.statusCode}');

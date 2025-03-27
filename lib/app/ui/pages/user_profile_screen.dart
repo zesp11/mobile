@@ -65,14 +65,22 @@ class UserProfileScreen extends GetView<ProfileController> {
                           radius: isSmallScreen ? 50 : 60,
                           backgroundColor:
                               theme.colorScheme.secondary.withOpacity(0.1),
-                          child: Text(
-                            (userProfile.login.substring(0, 1)).toUpperCase(),
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: theme.colorScheme.secondary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: isSmallScreen ? 32 : 40,
-                            ),
-                          ),
+                          foregroundImage: userProfile.photoUrl != null
+                              ? NetworkImage(userProfile.photoUrl!)
+                              : null,
+                          child: userProfile.photoUrl == null
+                              ? Text(
+                                  userProfile.login
+                                      .substring(0, 1)
+                                      .toUpperCase(),
+                                  style:
+                                      theme.textTheme.headlineMedium?.copyWith(
+                                    color: theme.colorScheme.secondary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: isSmallScreen ? 32 : 40,
+                                  ),
+                                )
+                              : null,
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -82,45 +90,49 @@ class UserProfileScreen extends GetView<ProfileController> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userProfile.email,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        if (userProfile.email.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            userProfile.email,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
 
                   // Bio Section
-                  // if (userProfile.bio.isNotEmpty) ...[
-                  //   Text(
-                  //     'bio'.tr,
-                  //     style: theme.textTheme.titleMedium?.copyWith(
-                  //       fontWeight: FontWeight.w600,
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   Container(
-                  //     width: double.infinity,
-                  //     padding: const EdgeInsets.all(16),
-                  //     decoration: BoxDecoration(
-                  //       color: theme.cardTheme.color,
-                  //       borderRadius: BorderRadius.circular(16),
-                  //       border: Border.all(
-                  //         color: theme.colorScheme.outline.withOpacity(0.1),
-                  //       ),
-                  //     ),
-                  //     child: Text(
-                  //       userProfile.bio,
-                  //       style: theme.textTheme.bodyLarge,
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 32),
-                  // ],
+                  if (userProfile.bio != null &&
+                      userProfile.bio!.isNotEmpty) ...[
+                    Text(
+                      'bio'.tr,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.cardTheme.color,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Text(
+                        userProfile.bio!,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
 
                   // Stats Section
                   Container(
