@@ -670,9 +670,6 @@ class StoryTab extends StatelessWidget {
         }
 
         final hasCurrentStep = controller.currentStep.value != null;
-        final itemCount =
-            controller.gameHistory.length + (hasCurrentStep ? 1 : 0);
-
         return ListView.builder(
           controller: _scrollController,
           reverse: true,
@@ -728,26 +725,16 @@ class StoryTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isStart) ...[
-                  Row(
-                    children: [
-                      Text(
-                        "Prologue",
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Text(
-                  entry.previousStepText ?? "The journey begins...",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        height: 1.5,
-                      ),
+                Row(
+                  children: [
+                    Text(
+                      entry.previousStepText ?? "The journey begins...",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            height: 1.5,
+                          ),
+                    ),
+                  ],
                 ),
                 if (entry.choiceText != null) ...[
                   const SizedBox(height: 16),
@@ -768,18 +755,44 @@ class StoryTab extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundImage: entry.user.photoUrl != null
+                              ? NetworkImage(entry.user.photoUrl!)
+                              : null,
+                          child: entry.user.photoUrl == null
+                              ? const Icon(Icons.person)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            entry.choiceText!,
-                            // "You chose: ${entry.choiceText!}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.user.login,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                              ),
+                              Text(
+                                entry.choiceText!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
