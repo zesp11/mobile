@@ -733,13 +733,15 @@ class StoryTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      entry.previousStepText!,
-                      softWrap: true,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            height: 1.5,
-                          ),
+                    Flexible(
+                      child: Text(
+                        entry.previousStepText!,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.5,
+                            ),
+                      ),
                     ),
                   ],
                 ),
