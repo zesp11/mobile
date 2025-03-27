@@ -25,30 +25,62 @@ class ScenarioCard extends StatelessWidget {
       BuildContext context, ThemeData theme, bool isDark) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool useColumnLayout = constraints.maxWidth < 400;
-
-        return useColumnLayout
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildAuthorInfo(context, theme, gamebook.author),
-                  const SizedBox(height: 12),
-                  _buildButtonPair(context, theme, isDark),
-                ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: _buildAuthorInfo(context, theme, gamebook.author),
-                    ),
-                  ),
-                  _buildButtonPair(context, theme, isDark),
-                ],
-              );
+        // Always use column layout for actions and author info
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildAuthorInfo(context, theme, gamebook.author),
+            const SizedBox(height: 12),
+            _buildButtonPair(context, theme, isDark),
+          ],
+        );
       },
+    );
+  }
+
+  Widget _buildAuthorInfo(
+      BuildContext context, ThemeData theme, Author author) {
+    return Tooltip(
+      message: author.bio ?? 'no_bio_available'.tr,
+      child: GestureDetector(
+        onTap: () => Get.toNamed('/profile/${author.id}'),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceVariant,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildAuthorAvatar(theme, author),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      author.login ?? 'Anonymous',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      DateFormat.yMMMd().format(author.creationDate),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -56,6 +88,7 @@ class ScenarioCard extends StatelessWidget {
     return IntrinsicWidth(
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _buildDetailsButton(context, theme),
           const SizedBox(width: 8),
@@ -131,51 +164,6 @@ class ScenarioCard extends StatelessWidget {
     );
   }
 
-  // Updated author info to be more compact
-  Widget _buildAuthorInfo(
-      BuildContext context, ThemeData theme, Author author) {
-    return Tooltip(
-      message: author.bio ?? 'no_bio_available'.tr,
-      child: GestureDetector(
-        onTap: () => Get.toNamed('/profile/${author.id}'),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildAuthorAvatar(theme, author),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    author.login ?? 'Anonymous',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    DateFormat.yMMMd().format(author.creationDate),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   // Updated Card Styling
   @override
   Widget build(BuildContext context) {
@@ -200,47 +188,61 @@ class ScenarioCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Improved Layout Structure
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCoverImage(theme),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          gamebook.name!,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.25,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 8,
+              // Improved responsive layout
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final bool useCompactLayout = constraints.maxWidth < 500;
+
+                  return useCompactLayout
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildInfoChip(
-                              context,
-                              icon: Icons.people_outline,
-                              label: '${gamebook.limitPlayers} players',
-                            ),
-                            _buildInfoChip(
-                              context,
-                              icon: Icons.calendar_today_outlined,
-                              label: DateFormat('MMM dd, yyyy')
-                                  .format(gamebook.creationDate),
+                            _buildCoverImage(theme),
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  gamebook.name!,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -0.25,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 12),
+                                _buildInfoChips(context),
+                              ],
                             ),
                           ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildCoverImage(theme),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    gamebook.name!,
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.25,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildInfoChips(context),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                },
               ),
               if (gamebook.description != null) ...[
                 const SizedBox(height: 16),
@@ -262,6 +264,25 @@ class ScenarioCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoChips(BuildContext context) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        _buildInfoChip(
+          context,
+          icon: Icons.people_outline,
+          label: '${gamebook.limitPlayers} players',
+        ),
+        _buildInfoChip(
+          context,
+          icon: Icons.calendar_today_outlined,
+          label: DateFormat('MMM dd, yyyy').format(gamebook.creationDate),
+        ),
+      ],
     );
   }
 
