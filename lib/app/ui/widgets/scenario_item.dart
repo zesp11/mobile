@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:intl/intl.dart';
@@ -10,10 +11,11 @@ import 'package:skeletonizer/skeletonizer.dart';
 class ScenarioCard extends StatelessWidget {
   final Scenario gamebook;
   final AuthController authController;
+  final gamePlayController = Get.find<GamePlayController>();
   final VoidCallback onGameSelected;
   final VoidCallback onScenarioSelected;
 
-  const ScenarioCard({
+  ScenarioCard({
     Key? key,
     required this.gamebook,
     required this.authController,
@@ -127,8 +129,7 @@ class ScenarioCard extends StatelessWidget {
   }
 
   Widget _buildPlayButton(BuildContext context, ThemeData theme, bool isDark) {
-    final canPlay = true;
-    final isReady = canPlay && authController.isAuthenticated;
+    final canPlay = authController.isAuthenticated;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 120),
@@ -142,23 +143,28 @@ class ScenarioCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
-            side: isReady
+            side: canPlay
                 ? BorderSide.none
                 : BorderSide(
                     color: theme.colorScheme.outline.withOpacity(0.2),
                     width: 1,
                   ),
           ),
-          elevation: isReady ? 2 : 0,
-          backgroundColor: isReady
+          elevation: canPlay ? 2 : 0,
+          backgroundColor: canPlay
               ? theme.colorScheme.secondary
               : theme.colorScheme.tertiary.withOpacity(0.1),
-          foregroundColor: isReady
+          foregroundColor: canPlay
               ? theme.colorScheme.onSecondary
               : theme.colorScheme.tertiary,
         ),
-        onPressed: isReady
-            ? () async {/* ... */}
+        onPressed: canPlay
+            ? () async {
+                final gameController = Get.find<GamePlayController>();
+                await gameController.createGameFromScenario(gamebook.id);
+                Get.toNamed(AppRoutes.gameDetail.replaceFirst(":id",
+                    gameController.currentGame.value!.idGame.toString()));
+              }
             : () => _handlePlayRestriction(context, canPlay),
       ),
     );
