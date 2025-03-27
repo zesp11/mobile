@@ -5,6 +5,7 @@ import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/settings_service.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/web.dart';
@@ -13,13 +14,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 
-/*
-- TODO: the game should have in top left corner somekind of icon/title that is
-  clickable and allows to see main page of given game
-- TODO: list players that participate in given game (only in version 3.0)
-- TODO: remember game after switching tabs.
-- TODO: maybe show skeleton instead of loading circle
- */
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
@@ -325,18 +319,10 @@ class DecisionTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              // onPressed: () => controller
-              //     .fetchGamebookData(controller.currentGamebook.value!.id),
-              onPressed: () {
-                throw UnimplementedError(
-                    'starting from scratch is not implemented yet');
-              },
-              child: Text(
-                "Start From the Beginning",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                ),
+            Text(
+              "Your journey ended",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],
