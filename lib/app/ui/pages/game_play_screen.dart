@@ -303,6 +303,41 @@ class DecisionTab extends StatelessWidget {
     final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
 
+    Widget _buildContent() {
+      return Column(
+        children: [
+          if (currentStep.photoUrl != null)
+            Container(
+              height: 200,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                image: DecorationImage(
+                  image: NetworkImage(currentStep.photoUrl!),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          if (currentStep.title != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                currentStep.title!,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          Text(
+            currentStep.text ?? "Game End",
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      );
+    }
+
     if (decisions.isEmpty) {
       return Center(
         child: Column(
@@ -311,11 +346,7 @@ class DecisionTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
-                child: Text(
-                  currentStep.text ?? "Game End",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
+                child: _buildContent(),
               ),
             ),
             const SizedBox(height: 20),
@@ -333,15 +364,11 @@ class DecisionTab extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
-              child: Text(
-                currentStep.text ?? "Game End",
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
+              child: _buildContent(),
             ),
           ),
         ),
