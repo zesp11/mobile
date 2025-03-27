@@ -654,7 +654,14 @@ class StoryTab extends StatelessWidget {
           );
         }
 
-        if (controller.gameHistory.isEmpty) {
+        // Filter out entries where previousStepText is null
+        final filteredHistory = controller.gameHistory
+            .where((entry) => entry.previousStepText != null)
+            .toList();
+
+        final hasCurrentStep = controller.currentStep.value != null;
+
+        if (filteredHistory.isEmpty && !hasCurrentStep) {
           return Center(
             child: Text(
               "Your story begins here...\nMake choices to fill this page.",
@@ -669,29 +676,25 @@ class StoryTab extends StatelessWidget {
           );
         }
 
-        final hasCurrentStep = controller.currentStep.value != null;
-        final itemCount =
-            controller.gameHistory.length + (hasCurrentStep ? 1 : 0);
-
         return ListView.builder(
           controller: _scrollController,
           reverse: true,
           physics: const BouncingScrollPhysics(),
-          itemCount: controller.gameHistory.length,
+          itemCount: filteredHistory.length + (hasCurrentStep ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == 0 && hasCurrentStep) {
               return _buildCurrentStep(context, controller.currentStep.value!);
             }
-            final entry = controller
-                .gameHistory[controller.gameHistory.length - 1 - index];
-            final isStartEntry = entry.previousStepText == null;
+            final historyIndex = index - (hasCurrentStep ? 1 : 0);
+            final entry =
+                filteredHistory[filteredHistory.length - 1 - historyIndex];
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (index == 0) _buildTimelineStart(context),
-                _buildStoryEntry(context, entry, isStartEntry),
-                if (index != controller.gameHistory.length - 1)
+                if (historyIndex == 0) _buildTimelineStart(context),
+                _buildStoryEntry(context, entry),
+                if (historyIndex != filteredHistory.length - 1)
                   _buildTimelineConnector(context),
               ],
             );
@@ -701,8 +704,8 @@ class StoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildStoryEntry(
-      BuildContext context, GameHistoryRecord entry, bool isStart) {
+  // Removed isStartEntry parameter as it's no longer needed
+  Widget _buildStoryEntry(BuildContext context, GameHistoryRecord entry) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -728,26 +731,19 @@ class StoryTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isStart) ...[
-                  Row(
-                    children: [
-                      Text(
-                        "Prologue",
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        entry.previousStepText!,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.5,
                             ),
                       ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Text(
-                  entry.previousStepText ?? "The journey begins...",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        height: 1.5,
-                      ),
+                    ),
+                  ],
                 ),
                 if (entry.choiceText != null) ...[
                   const SizedBox(height: 16),
@@ -768,18 +764,45 @@ class StoryTab extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundImage: entry.user.photoUrl != null
+                              ? NetworkImage(entry.user.photoUrl!)
+                              : null,
+                          child: entry.user.photoUrl == null
+                              ? const Icon(Icons.person)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            entry.choiceText!,
-                            // "You chose: ${entry.choiceText!}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.user.login,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                              ),
+                              Text(
+                                entry.choiceText!,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

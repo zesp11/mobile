@@ -1,7 +1,4 @@
-// To parse this JSON data, do
-//
-//     final gameHistoryRecord = gameHistoryRecordFromJson(jsonString);
-
+import 'package:gotale/app/models/user.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
@@ -20,12 +17,10 @@ class GameHistoryRecord {
   DateTime? endDate;
   @JsonKey(name: "previous_step_text")
   String? previousStepText;
-  @JsonKey(name: "id_ses")
-  int idSes;
-  @JsonKey(name: "id_user")
-  int idUser;
   @JsonKey(name: "id_game")
   int idGame;
+  @JsonKey(name: "user")
+  User user;
   @JsonKey(name: "current_step")
   int currentStep;
   @JsonKey(name: "start_date")
@@ -34,11 +29,10 @@ class GameHistoryRecord {
   String? choiceText;
 
   GameHistoryRecord({
-    required this.endDate,
-    required this.previousStepText,
-    required this.idSes,
-    required this.idUser,
+    this.endDate,
+    this.previousStepText,
     required this.idGame,
+    required this.user,
     required this.currentStep,
     required this.startDate,
     this.choiceText,
