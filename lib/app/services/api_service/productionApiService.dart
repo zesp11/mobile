@@ -193,15 +193,8 @@ class ProductionApiService extends ApiService {
 
       logger.d('Fetching scenario with ID: $endpoint');
 
-      final token =
-          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
-      if (token == null) {
-        throw Exception('No authentication token found');
-      }
-
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
       };
 
       final response = await http.get(
