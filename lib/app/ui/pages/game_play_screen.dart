@@ -290,61 +290,77 @@ class _DecisionTabState extends State<DecisionTab> {
   ) {
     final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Stack(
       children: [
-        CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    if (currentStep.photoUrl != null)
-                      Flexible(
-                        flex: 2,
-                        child: Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                              image: NetworkImage(currentStep.photoUrl!),
-                              fit: BoxFit.cover,
+        GestureDetector(
+          onVerticalDragEnd: (details) {
+            if (details.primaryVelocity != null) {
+              // Only hide on swipe down
+              if (details.primaryVelocity! > 10) {
+                setState(() => _showButtons = false);
+              }
+            }
+          },
+          child: CustomScrollView(
+            physics: _showButtons
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      if (currentStep.photoUrl != null)
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: NetworkImage(currentStep.photoUrl!),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    if (currentStep.title != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          currentStep.title!,
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                          textAlign: TextAlign.center,
+                      if (currentStep.title != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            currentStep.title!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      Expanded(
+                        flex: 3,
+                        child: SingleChildScrollView(
+                          child: Text(
+                            currentStep.text ?? "Game End",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                    Expanded(
-                      flex: 3,
-                      child: SingleChildScrollView(
-                        child: Text(
-                          currentStep.text ?? "Game End",
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                        height: decisions.isEmpty ? 0 : 200 + bottomPadding),
-                  ],
+                      SizedBox(
+                          height: decisions.isEmpty ? 0 : 200 + bottomPadding),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         if (decisions.isNotEmpty)
           AnimatedPositioned(
@@ -353,33 +369,56 @@ class _DecisionTabState extends State<DecisionTab> {
             bottom: _showButtons ? 0 : -200,
             left: 0,
             right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                bottom: bottomPadding,
-                left: 16,
-                right: 16,
-                top: 16,
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 16,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: DecisionButtonLayout(
-                decisions: decisions,
-                layoutStyle: buttonLayout,
-                onDecisionMade: (decision) {
+            child: GestureDetector(
+              onVerticalDragEnd: (details) {
+                // Swipe down on buttons to hide
+                if (details.primaryVelocity! > 10) {
                   setState(() => _showButtons = false);
-                  controller.makeDecision(decision);
-                },
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.only(
+                    bottom: bottomPadding, left: 16, right: 16, top: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 16,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: DecisionButtonLayout(
+                  decisions: decisions,
+                  layoutStyle: buttonLayout,
+                  onDecisionMade: (decision) {
+                    setState(() => _showButtons = false);
+                    controller.makeDecision(decision);
+                  },
+                ),
               ),
+            ),
+          ),
+        // Swipe-up detector when buttons are hidden
+        if (!_showButtons && decisions.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).size.height *
+                0.25, // Capture bottom 25% of screen
+            child: GestureDetector(
+              onVerticalDragEnd: (details) {
+                // Detect upward swipe (negative velocity)
+                if (details.primaryVelocity! < -10) {
+                  setState(() => _showButtons = true);
+                }
+              },
+              behavior: HitTestBehavior.translucent,
+              child: Container(color: Colors.transparent),
             ),
           ),
       ],
