@@ -382,9 +382,9 @@ class _DecisionTabState extends State<DecisionTab> {
       if (controller.showPostDecisionMessage.value) {
         return _buildDecisionSuccessMessage(context);
       }
-      // if (!controller.isDevMode && !controller.hasArrivedAtLocation.value) {
-      //   return _buildArrivalRequiredMessage(context);
-      // }
+      if (!controller.isDevMode && !controller.hasArrivedAtLocation.value) {
+        return _buildArrivalRequiredMessage(context);
+      }
 
       return _buildDecisionContent(context);
     });
