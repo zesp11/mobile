@@ -15,23 +15,25 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (authController.isAuthenticated) ...[
-              ProfileSummaryWidget(),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (authController.isAuthenticated) ...[
+                ProfileSummaryWidget(),
+                const Divider(),
+                ResumeLastGameSection(),
+                const Divider(),
+              ],
+              const SearchGamesSection(),
+              // TODO:
+              // const Divider(),
+              // const NearbyGamesWidget(),
               const Divider(),
-              ResumeLastGameSection(),
-              const Divider(),
+              RecommendedScenariosWidget(),
             ],
-            const SearchGamesSection(),
-            // TODO:
-            // const Divider(),
-            // const NearbyGamesWidget(),
-            const Divider(),
-            RecommendedScenariosWidget(),
-          ],
+          ),
         ),
       ),
     );

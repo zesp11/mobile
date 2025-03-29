@@ -34,39 +34,41 @@ class RootLayout extends StatelessWidget {
           value: Theme.of(context).brightness == Brightness.dark
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark,
-          child: Scaffold(
-            body: GetRouterOutlet(
-              initialRoute: AppRoutes.home,
+          child: SafeArea(
+            child: Scaffold(
+              body: GetRouterOutlet(
+                initialRoute: AppRoutes.home,
+              ),
+              bottomNavigationBar: isAuthRoute
+                  ? null
+                  : NavigationBar(
+                      selectedIndex: currentIndex,
+                      onDestinationSelected: (index) =>
+                          _handleNavigation(index, delegate),
+                      destinations: [
+                        NavigationDestination(
+                          icon: Icon(Icons.home_outlined),
+                          selectedIcon: Icon(Icons.home),
+                          label: 'home'.tr,
+                        ),
+                        NavigationDestination(
+                          icon: Icon(Icons.play_arrow_outlined),
+                          selectedIcon: Icon(Icons.play_arrow),
+                          label: 'game'.tr,
+                        ),
+                        NavigationDestination(
+                          icon: Icon(Icons.search_outlined),
+                          selectedIcon: Icon(Icons.search),
+                          label: 'search'.tr,
+                        ),
+                        NavigationDestination(
+                          icon: Icon(Icons.person_outline),
+                          selectedIcon: Icon(Icons.person),
+                          label: 'profile'.tr,
+                        ),
+                      ],
+                    ),
             ),
-            bottomNavigationBar: isAuthRoute
-                ? null
-                : NavigationBar(
-                    selectedIndex: currentIndex,
-                    onDestinationSelected: (index) =>
-                        _handleNavigation(index, delegate),
-                    destinations: [
-                      NavigationDestination(
-                        icon: Icon(Icons.home_outlined),
-                        selectedIcon: Icon(Icons.home),
-                        label: 'home'.tr,
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.play_arrow_outlined),
-                        selectedIcon: Icon(Icons.play_arrow),
-                        label: 'game'.tr,
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.search_outlined),
-                        selectedIcon: Icon(Icons.search),
-                        label: 'search'.tr,
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.person_outline),
-                        selectedIcon: Icon(Icons.person),
-                        label: 'profile'.tr,
-                      ),
-                    ],
-                  ),
           ),
         );
       },

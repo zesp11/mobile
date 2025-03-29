@@ -85,29 +85,31 @@ class GamePlayScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: controller.obx(
-          (state) => TabBarView(
-            children: [
-              DecisionTab(),
-              StoryTab(),
-              MapWidget(),
-            ],
-          ),
-          onLoading: Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.secondary,
+        body: SafeArea(
+          child: controller.obx(
+            (state) => TabBarView(
+              children: [
+                DecisionTab(),
+                StoryTab(),
+                MapWidget(),
+              ],
             ),
-          ),
-          onEmpty: Center(
-            child: Text(
-              'No gamebook found',
-              style: Theme.of(context).textTheme.bodyLarge,
+            onLoading: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
-          ),
-          onError: (error) => Center(
-            child: Text(
-              error ?? 'Error occurred',
-              style: Theme.of(context).textTheme.bodyLarge,
+            onEmpty: Center(
+              child: Text(
+                'No gamebook found',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            onError: (error) => Center(
+              child: Text(
+                error ?? 'Error occurred',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
           ),
         ),
@@ -380,9 +382,9 @@ class _DecisionTabState extends State<DecisionTab> {
       if (controller.showPostDecisionMessage.value) {
         return _buildDecisionSuccessMessage(context);
       }
-      if (!controller.isDevMode && !controller.hasArrivedAtLocation.value) {
-        return _buildArrivalRequiredMessage(context);
-      }
+      // if (!controller.isDevMode && !controller.hasArrivedAtLocation.value) {
+      //   return _buildArrivalRequiredMessage(context);
+      // }
 
       return _buildDecisionContent(context);
     });
