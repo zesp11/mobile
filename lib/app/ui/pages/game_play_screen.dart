@@ -149,23 +149,78 @@ class GameTitle extends StatelessWidget {
   }
 }
 
-class DecisionTab extends StatelessWidget {
+class DecisionTab extends StatefulWidget {
   DecisionTab({super.key});
-  final controller = Get.find<GamePlayController>();
 
   @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      if (controller.showPostDecisionMessage.value) {
-        return _buildDecisionSuccessMessage(context);
-      }
+  State<DecisionTab> createState() => _DecisionTabState();
+}
 
-      // TODO: uncomment in production
-      // if (!controller.hasArrivedAtLocation.value) {
-      //   return _buildArrivalRequiredMessage(context);
-      // }
-      return _buildDecisionContent(context);
+class _DecisionTabState extends State<DecisionTab> {
+  final controller = Get.find<GamePlayController>();
+  bool _showButtons = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _showButtons = true);
     });
+  }
+
+  Widget _buildSwipeUpIndicator() {
+    return TweenAnimationBuilder<Offset>(
+      duration: const Duration(milliseconds: 1000),
+      tween: Tween<Offset>(
+        begin: const Offset(0, -0.5),
+        end: const Offset(0, 0.5),
+      ),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: value * 5,
+          child: child,
+        );
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.keyboard_arrow_up,
+            size: 40,
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+          ),
+          Text(
+            "Swipe up for choices",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPanelDragHandle(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          Icons.keyboard_arrow_down,
+          size: 32,
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+        ),
+        Text(
+          "Swipe down to close",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+                fontStyle: FontStyle.italic,
+              ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
   }
 
   Widget _buildDecisionSuccessMessage(BuildContext context) {
@@ -208,185 +263,426 @@ class DecisionTab extends StatelessWidget {
     );
   }
 
-  Widget _buildArrivalRequiredMessage(BuildContext context) {
+  Widget _buildGameEndScreen(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.location_off,
-            size: 50,
+            Icons.celebration,
+            size: 60,
             color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 20),
           Text(
-            "Location Required",
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            "Congratulations!",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           Text(
-            "Confirm your arrival at the current location\nin the Map tab to continue",
+            "You have completed the game",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 30),
           ElevatedButton.icon(
-            icon: Icon(Icons.map,
+            icon: Icon(Icons.replay,
                 color: Theme.of(context).colorScheme.onSecondary),
             label: Text(
-              "Go to Map",
+              "Play Again",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(2),
+            onPressed: () => controller.onReturnToSelection(),
           ),
         ],
       ),
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (controller.showPostDecisionMessage.value) {
+        return _buildDecisionSuccessMessage(context);
+      }
+
+      return _buildDecisionContent(context);
+    });
+  }
+
   Widget _buildDecisionContent(BuildContext context) {
     final currentStep = controller.currentStep.value;
-    if (currentStep == null) {
-      return Center(
-        child: Text(
-          "No steps available",
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      );
-    }
+    final mediaQuery = MediaQuery.of(context);
+    final bottomPadding = mediaQuery.padding.bottom;
 
-    // Check if game has ended
-    if (controller.isGameEnded.value) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.celebration,
-              size: 60,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Congratulations!",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              "You have completed the game",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              icon: Icon(Icons.replay,
-                  color: Theme.of(context).colorScheme.onSecondary),
-              label: Text(
-                "Play Again",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: currentStep == null
+          ? Center(
+              child: Text(
+                "No steps available",
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
-              onPressed: () => controller.onReturnToSelection(),
-            ),
-          ],
-        ),
-      );
-    }
+            )
+          : controller.isGameEnded.value
+              ? _buildGameEndScreen(context)
+              : _buildMainContent(
+                  context,
+                  currentStep,
+                  bottomPadding,
+                ),
+    );
+  }
 
+  Widget _buildMainContent(
+    BuildContext context,
+    GameStep currentStep,
+    double bottomPadding,
+  ) {
     final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-    Widget _buildContent() {
-      return Column(
-        children: [
-          if (currentStep.photoUrl != null)
-            Container(
-              height: 200,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: NetworkImage(currentStep.photoUrl!),
-                  fit: BoxFit.cover,
+    return Stack(
+      children: [
+        GestureDetector(
+          onVerticalDragEnd: (details) {
+            if (details.primaryVelocity != null) {
+              // Only hide on swipe down
+              if (details.primaryVelocity! > 10) {
+                setState(() => _showButtons = false);
+              }
+            }
+          },
+          child: CustomScrollView(
+            physics: _showButtons
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      if (currentStep.photoUrl != null)
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: NetworkImage(currentStep.photoUrl!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (currentStep.title != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            currentStep.title!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      Expanded(
+                        flex: 3,
+                        child: SingleChildScrollView(
+                          child: Text(
+                            currentStep.text ?? "Game End",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                          height: decisions.isEmpty ? 0 : 200 + bottomPadding),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (decisions.isNotEmpty)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            bottom: _showButtons ? 0 : -200,
+            left: 0,
+            right: 0,
+            child: GestureDetector(
+              onVerticalDragEnd: (details) {
+                // Swipe down on buttons to hide
+                if (details.primaryVelocity! > 10) {
+                  setState(() => _showButtons = false);
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.only(
+                    bottom: bottomPadding, left: 16, right: 16, top: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 16,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildPanelDragHandle(context),
+                    DecisionButtonLayout(
+                      decisions: decisions,
+                      layoutStyle: buttonLayout,
+                      onDecisionMade: (decision) {
+                        setState(() => _showButtons = false);
+                        controller.makeDecision(decision);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
-          if (currentStep.title != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                currentStep.title!,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          Text(
-            currentStep.text ?? "Game End",
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
           ),
-        ],
-      );
-    }
-
-    if (decisions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: _buildContent(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Your journey ended",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSecondary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        Expanded(
-          flex: 3,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: _buildContent(),
-            ),
+        // Swipe-up detector when buttons are hidden
+        if (!_showButtons && decisions.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).size.height *
+                0.25, // Capture bottom 25% of screen
+            child: GestureDetector(
+                onVerticalDragEnd: (details) {
+                  // Detect upward swipe (negative velocity)
+                  if (details.primaryVelocity! < -10) {
+                    setState(() => _showButtons = true);
+                  }
+                },
+                behavior: HitTestBehavior.translucent,
+                child: Center(
+                  child: _buildSwipeUpIndicator(),
+                )),
           ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: DecisionButtonLayout(
-              decisions: decisions,
-              layoutStyle: buttonLayout,
-              onDecisionMade: controller.makeDecision,
-            ),
-          ),
-        ),
       ],
     );
   }
 }
+
+// class DecisionTab extends StatelessWidget {
+//   DecisionTab({super.key});
+//   final controller = Get.find<GamePlayController>();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       if (mounted && decisions.isNotEmpty) {
+//         setState(() => showButtons = true);
+//       }
+//     });
+
+//     return Obx(() {
+//       if (controller.showPostDecisionMessage.value) {
+//         return _buildDecisionSuccessMessage(context);
+//       }
+
+//       // TODO: uncomment in production
+//       // if (!controller.hasArrivedAtLocation.value) {
+//       //   return _buildArrivalRequiredMessage(context);
+//       // }
+//       return _buildDecisionContent(context);
+//     });
+//   }
+
+//   Widget _buildArrivalRequiredMessage(BuildContext context) {
+//     return Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Icon(
+//             Icons.location_off,
+//             size: 50,
+//             color: Theme.of(context).colorScheme.secondary,
+//           ),
+//           const SizedBox(height: 20),
+//           Text(
+//             "Location Required",
+//             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                   color: Theme.of(context).colorScheme.secondary,
+//                 ),
+//           ),
+//           const SizedBox(height: 10),
+//           Text(
+//             "Confirm your arrival at the current location\nin the Map tab to continue",
+//             textAlign: TextAlign.center,
+//             style: Theme.of(context).textTheme.bodyMedium,
+//           ),
+//           const SizedBox(height: 25),
+//           ElevatedButton.icon(
+//             icon: Icon(Icons.map,
+//                 color: Theme.of(context).colorScheme.onSecondary),
+//             label: Text(
+//               "Go to Map",
+//               style: TextStyle(
+//                 color: Theme.of(context).colorScheme.onSecondary,
+//               ),
+//             ),
+//             onPressed: () => DefaultTabController.of(context).animateTo(2),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildDecisionContent(BuildContext context) {
+//     final currentStep = controller.currentStep.value;
+//     final mediaQuery = MediaQuery.of(context);
+//     final bottomPadding = mediaQuery.padding.bottom;
+
+//     // Animation control for sliding buttons
+//     bool showButtons = false;
+
+//     return AnimatedSwitcher(
+//       duration: const Duration(milliseconds: 300),
+//       child: currentStep == null
+//           ? Center(
+//               child: Text(
+//                 "No steps available",
+//                 style: Theme.of(context).textTheme.bodyLarge,
+//               ),
+//             )
+//           : controller.isGameEnded.value
+//               ? _buildGameEndScreen(context)
+//               : _buildMainContent(
+//                   context,
+//                   currentStep,
+//                   bottomPadding,
+//                   showButtons,
+//                 ),
+//     );
+//   }
+
+//   Widget _buildMainContent(
+//     BuildContext context,
+//     GameStep currentStep,
+//     double bottomPadding,
+//     bool showButtons,
+//   ) {
+//     final decisions = currentStep.choices;
+//     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
+
+//     return Stack(
+//       children: [
+//         CustomScrollView(
+//           slivers: [
+//             SliverFillRemaining(
+//               hasScrollBody: false,
+//               child: Padding(
+//                 padding: const EdgeInsets.all(16.0),
+//                 child: Column(
+//                   children: [
+//                     if (currentStep.photoUrl != null)
+//                       Flexible(
+//                         flex: 2,
+//                         child: Container(
+//                           width: double.infinity,
+//                           margin: const EdgeInsets.only(bottom: 20),
+//                           decoration: BoxDecoration(
+//                             borderRadius: BorderRadius.circular(12),
+//                             image: DecorationImage(
+//                               image: NetworkImage(currentStep.photoUrl!),
+//                               fit: BoxFit.cover,
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     if (currentStep.title != null)
+//                       Padding(
+//                         padding: const EdgeInsets.only(bottom: 12),
+//                         child: Text(
+//                           currentStep.title!,
+//                           style:
+//                               Theme.of(context).textTheme.titleLarge?.copyWith(
+//                                     fontWeight: FontWeight.w600,
+//                                   ),
+//                           textAlign: TextAlign.center,
+//                         ),
+//                       ),
+//                     Expanded(
+//                       flex: 3,
+//                       child: SingleChildScrollView(
+//                         child: Text(
+//                           currentStep.text ?? "Game End",
+//                           style: Theme.of(context).textTheme.bodyLarge,
+//                           textAlign: TextAlign.center,
+//                         ),
+//                       ),
+//                     ),
+//                     // Spacer for button area
+//                     SizedBox(
+//                         height: decisions.isEmpty ? 0 : 200 + bottomPadding),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//         if (decisions.isNotEmpty)
+//           AnimatedPositioned(
+//             duration: const Duration(milliseconds: 300),
+//             curve: Curves.easeOut,
+//             bottom: showButtons ? 0 : -200,
+//             left: 0,
+//             right: 0,
+//             child: Container(
+//               padding: EdgeInsets.only(
+//                 bottom: bottomPadding,
+//                 left: 16,
+//                 right: 16,
+//                 top: 16,
+//               ),
+//               decoration: BoxDecoration(
+//                 color: Theme.of(context).scaffoldBackgroundColor,
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Colors.black.withOpacity(0.1),
+//                     blurRadius: 16,
+//                     offset: const Offset(0, -4),
+//                   ),
+//                 ],
+//                 borderRadius:
+//                     const BorderRadius.vertical(top: Radius.circular(16)),
+//               ),
+//               child: DecisionButtonLayout(
+//                 decisions: decisions,
+//                 layoutStyle: buttonLayout,
+//                 onDecisionMade: controller.makeDecision,
+//               ),
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
 
 class MapWidget extends StatefulWidget {
   //final LatLng initialPosition;
