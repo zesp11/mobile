@@ -168,6 +168,61 @@ class _DecisionTabState extends State<DecisionTab> {
     });
   }
 
+  Widget _buildSwipeUpIndicator() {
+    return TweenAnimationBuilder<Offset>(
+      duration: const Duration(milliseconds: 1000),
+      tween: Tween<Offset>(
+        begin: const Offset(0, -0.5),
+        end: const Offset(0, 0.5),
+      ),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: value * 5,
+          child: child,
+        );
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.keyboard_arrow_up,
+            size: 40,
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+          ),
+          Text(
+            "Swipe up for choices",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPanelDragHandle(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          Icons.keyboard_arrow_down,
+          size: 32,
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+        ),
+        Text(
+          "Swipe down to close",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+                fontStyle: FontStyle.italic,
+              ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
   Widget _buildDecisionSuccessMessage(BuildContext context) {
     return Center(
       child: Column(
@@ -391,13 +446,19 @@ class _DecisionTabState extends State<DecisionTab> {
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
-                child: DecisionButtonLayout(
-                  decisions: decisions,
-                  layoutStyle: buttonLayout,
-                  onDecisionMade: (decision) {
-                    setState(() => _showButtons = false);
-                    controller.makeDecision(decision);
-                  },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildPanelDragHandle(context),
+                    DecisionButtonLayout(
+                      decisions: decisions,
+                      layoutStyle: buttonLayout,
+                      onDecisionMade: (decision) {
+                        setState(() => _showButtons = false);
+                        controller.makeDecision(decision);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -411,15 +472,16 @@ class _DecisionTabState extends State<DecisionTab> {
             height: MediaQuery.of(context).size.height *
                 0.25, // Capture bottom 25% of screen
             child: GestureDetector(
-              onVerticalDragEnd: (details) {
-                // Detect upward swipe (negative velocity)
-                if (details.primaryVelocity! < -10) {
-                  setState(() => _showButtons = true);
-                }
-              },
-              behavior: HitTestBehavior.translucent,
-              child: Container(color: Colors.transparent),
-            ),
+                onVerticalDragEnd: (details) {
+                  // Detect upward swipe (negative velocity)
+                  if (details.primaryVelocity! < -10) {
+                    setState(() => _showButtons = true);
+                  }
+                },
+                behavior: HitTestBehavior.translucent,
+                child: Center(
+                  child: _buildSwipeUpIndicator(),
+                )),
           ),
       ],
     );
