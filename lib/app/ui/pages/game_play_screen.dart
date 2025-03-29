@@ -5,7 +5,6 @@ import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/routes/app_routes.dart';
-import 'package:gotale/app/services/settings_service.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/web.dart';
@@ -17,18 +16,16 @@ import 'package:latlong2/latlong.dart';
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
-  final VoidCallback onReturnToSelection;
 
-  GamePlayScreen({required this.onReturnToSelection});
+  GamePlayScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
 
-    logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
-    logger.d("[DEV_DEBUG] Current gamebook: ${controller.currentGame.value}");
-    logger.d("[DEV_DEBUG] Current step: ${controller.currentStep.value}");
+    logger.d("Current gamebook: ${controller.currentGame.value}");
+    logger.d("Current step: ${controller.currentStep.value}");
 
     return DefaultTabController(
       length: 3,
@@ -77,13 +74,6 @@ class GamePlayScreen extends StatelessWidget {
               ),
             ],
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app,
-                  color: Theme.of(context).colorScheme.secondary),
-              onPressed: onReturnToSelection,
-            ),
-          ],
         ),
         body: SafeArea(
           child: controller.obx(

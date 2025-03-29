@@ -10,13 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class GameSelectionScreen extends StatelessWidget {
-  final VoidCallback onGameSelected;
-  final VoidCallback onScenarioSelected;
-
-  const GameSelectionScreen({
-    required this.onGameSelected,
-    required this.onScenarioSelected,
-  });
+  const GameSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +42,6 @@ class GameSelectionScreen extends StatelessWidget {
           child: TabBarView(
             children: [
               _ScenariosTab(
-                onGameSelected: onGameSelected,
-                onScenarioSelected: onScenarioSelected,
                 isSmallScreen: isSmallScreen,
                 size: size,
               ),
@@ -64,14 +56,10 @@ class GameSelectionScreen extends StatelessWidget {
 }
 
 class _ScenariosTab extends GetView<ScenarioController> {
-  final VoidCallback onGameSelected;
-  final VoidCallback onScenarioSelected;
   final bool isSmallScreen;
   final Size size;
 
   const _ScenariosTab({
-    required this.onGameSelected,
-    required this.onScenarioSelected,
     required this.isSmallScreen,
     required this.size,
   });
@@ -90,8 +78,6 @@ class _ScenariosTab extends GetView<ScenarioController> {
         (scenarios) => ScenarioListView(
           gamebooks: scenarios!,
           authController: authController,
-          onGameSelected: onGameSelected,
-          onScenarioSelected: onScenarioSelected,
         ),
         onLoading: ScenariosTabSkeleton(),
         onEmpty: Center(
