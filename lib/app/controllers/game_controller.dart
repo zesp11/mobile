@@ -2,8 +2,6 @@ import 'package:get/get.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:flutter/material.dart' as material;
 
 class GameSelectionController extends GetxController
     with StateMixin<List<Game>> {

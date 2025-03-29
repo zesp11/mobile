@@ -854,7 +854,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   }*/
 
   //bool isLocationPressed = false;
-  bool isTracking = false;
+  bool isTracking = true;
   bool headingReset = false;
 
   @override
@@ -875,7 +875,7 @@ class _OSMFlutterMapState extends State<MapWidget>
           FlutterMap(
             options: MapOptions(
               initialCenter: const LatLng(52.06516, 19.25248),
-              initialZoom: 7,
+              initialZoom: 12,
               minZoom: 0,
               maxZoom: 19,
               onLongPress: (tapPosition, point) {
@@ -922,7 +922,7 @@ class _OSMFlutterMapState extends State<MapWidget>
               ),
             ],
           ),
-          Positioned(
+          /*Positioned(
               bottom: 20,
               right: 20,
               child: FloatingActionButton(
@@ -942,7 +942,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                       : Icons.location_disabled,
                   color: isTracking ? secondaryColor : primaryColor,
                 ),
-              )),
+              )),*/
           Positioned(
               bottom: 100,
               right: 20,
