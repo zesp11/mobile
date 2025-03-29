@@ -303,11 +303,54 @@ class _DecisionTabState extends State<DecisionTab> {
     );
   }
 
+  Widget _buildArrivalRequiredMessage(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.location_off,
+            size: 50,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "Location Required",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            "Confirm your arrival at the current location\nin the Map tab to continue",
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 25),
+          ElevatedButton.icon(
+            icon: Icon(Icons.map,
+                color: Theme.of(context).colorScheme.onSecondary),
+            label: Text(
+              "Go to Map",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            ),
+            onPressed: () => DefaultTabController.of(context).animateTo(2),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.showPostDecisionMessage.value) {
         return _buildDecisionSuccessMessage(context);
+      }
+      if (!controller.hasArrivedAtLocation.value) {
+        return _buildArrivalRequiredMessage(context);
       }
 
       return _buildDecisionContent(context);
@@ -421,7 +464,7 @@ class _DecisionTabState extends State<DecisionTab> {
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
-            bottom: _showButtons ? 0 : -200,
+            bottom: _showButtons ? 0 : -250,
             left: 0,
             right: 0,
             child: GestureDetector(
