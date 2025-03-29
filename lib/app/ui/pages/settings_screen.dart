@@ -13,15 +13,6 @@ class SettingsScreen extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'settings'.tr,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onBackground,
-          ),
-        ),
-        centerTitle: true,
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -253,13 +244,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'settings_fab',
-        onPressed: () => Get.back(),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-        child: Icon(Icons.arrow_back),
       ),
     );
   }

@@ -5,7 +5,6 @@ import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/routes/app_routes.dart';
-import 'package:gotale/app/services/settings_service.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/web.dart';
@@ -17,18 +16,16 @@ import 'package:latlong2/latlong.dart';
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
-  final VoidCallback onReturnToSelection;
 
-  GamePlayScreen({required this.onReturnToSelection});
+  GamePlayScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
 
-    logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
-    logger.d("[DEV_DEBUG] Current gamebook: ${controller.currentGame.value}");
-    logger.d("[DEV_DEBUG] Current step: ${controller.currentStep.value}");
+    logger.d("Current gamebook: ${controller.currentGame.value}");
+    logger.d("Current step: ${controller.currentStep.value}");
 
     return DefaultTabController(
       length: 3,
@@ -77,37 +74,32 @@ class GamePlayScreen extends StatelessWidget {
               ),
             ],
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app,
-                  color: Theme.of(context).colorScheme.secondary),
-              onPressed: onReturnToSelection,
-            ),
-          ],
         ),
-        body: controller.obx(
-          (state) => TabBarView(
-            children: [
-              DecisionTab(),
-              StoryTab(),
-              MapWidget(),
-            ],
-          ),
-          onLoading: Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.secondary,
+        body: SafeArea(
+          child: controller.obx(
+            (state) => TabBarView(
+              children: [
+                DecisionTab(),
+                StoryTab(),
+                MapWidget(),
+              ],
             ),
-          ),
-          onEmpty: Center(
-            child: Text(
-              'No gamebook found',
-              style: Theme.of(context).textTheme.bodyLarge,
+            onLoading: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
-          ),
-          onError: (error) => Center(
-            child: Text(
-              error ?? 'Error occurred',
-              style: Theme.of(context).textTheme.bodyLarge,
+            onEmpty: Center(
+              child: Text(
+                'No gamebook found',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            onError: (error) => Center(
+              child: Text(
+                error ?? 'Error occurred',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
           ),
         ),
@@ -419,7 +411,6 @@ class _DecisionTabState extends State<DecisionTab> {
   ) {
     final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Stack(
       children: [
@@ -494,8 +485,8 @@ class _DecisionTabState extends State<DecisionTab> {
         if (decisions.isNotEmpty)
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            bottom: _showButtons ? 0 : -250,
+            curve: Curves.linear,
+            bottom: _showButtons ? 0 : -300,
             left: 0,
             right: 0,
             child: GestureDetector(
@@ -528,7 +519,7 @@ class _DecisionTabState extends State<DecisionTab> {
                       decisions: decisions,
                       layoutStyle: buttonLayout,
                       onDecisionMade: (decision) {
-                        setState(() => _showButtons = false);
+                        // setState(() => _showButtons = True);
                         controller.makeDecision(decision);
                       },
                     ),

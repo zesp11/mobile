@@ -12,15 +12,11 @@ class ScenarioCard extends StatelessWidget {
   final Scenario gamebook;
   final AuthController authController;
   final gamePlayController = Get.find<GamePlayController>();
-  final VoidCallback onGameSelected;
-  final VoidCallback onScenarioSelected;
 
   ScenarioCard({
     Key? key,
     required this.gamebook,
     required this.authController,
-    required this.onGameSelected,
-    required this.onScenarioSelected,
   }) : super(key: key);
 
   Widget _buildActionButtons(
@@ -122,7 +118,6 @@ class ScenarioCard extends StatelessWidget {
         onPressed: () {
           Get.toNamed('${AppRoutes.scenario}/${gamebook.id}',
               arguments: gamebook);
-          onScenarioSelected();
         },
       ),
     );
@@ -373,7 +368,6 @@ class ScenarioCard extends StatelessWidget {
       case 'details':
         Get.toNamed('${AppRoutes.scenario}/${gamebook.id}',
             arguments: gamebook);
-        onScenarioSelected();
         break;
       // case 'contact':
       //   _contactAuthor(gamebook.author);

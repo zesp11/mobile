@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
+import 'package:gotale/app/ui/widgets/login_prompt.dart';
 import 'package:gotale/app/ui/widgets/recommended_scenarios_widget.dart';
 import 'package:gotale/app/ui/widgets/resume_last_game_section.dart';
 import 'package:gotale/app/ui/widgets/search_game_section.dart';
@@ -15,23 +16,24 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (authController.isAuthenticated) ...[
-              ProfileSummaryWidget(),
-              const Divider(),
-              ResumeLastGameSection(),
-              const Divider(),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (authController.isAuthenticated) ...[
+                ProfileSummaryWidget(),
+                ResumeLastGameSection(),
+              ] else ...[
+                LoginPromptWidget(),
+              ],
+              const SearchGamesSection(),
+              // TODO:
+              // const Divider(),
+              // const NearbyGamesWidget(),
+              RecommendedScenariosWidget(),
             ],
-            const SearchGamesSection(),
-            // TODO:
-            // const Divider(),
-            // const NearbyGamesWidget(),
-            const Divider(),
-            RecommendedScenariosWidget(),
-          ],
+          ),
         ),
       ),
     );
