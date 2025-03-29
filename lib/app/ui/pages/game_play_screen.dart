@@ -159,6 +159,8 @@ class DecisionTab extends StatefulWidget {
 class _DecisionTabState extends State<DecisionTab> {
   final controller = Get.find<GamePlayController>();
   bool _showButtons = false;
+  int _devSwipeCount = 0;
+  DateTime? _lastSwipeTime;
 
   @override
   void initState() {
@@ -166,6 +168,31 @@ class _DecisionTabState extends State<DecisionTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => _showButtons = true);
     });
+  }
+
+  void _handleDevModeSwipe(DragEndDetails details) {
+    final now = DateTime.now();
+    if (_lastSwipeTime != null && now.difference(_lastSwipeTime!) > 2.seconds) {
+      _devSwipeCount = 0; // Reset counter if more than 2 seconds between swipes
+    }
+
+    if (details.primaryVelocity != null && details.primaryVelocity! > 1000) {
+      _devSwipeCount++;
+      _lastSwipeTime = now;
+
+      if (_devSwipeCount >= 5) {
+        controller.toggleDevBypassLocation(true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(controller.isDevMode
+                ? 'Developer mode activated'
+                : 'Developer mode deactivated'),
+            duration: 2.seconds,
+          ),
+        );
+        _devSwipeCount = 0;
+      }
+    }
   }
 
   Widget _buildSwipeUpIndicator() {
@@ -304,41 +331,45 @@ class _DecisionTabState extends State<DecisionTab> {
   }
 
   Widget _buildArrivalRequiredMessage(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.location_off,
-            size: 50,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            "Location Required",
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            "Confirm your arrival at the current location\nin the Map tab to continue",
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 25),
-          ElevatedButton.icon(
-            icon: Icon(Icons.map,
-                color: Theme.of(context).colorScheme.onSecondary),
-            label: Text(
-              "Go to Map",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSecondary,
-              ),
+    return GestureDetector(
+      onVerticalDragEnd: _handleDevModeSwipe,
+      behavior: HitTestBehavior.translucent,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.location_off,
+              size: 50,
+              color: Theme.of(context).colorScheme.secondary,
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(2),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Text(
+              "Location Required",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Confirm your arrival at the current location\nin the Map tab to continue",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 25),
+            ElevatedButton.icon(
+              icon: Icon(Icons.map,
+                  color: Theme.of(context).colorScheme.onSecondary),
+              label: Text(
+                "Go to Map",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              onPressed: () => DefaultTabController.of(context).animateTo(2),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -349,7 +380,7 @@ class _DecisionTabState extends State<DecisionTab> {
       if (controller.showPostDecisionMessage.value) {
         return _buildDecisionSuccessMessage(context);
       }
-      if (!controller.hasArrivedAtLocation.value) {
+      if (!controller.isDevMode && !controller.hasArrivedAtLocation.value) {
         return _buildArrivalRequiredMessage(context);
       }
 
