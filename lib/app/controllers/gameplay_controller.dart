@@ -10,6 +10,13 @@ import 'package:logger/logger.dart';
 class GamePlayController extends GetxController with StateMixin {
   final GameService gameService;
   final logger = Get.find<Logger>();
+  final _devBypassLocation = false.obs;
+
+  void toggleDevBypassLocation(bool value) {
+    _devBypassLocation.value = value;
+  }
+
+  bool get isDevMode => _devBypassLocation.value;
 
   // Development mode flag - set to true for development, false for production
   static const bool isDevelopmentMode = true;
