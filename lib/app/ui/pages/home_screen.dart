@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/home_controller.dart';
+import 'package:gotale/app/ui/widgets/login_prompt.dart';
 import 'package:gotale/app/ui/widgets/recommended_scenarios_widget.dart';
 import 'package:gotale/app/ui/widgets/resume_last_game_section.dart';
 import 'package:gotale/app/ui/widgets/search_game_section.dart';
@@ -23,6 +24,8 @@ class HomeScreen extends StatelessWidget {
               if (authController.isAuthenticated) ...[
                 ProfileSummaryWidget(),
                 ResumeLastGameSection(),
+              ] else ...[
+                LoginPromptWidget(),
               ],
               const SearchGamesSection(),
               // TODO:
