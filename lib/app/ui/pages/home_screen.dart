@@ -22,15 +22,12 @@ class HomeScreen extends StatelessWidget {
             children: [
               if (authController.isAuthenticated) ...[
                 ProfileSummaryWidget(),
-                const Divider(),
                 ResumeLastGameSection(),
-                const Divider(),
               ],
               const SearchGamesSection(),
               // TODO:
               // const Divider(),
               // const NearbyGamesWidget(),
-              const Divider(),
               RecommendedScenariosWidget(),
             ],
           ),
