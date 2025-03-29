@@ -421,7 +421,6 @@ class _DecisionTabState extends State<DecisionTab> {
   ) {
     final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Stack(
       children: [
@@ -496,8 +495,8 @@ class _DecisionTabState extends State<DecisionTab> {
         if (decisions.isNotEmpty)
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            bottom: _showButtons ? 0 : -250,
+            curve: Curves.linear,
+            bottom: _showButtons ? 0 : -300,
             left: 0,
             right: 0,
             child: GestureDetector(
@@ -530,7 +529,7 @@ class _DecisionTabState extends State<DecisionTab> {
                       decisions: decisions,
                       layoutStyle: buttonLayout,
                       onDecisionMade: (decision) {
-                        setState(() => _showButtons = false);
+                        // setState(() => _showButtons = True);
                         controller.makeDecision(decision);
                       },
                     ),
