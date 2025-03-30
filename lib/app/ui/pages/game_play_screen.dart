@@ -24,6 +24,12 @@ class GamePlayScreen extends StatelessWidget {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
 
+    final TabController tabController =
+        TabController(length: 3, vsync: Navigator.of(context));
+
+    Get.put(tabController);
+
+    logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
     logger.d("Current gamebook: ${controller.currentGame.value}");
     logger.d("Current step: ${controller.currentStep.value}");
 
@@ -768,13 +774,17 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   final GamePlayController gamePlayController = Get.find<GamePlayController>();
 
+  BuildContext? savedTabContext;
+
   @override
   bool get wantKeepAlive => true;
+  bool arrived = false;
 
   LatLng? currentPosition;
   double currentZoom = 8.0;
   List<Marker> markers = [];
   double distanceToWaypoint = 0;
+
   @override
   void initState() {
     super.initState();
@@ -809,25 +819,6 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   void addWaypoint(LatLng point, Color markerColor) {
     setState(() {
-      /*print(markers.length);
-      markers.clear();
-      markers.add(
-        Marker(
-          point: point,
-          width: 37,
-          height: 37,
-          rotate: true,
-          //anchorPos: AnchorPos.align(AnchorAlign.center),
-          child: Icon(
-            Icons.location_pin,
-            color: markerColor, //Colors.red,
-            size: 40,
-          ),
-          alignment: Alignment.topCenter,
-          //anchorPos: const Offset(0.5, 0.5)
-        ),
-      );*/
-
       gamePlayController.waypoints.add(point);
     });
   }
@@ -836,6 +827,56 @@ class _OSMFlutterMapState extends State<MapWidget>
     final Distance distance = const Distance();
     return distance.as(LengthUnit.Meter, point1, point2);
   }
+
+  void checkDistance() {
+    if (distanceToWaypoint <= 50 &&
+        !arrived &&
+        !gamePlayController.hasArrivedAtLocation.value) {
+      arrived = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: savedTabContext!,
+          barrierDismissible: false,
+          builder: (context) {
+            final theme = Theme.of(context);
+            return StatefulBuilder(
+              builder: (context, setDialogState) {
+                return AlertDialog(
+                  backgroundColor: theme.colorScheme.primary,
+                  title: Text(
+                    "You've arrived at the designated location!",
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                  ),
+                  content: Text(
+                    "You may proceed with your adventure.",
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        arrived = false;
+                        gamePlayController.hasArrivedAtLocation.value = true;
+                        Navigator.of(context, rootNavigator: true).pop();
+                        // Użycie DefaultTabController do zmiany tabów
+                        DefaultTabController.of(savedTabContext!).animateTo(0);
+                      },
+                      style: TextButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary),
+                      child: Text(
+                        "Go to the story",
+                        style: TextStyle(color: theme.colorScheme.primary),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      });
+    }
+  }
+
 /*
   void updatePosition(LatLng position)
   {
@@ -845,33 +886,41 @@ class _OSMFlutterMapState extends State<MapWidget>
   }*/
 
   //bool isLocationPressed = false;
-  bool isTracking = false;
+  bool isTracking = true;
   bool headingReset = false;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    savedTabContext = context;
     return Obx(() {
       Color secondaryColor = Theme.of(context).colorScheme.secondary;
       Color primaryColor = Theme.of(context).colorScheme.primary;
 
-      final double distanceToWaypoint =
+      /*final double distanceToWaypoint =
           (currentPosition != null && gamePlayController.waypoints.isNotEmpty)
               ? calculateDistance(
                   currentPosition!, gamePlayController.waypoints.last)
               : 0.0;
+      */
+
+      if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
+        distanceToWaypoint = calculateDistance(
+            currentPosition!, gamePlayController.waypoints.last);
+        checkDistance();
+      }
 
       return Scaffold(
         body: Stack(children: [
           FlutterMap(
             options: MapOptions(
               initialCenter: const LatLng(52.06516, 19.25248),
-              initialZoom: 7,
+              initialZoom: 14,
               minZoom: 0,
               maxZoom: 19,
-              onLongPress: (tapPosition, point) {
+              /*onLongPress: (tapPosition, point) {       //adding waypoints by pressing for debug
                 addWaypoint(point, secondaryColor);
-              },
+              },*/
               onPositionChanged: (position, hasGesture) {
                 setState(() {
                   currentZoom = position.zoom;
@@ -919,27 +968,6 @@ class _OSMFlutterMapState extends State<MapWidget>
               child: FloatingActionButton(
                 backgroundColor: isTracking ? primaryColor : secondaryColor,
                 onPressed: () {
-                  //backgroundColor: Colors.blue;
-
-                  //print("thing happened");
-
-                  setState(() {
-                    isTracking = !isTracking;
-                  });
-                },
-                child: Icon(
-                  isTracking
-                      ? Icons.location_searching
-                      : Icons.location_disabled,
-                  color: isTracking ? secondaryColor : primaryColor,
-                ),
-              )),
-          Positioned(
-              bottom: 100,
-              right: 20,
-              child: FloatingActionButton(
-                backgroundColor: isTracking ? primaryColor : secondaryColor,
-                onPressed: () {
                   //print("another thing happened");
 
                   if (isTracking) {
@@ -952,7 +980,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
               )),
           Positioned(
-              bottom: 180,
+              bottom: 100,
               right: 20,
               child: FloatingActionButton(
                 backgroundColor: isTracking ? primaryColor : secondaryColor,
@@ -1042,7 +1070,7 @@ class StoryTab extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
-                        .onBackground
+                        .onSurface
                         .withOpacity(0.6),
                   ),
               textAlign: TextAlign.center,
