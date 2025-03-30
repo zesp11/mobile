@@ -779,11 +779,14 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   @override
   bool get wantKeepAlive => true;
+  bool arrived = false;
 
   LatLng? currentPosition;
   double currentZoom = 8.0;
   List<Marker> markers = [];
   double distanceToWaypoint = 0;
+
+
   @override
   void initState() {
     super.initState();
@@ -845,6 +848,34 @@ class _OSMFlutterMapState extends State<MapWidget>
     final Distance distance = const Distance();
     return distance.as(LengthUnit.Meter, point1, point2);
   }
+
+  void checkDistance() {
+    if (distanceToWaypoint <= 50 && !arrived) {
+      arrived = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Cel osiągnięty!"),
+              content: Text("Dotarłeś do punktu docelowego."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      arrived = false;
+                    });
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
+  }
 /*
   void updatePosition(LatLng position)
   {
@@ -864,11 +895,17 @@ class _OSMFlutterMapState extends State<MapWidget>
       Color secondaryColor = Theme.of(context).colorScheme.secondary;
       Color primaryColor = Theme.of(context).colorScheme.primary;
 
-      final double distanceToWaypoint =
+      /*final double distanceToWaypoint =
           (currentPosition != null && gamePlayController.waypoints.isNotEmpty)
               ? calculateDistance(
                   currentPosition!, gamePlayController.waypoints.last)
               : 0.0;
+      */
+
+       if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
+        distanceToWaypoint = calculateDistance(currentPosition!, gamePlayController.waypoints.last);
+        checkDistance();
+      }
 
       return Scaffold(
         body: Stack(children: [
@@ -878,9 +915,9 @@ class _OSMFlutterMapState extends State<MapWidget>
               initialZoom: 12,
               minZoom: 0,
               maxZoom: 19,
-              onLongPress: (tapPosition, point) {
+              /*onLongPress: (tapPosition, point) {       //adding waypoints by pressing for debug
                 addWaypoint(point, secondaryColor);
-              },
+              },*/
               onPositionChanged: (position, hasGesture) {
                 setState(() {
                   currentZoom = position.zoom;
@@ -922,29 +959,8 @@ class _OSMFlutterMapState extends State<MapWidget>
               ),
             ],
           ),
-          /*Positioned(
-              bottom: 20,
-              right: 20,
-              child: FloatingActionButton(
-                backgroundColor: isTracking ? primaryColor : secondaryColor,
-                onPressed: () {
-                  //backgroundColor: Colors.blue;
-
-                  //print("thing happened");
-
-                  setState(() {
-                    isTracking = !isTracking;
-                  });
-                },
-                child: Icon(
-                  isTracking
-                      ? Icons.location_searching
-                      : Icons.location_disabled,
-                  color: isTracking ? secondaryColor : primaryColor,
-                ),
-              )),*/
           Positioned(
-              bottom: 100,
+              bottom: 20,
               right: 20,
               child: FloatingActionButton(
                 backgroundColor: isTracking ? primaryColor : secondaryColor,
@@ -961,7 +977,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
               )),
           Positioned(
-              bottom: 180,
+              bottom: 100,
               right: 20,
               child: FloatingActionButton(
                 backgroundColor: isTracking ? primaryColor : secondaryColor,
