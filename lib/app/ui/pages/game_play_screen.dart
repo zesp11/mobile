@@ -782,6 +782,8 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   final GamePlayController gamePlayController = Get.find<GamePlayController>();
 
+  BuildContext? savedTabContext;
+
   @override
   bool get wantKeepAlive => true;
   bool arrived = false;
@@ -826,24 +828,6 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   void addWaypoint(LatLng point, Color markerColor) {
     setState(() {
-      /*print(markers.length);
-      markers.clear();
-      markers.add(
-        Marker(
-          point: point,
-          width: 37,
-          height: 37,
-          rotate: true,
-          //anchorPos: AnchorPos.align(AnchorAlign.center),
-          child: Icon(
-            Icons.location_pin,
-            color: markerColor, //Colors.red,
-            size: 40,
-          ),
-          alignment: Alignment.topCenter,
-          //anchorPos: const Offset(0.5, 0.5)
-        ),
-      );*/
 
       gamePlayController.waypoints.add(point);
     });
@@ -855,11 +839,11 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void checkDistance() {
-    if (distanceToWaypoint <= 50 && !arrived && gamePlayController.hasArrivedAtLocation.value == false) {
+    if (distanceToWaypoint <= 50 && !arrived && !gamePlayController.hasArrivedAtLocation.value) {
       arrived = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
-          context: context,
+          context: savedTabContext!,
           barrierDismissible: false, 
           builder: (context) {
             final theme = Theme.of(context);
@@ -870,30 +854,25 @@ class _OSMFlutterMapState extends State<MapWidget>
                   title: Text(
                     "You've arrived at the designated location!",
                     style: TextStyle(color: theme.colorScheme.onSurface),
-                    ),
+                  ),
                   content: Text(
                     "You may proceed with your adventure.",
                     style: TextStyle(color: theme.colorScheme.onSurface),
-                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () {
                         arrived = false;
                         gamePlayController.hasArrivedAtLocation.value = true;
                         Navigator.of(context, rootNavigator: true).pop();
-                        Get.find<TabController>().animateTo(0);
-                        /*if (distanceToWaypoint > 50) {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            arrived = false;
-                          });
-                        }*/
+                        // Użycie DefaultTabController do zmiany tabów
+                        DefaultTabController.of(savedTabContext!).animateTo(0);
                       },
                       style: TextButton.styleFrom(backgroundColor: theme.colorScheme.secondary),
                       child: Text(
                         "Go to the story",
                         style: TextStyle(color: theme.colorScheme.primary),
-                        ),
+                      ),
                     ),
                   ],
                 );
@@ -903,17 +882,8 @@ class _OSMFlutterMapState extends State<MapWidget>
         );
       });
     }
-    /*else{
-      if (arrived) {
-      arrived = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (Navigator.canPop(context)) {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-      });
-    }
-    }*/
   }
+
 /*
   void updatePosition(LatLng position)
   {
@@ -931,6 +901,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    savedTabContext = context;
     return Obx(() {
       Color secondaryColor = Theme.of(context).colorScheme.secondary;
       Color primaryColor = Theme.of(context).colorScheme.primary;
