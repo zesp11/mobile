@@ -74,33 +74,32 @@ class ProfileScreen extends GetView<AuthController> {
                   ),
                   const SizedBox(height: 32),
 
-                  // TODO:
                   // Bio Section
-                  // if (userProfile?.bio?.isNotEmpty ?? false) ...[
-                  //   Text(
-                  //     'bio'.tr,
-                  //     style: theme.textTheme.titleMedium?.copyWith(
-                  //       fontWeight: FontWeight.w600,
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   Container(
-                  //     width: double.infinity,
-                  //     padding: const EdgeInsets.all(16),
-                  //     decoration: BoxDecoration(
-                  //       color: theme.cardTheme.color,
-                  //       borderRadius: BorderRadius.circular(16),
-                  //       border: Border.all(
-                  //         color: theme.colorScheme.outline.withOpacity(0.1),
-                  //       ),
-                  //     ),
-                  //     child: Text(
-                  //       userProfile?.bio ?? '',
-                  //       style: theme.textTheme.bodyLarge,
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 32),
-                  // ],
+                  if (userProfile?.bio?.isNotEmpty ?? false) ...[
+                    Text(
+                      'bio'.tr,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.cardTheme.color,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Text(
+                        userProfile?.bio ?? '',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
 
                   // Stats Section
                   Container(
@@ -302,11 +301,11 @@ class ProfileScreen extends GetView<AuthController> {
         heroTag: 'profile_settings_fab',
         onPressed: () => Get.toNamed('/settings'),
         backgroundColor: theme.colorScheme.primary,
+        tooltip: 'settings'.tr,
         child: Icon(
           Icons.settings,
           color: theme.colorScheme.onPrimary,
         ),
-        tooltip: 'settings'.tr,
       ),
     );
   }
