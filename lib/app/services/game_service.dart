@@ -7,7 +7,7 @@ import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
 
-class GameService {
+class GameService extends GetxService {
   final ApiService apiService;
   final logger = Get.find<Logger>();
 
