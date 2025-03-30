@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:gotale/app/models/user.dart';
+import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/auth_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/utils/env_config.dart';
@@ -82,7 +83,9 @@ class AuthController extends GetxController with StateMixin<User> {
       logger.i("[AUTH_DEBUG] Logged in successfully");
 
       // Navigate to home screen after successful login
-      Get.offAllNamed('/');
+      // Get.offAllNamed(AppRoutes.home);
+      // // Redirect on successful login
+      Get.rootDelegate.offNamed(AppRoutes.home);
     } catch (e) {
       logger.e("Login failed: $e");
       change(null, status: RxStatus.error("Login failed: ${e.toString()}"));

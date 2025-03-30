@@ -5,12 +5,11 @@ import 'package:gotale/app/ui/widgets/section_widget.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 
 class SearchGamesSection extends StatelessWidget {
-  const SearchGamesSection({Key? key}) : super(key: key);
+  const SearchGamesSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SectionWidget(
-      title: "search_games".tr,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

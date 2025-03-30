@@ -13,28 +13,19 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 
-/*
-- TODO: the game should have in top left corner somekind of icon/title that is
-  clickable and allows to see main page of given game
-- TODO: list players that participate in given game (only in version 3.0)
-- TODO: remember game after switching tabs.
-- TODO: maybe show skeleton instead of loading circle
- */
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
-  final VoidCallback onReturnToSelection;
 
-  GamePlayScreen({required this.onReturnToSelection});
+  GamePlayScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
 
-    logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
-    logger.d("[DEV_DEBUG] Current gamebook: ${controller.currentGame.value}");
-    logger.d("[DEV_DEBUG] Current step: ${controller.currentStep.value}");
+    logger.d("Current gamebook: ${controller.currentGame.value}");
+    logger.d("Current step: ${controller.currentStep.value}");
 
     return DefaultTabController(
       length: 3,
@@ -83,37 +74,32 @@ class GamePlayScreen extends StatelessWidget {
               ),
             ],
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app,
-                  color: Theme.of(context).colorScheme.secondary),
-              onPressed: onReturnToSelection,
-            ),
-          ],
         ),
-        body: controller.obx(
-          (state) => TabBarView(
-            children: [
-              DecisionTab(),
-              StoryTab(),
-              MapWidget(),
-            ],
-          ),
-          onLoading: Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.secondary,
+        body: SafeArea(
+          child: controller.obx(
+            (state) => TabBarView(
+              children: [
+                DecisionTab(),
+                StoryTab(),
+                MapWidget(),
+              ],
             ),
-          ),
-          onEmpty: Center(
-            child: Text(
-              'No gamebook found',
-              style: Theme.of(context).textTheme.bodyLarge,
+            onLoading: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
-          ),
-          onError: (error) => Center(
-            child: Text(
-              error ?? 'Error occurred',
-              style: Theme.of(context).textTheme.bodyLarge,
+            onEmpty: Center(
+              child: Text(
+                'No gamebook found',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            onError: (error) => Center(
+              child: Text(
+                error ?? 'Error occurred',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
           ),
         ),
@@ -155,23 +141,105 @@ class GameTitle extends StatelessWidget {
   }
 }
 
-class DecisionTab extends StatelessWidget {
+class DecisionTab extends StatefulWidget {
   DecisionTab({super.key});
-  final controller = Get.find<GamePlayController>();
 
   @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      if (controller.showPostDecisionMessage.value) {
-        return _buildDecisionSuccessMessage(context);
-      }
+  State<DecisionTab> createState() => _DecisionTabState();
+}
 
-      // TODO: uncomment in production
-      // if (!controller.hasArrivedAtLocation.value) {
-      //   return _buildArrivalRequiredMessage(context);
-      // }
-      return _buildDecisionContent(context);
+class _DecisionTabState extends State<DecisionTab> {
+  final controller = Get.find<GamePlayController>();
+  bool _showButtons = false;
+  int _devSwipeCount = 0;
+  DateTime? _lastSwipeTime;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _showButtons = true);
     });
+  }
+
+  void _handleDevModeSwipe(DragEndDetails details) {
+    final now = DateTime.now();
+    if (_lastSwipeTime != null && now.difference(_lastSwipeTime!) > 2.seconds) {
+      _devSwipeCount = 0; // Reset counter if more than 2 seconds between swipes
+    }
+
+    if (details.primaryVelocity != null && details.primaryVelocity! > 1000) {
+      _devSwipeCount++;
+      _lastSwipeTime = now;
+
+      if (_devSwipeCount >= 5) {
+        controller.toggleDevBypassLocation(true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(controller.isDevMode
+                ? 'Developer mode activated'
+                : 'Developer mode deactivated'),
+            duration: 2.seconds,
+          ),
+        );
+        _devSwipeCount = 0;
+      }
+    }
+  }
+
+  Widget _buildSwipeUpIndicator() {
+    return TweenAnimationBuilder<Offset>(
+      duration: const Duration(milliseconds: 1000),
+      tween: Tween<Offset>(
+        begin: const Offset(0, -0.5),
+        end: const Offset(0, 0.5),
+      ),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: value * 5,
+          child: child,
+        );
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.keyboard_arrow_up,
+            size: 40,
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+          ),
+          Text(
+            "Swipe up for choices",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPanelDragHandle(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          Icons.keyboard_arrow_down,
+          size: 32,
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
+        ),
+        Text(
+          "Swipe down to close",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+                fontStyle: FontStyle.italic,
+              ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
   }
 
   Widget _buildDecisionSuccessMessage(BuildContext context) {
@@ -214,166 +282,472 @@ class DecisionTab extends StatelessWidget {
     );
   }
 
-  Widget _buildArrivalRequiredMessage(BuildContext context) {
+  Widget _buildGameEndScreen(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.location_off,
-            size: 50,
+            Icons.celebration,
+            size: 60,
             color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 20),
           Text(
-            "Location Required",
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            "Congratulations!",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           Text(
-            "Confirm your arrival at the current location\nin the Map tab to continue",
+            "You have completed the game",
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 30),
           ElevatedButton.icon(
-            icon: Icon(Icons.map,
+            icon: Icon(Icons.replay,
                 color: Theme.of(context).colorScheme.onSecondary),
             label: Text(
-              "Go to Map",
+              "Play Again",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(2),
+            onPressed: () => controller.onReturnToSelection(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDecisionContent(BuildContext context) {
-    final currentStep = controller.currentStep.value;
-    if (currentStep == null) {
-      return Center(
-        child: Text(
-          "No steps available",
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      );
-    }
-
-    // Check if game has ended
-    if (controller.isGameEnded.value) {
-      return Center(
+  Widget _buildArrivalRequiredMessage(BuildContext context) {
+    return GestureDetector(
+      onVerticalDragEnd: _handleDevModeSwipe,
+      behavior: HitTestBehavior.translucent,
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.celebration,
-              size: 60,
+              Icons.location_off,
+              size: 50,
               color: Theme.of(context).colorScheme.secondary,
             ),
             const SizedBox(height: 20),
             Text(
-              "Congratulations!",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              "Location Required",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             Text(
-              "You have completed the game",
+              "Confirm your arrival at the current location\nin the Map tab to continue",
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 25),
             ElevatedButton.icon(
-              icon: Icon(Icons.replay,
+              icon: Icon(Icons.map,
                   color: Theme.of(context).colorScheme.onSecondary),
               label: Text(
-                "Play Again",
+                "Go to Map",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
-              onPressed: () => controller.onReturnToSelection(),
+              onPressed: () => DefaultTabController.of(context).animateTo(2),
             ),
           ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (controller.showPostDecisionMessage.value) {
+        return _buildDecisionSuccessMessage(context);
+      }
+      if (!controller.isDevMode && !controller.hasArrivedAtLocation.value) {
+        return _buildArrivalRequiredMessage(context);
+      }
+
+      return _buildDecisionContent(context);
+    });
+  }
+
+  Widget _buildDecisionContent(BuildContext context) {
+    final currentStep = controller.currentStep.value;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomPadding = mediaQuery.padding.bottom;
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: currentStep == null
+          ? Center(
+              child: Text(
+                "No steps available",
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            )
+          : controller.isGameEnded.value
+              ? _buildGameEndScreen(context)
+              : _buildMainContent(
+                  context,
+                  currentStep,
+                  bottomPadding,
+                ),
+    );
+  }
+
+  Widget _buildMainContent(
+    BuildContext context,
+    GameStep currentStep,
+    double bottomPadding,
+  ) {
     final decisions = currentStep.choices;
     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
 
-    if (decisions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Text(
-                  currentStep.text ?? "Game End",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              // onPressed: () => controller
-              //     .fetchGamebookData(controller.currentGamebook.value!.id),
-              onPressed: () {
-                throw UnimplementedError(
-                    'starting from scratch is not implemented yet');
-              },
-              child: Text(
-                "Start From the Beginning",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Text(
-                currentStep.text ?? "Game End",
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
+        GestureDetector(
+          onVerticalDragEnd: (details) {
+            if (details.primaryVelocity != null) {
+              // Only hide on swipe down
+              if (details.primaryVelocity! > 10) {
+                setState(() => _showButtons = false);
+              }
+            }
+          },
+          child: CustomScrollView(
+            physics: _showButtons
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      if (currentStep.photoUrl != null)
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: NetworkImage(currentStep.photoUrl!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (currentStep.title != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            currentStep.title!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      Expanded(
+                        flex: 3,
+                        child: SingleChildScrollView(
+                          child: Text(
+                            currentStep.text ?? "Game End",
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                          height: decisions.isEmpty ? 0 : 200 + bottomPadding),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (decisions.isNotEmpty)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.linear,
+            bottom: _showButtons ? 0 : -300,
+            left: 0,
+            right: 0,
+            child: GestureDetector(
+              onVerticalDragEnd: (details) {
+                // Swipe down on buttons to hide
+                if (details.primaryVelocity! > 10) {
+                  setState(() => _showButtons = false);
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.only(
+                    bottom: bottomPadding, left: 16, right: 16, top: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 16,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildPanelDragHandle(context),
+                    DecisionButtonLayout(
+                      decisions: decisions,
+                      layoutStyle: buttonLayout,
+                      onDecisionMade: (decision) {
+                        // setState(() => _showButtons = True);
+                        controller.makeDecision(decision);
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: DecisionButtonLayout(
-              decisions: decisions,
-              layoutStyle: buttonLayout,
-              onDecisionMade: controller.makeDecision,
-            ),
+        // Swipe-up detector when buttons are hidden
+        if (!_showButtons && decisions.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).size.height *
+                0.25, // Capture bottom 25% of screen
+            child: GestureDetector(
+                onVerticalDragEnd: (details) {
+                  // Detect upward swipe (negative velocity)
+                  if (details.primaryVelocity! < -10) {
+                    setState(() => _showButtons = true);
+                  }
+                },
+                behavior: HitTestBehavior.translucent,
+                child: Center(
+                  child: _buildSwipeUpIndicator(),
+                )),
           ),
-        ),
       ],
     );
   }
 }
+
+// class DecisionTab extends StatelessWidget {
+//   DecisionTab({super.key});
+//   final controller = Get.find<GamePlayController>();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       if (mounted && decisions.isNotEmpty) {
+//         setState(() => showButtons = true);
+//       }
+//     });
+
+//     return Obx(() {
+//       if (controller.showPostDecisionMessage.value) {
+//         return _buildDecisionSuccessMessage(context);
+//       }
+
+//       // TODO: uncomment in production
+//       // if (!controller.hasArrivedAtLocation.value) {
+//       //   return _buildArrivalRequiredMessage(context);
+//       // }
+//       return _buildDecisionContent(context);
+//     });
+//   }
+
+//   Widget _buildArrivalRequiredMessage(BuildContext context) {
+//     return Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Icon(
+//             Icons.location_off,
+//             size: 50,
+//             color: Theme.of(context).colorScheme.secondary,
+//           ),
+//           const SizedBox(height: 20),
+//           Text(
+//             "Location Required",
+//             style: Theme.of(context).textTheme.titleMedium?.copyWith(
+//                   color: Theme.of(context).colorScheme.secondary,
+//                 ),
+//           ),
+//           const SizedBox(height: 10),
+//           Text(
+//             "Confirm your arrival at the current location\nin the Map tab to continue",
+//             textAlign: TextAlign.center,
+//             style: Theme.of(context).textTheme.bodyMedium,
+//           ),
+//           const SizedBox(height: 25),
+//           ElevatedButton.icon(
+//             icon: Icon(Icons.map,
+//                 color: Theme.of(context).colorScheme.onSecondary),
+//             label: Text(
+//               "Go to Map",
+//               style: TextStyle(
+//                 color: Theme.of(context).colorScheme.onSecondary,
+//               ),
+//             ),
+//             onPressed: () => DefaultTabController.of(context).animateTo(2),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildDecisionContent(BuildContext context) {
+//     final currentStep = controller.currentStep.value;
+//     final mediaQuery = MediaQuery.of(context);
+//     final bottomPadding = mediaQuery.padding.bottom;
+
+//     // Animation control for sliding buttons
+//     bool showButtons = false;
+
+//     return AnimatedSwitcher(
+//       duration: const Duration(milliseconds: 300),
+//       child: currentStep == null
+//           ? Center(
+//               child: Text(
+//                 "No steps available",
+//                 style: Theme.of(context).textTheme.bodyLarge,
+//               ),
+//             )
+//           : controller.isGameEnded.value
+//               ? _buildGameEndScreen(context)
+//               : _buildMainContent(
+//                   context,
+//                   currentStep,
+//                   bottomPadding,
+//                   showButtons,
+//                 ),
+//     );
+//   }
+
+//   Widget _buildMainContent(
+//     BuildContext context,
+//     GameStep currentStep,
+//     double bottomPadding,
+//     bool showButtons,
+//   ) {
+//     final decisions = currentStep.choices;
+//     final buttonLayout = Get.find<SettingsController>().layoutStyle.value;
+
+//     return Stack(
+//       children: [
+//         CustomScrollView(
+//           slivers: [
+//             SliverFillRemaining(
+//               hasScrollBody: false,
+//               child: Padding(
+//                 padding: const EdgeInsets.all(16.0),
+//                 child: Column(
+//                   children: [
+//                     if (currentStep.photoUrl != null)
+//                       Flexible(
+//                         flex: 2,
+//                         child: Container(
+//                           width: double.infinity,
+//                           margin: const EdgeInsets.only(bottom: 20),
+//                           decoration: BoxDecoration(
+//                             borderRadius: BorderRadius.circular(12),
+//                             image: DecorationImage(
+//                               image: NetworkImage(currentStep.photoUrl!),
+//                               fit: BoxFit.cover,
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     if (currentStep.title != null)
+//                       Padding(
+//                         padding: const EdgeInsets.only(bottom: 12),
+//                         child: Text(
+//                           currentStep.title!,
+//                           style:
+//                               Theme.of(context).textTheme.titleLarge?.copyWith(
+//                                     fontWeight: FontWeight.w600,
+//                                   ),
+//                           textAlign: TextAlign.center,
+//                         ),
+//                       ),
+//                     Expanded(
+//                       flex: 3,
+//                       child: SingleChildScrollView(
+//                         child: Text(
+//                           currentStep.text ?? "Game End",
+//                           style: Theme.of(context).textTheme.bodyLarge,
+//                           textAlign: TextAlign.center,
+//                         ),
+//                       ),
+//                     ),
+//                     // Spacer for button area
+//                     SizedBox(
+//                         height: decisions.isEmpty ? 0 : 200 + bottomPadding),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//         if (decisions.isNotEmpty)
+//           AnimatedPositioned(
+//             duration: const Duration(milliseconds: 300),
+//             curve: Curves.easeOut,
+//             bottom: showButtons ? 0 : -200,
+//             left: 0,
+//             right: 0,
+//             child: Container(
+//               padding: EdgeInsets.only(
+//                 bottom: bottomPadding,
+//                 left: 16,
+//                 right: 16,
+//                 top: 16,
+//               ),
+//               decoration: BoxDecoration(
+//                 color: Theme.of(context).scaffoldBackgroundColor,
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Colors.black.withOpacity(0.1),
+//                     blurRadius: 16,
+//                     offset: const Offset(0, -4),
+//                   ),
+//                 ],
+//                 borderRadius:
+//                     const BorderRadius.vertical(top: Radius.circular(16)),
+//               ),
+//               child: DecisionButtonLayout(
+//                 decisions: decisions,
+//                 layoutStyle: buttonLayout,
+//                 onDecisionMade: controller.makeDecision,
+//               ),
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
 
 class MapWidget extends StatefulWidget {
   //final LatLng initialPosition;
@@ -654,7 +1028,14 @@ class StoryTab extends StatelessWidget {
           );
         }
 
-        if (controller.gameHistory.isEmpty) {
+        // Filter out entries where previousStepText is null
+        final filteredHistory = controller.gameHistory
+            .where((entry) => entry.previousStepText != null)
+            .toList();
+
+        final hasCurrentStep = controller.currentStep.value != null;
+
+        if (filteredHistory.isEmpty && !hasCurrentStep) {
           return Center(
             child: Text(
               "Your story begins here...\nMake choices to fill this page.",
@@ -669,29 +1050,25 @@ class StoryTab extends StatelessWidget {
           );
         }
 
-        final hasCurrentStep = controller.currentStep.value != null;
-        final itemCount =
-            controller.gameHistory.length + (hasCurrentStep ? 1 : 0);
-
         return ListView.builder(
           controller: _scrollController,
           reverse: true,
           physics: const BouncingScrollPhysics(),
-          itemCount: controller.gameHistory.length,
+          itemCount: filteredHistory.length + (hasCurrentStep ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == 0 && hasCurrentStep) {
               return _buildCurrentStep(context, controller.currentStep.value!);
             }
-            final entry = controller
-                .gameHistory[controller.gameHistory.length - 1 - index];
-            final isStartEntry = entry.previousStepText == null;
+            final historyIndex = index - (hasCurrentStep ? 1 : 0);
+            final entry =
+                filteredHistory[filteredHistory.length - 1 - historyIndex];
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (index == 0) _buildTimelineStart(context),
-                _buildStoryEntry(context, entry, isStartEntry),
-                if (index != controller.gameHistory.length - 1)
+                if (historyIndex == 0) _buildTimelineStart(context),
+                _buildStoryEntry(context, entry),
+                if (historyIndex != filteredHistory.length - 1)
                   _buildTimelineConnector(context),
               ],
             );
@@ -701,8 +1078,8 @@ class StoryTab extends StatelessWidget {
     );
   }
 
-  Widget _buildStoryEntry(
-      BuildContext context, GameHistoryRecord entry, bool isStart) {
+  // Removed isStartEntry parameter as it's no longer needed
+  Widget _buildStoryEntry(BuildContext context, GameHistoryRecord entry) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -728,26 +1105,19 @@ class StoryTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isStart) ...[
-                  Row(
-                    children: [
-                      Text(
-                        "Prologue",
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        entry.previousStepText!,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.5,
                             ),
                       ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Text(
-                  entry.previousStepText ?? "The journey begins...",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        height: 1.5,
-                      ),
+                    ),
+                  ],
                 ),
                 if (entry.choiceText != null) ...[
                   const SizedBox(height: 16),
@@ -768,18 +1138,45 @@ class StoryTab extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundImage: entry.user.photoUrl != null
+                              ? NetworkImage(entry.user.photoUrl!)
+                              : null,
+                          child: entry.user.photoUrl == null
+                              ? const Icon(Icons.person)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            entry.choiceText!,
-                            // "You chose: ${entry.choiceText!}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.user.login,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                              ),
+                              Text(
+                                entry.choiceText!,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -857,7 +1254,6 @@ class StoryTab extends StatelessWidget {
     );
   }
 }
-
 
 /*
 This is different look for StoryTab don't remove

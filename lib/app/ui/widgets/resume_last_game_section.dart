@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ResumeLastGameSection extends GetView<GameSelectionController> {
-  ResumeLastGameSection({super.key});
+  const ResumeLastGameSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,6 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
           Card(
             child: InkWell(
               onTap: () {

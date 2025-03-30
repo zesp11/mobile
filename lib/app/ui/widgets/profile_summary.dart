@@ -23,7 +23,6 @@ class ProfileSummaryWidget extends GetView<ProfileController> {
     });
 
     return SectionWidget(
-      title: "User Summary",
       child: controller.obx(
         (profile) => _buildProfileCard(profile, context),
         onLoading: _buildSkeletonLoader(context),

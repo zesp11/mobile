@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
+import 'package:gotale/app/routes/app_routes.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -11,10 +15,13 @@ class ProfileEditScreen extends StatefulWidget {
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final ProfileController controller = Get.find<ProfileController>();
   final AuthController authController = Get.find<AuthController>();
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController loginController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmController =
+      TextEditingController();
+  File? _selectedAvatar;
 
   @override
   void initState() {
@@ -25,11 +32,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   void dispose() {
-    nameController.dispose();
+    loginController.dispose();
     emailController.dispose();
     bioController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedAvatar = File(pickedFile.path);
+      });
+    }
   }
 
   @override
@@ -54,35 +71,46 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               );
             }
 
-            // Update text controllers with current values
-            // TODO:
-            // nameController.text = userProfile.name;
+            loginController.text = userProfile.login;
             emailController.text = userProfile.email;
-            // bioController.text = userProfile.bio;
+            bioController.text = userProfile.bio ?? "";
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'edit_profile_title'.tr,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Center(
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 48,
+                            backgroundImage: _selectedAvatar != null
+                                ? FileImage(_selectedAvatar!)
+                                : (userProfile.photoUrl != null
+                                    ? NetworkImage(userProfile.photoUrl!)
+                                    : AssetImage(
+                                            'assets/images/default_avatar.png')
+                                        as ImageProvider),
+                          ),
+                          IconButton(
+                            onPressed: _pickImage,
+                            icon: Icon(Icons.camera_alt,
+                                color: theme.colorScheme.secondary),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'edit_profile_subtitle'.tr,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onBackground.withOpacity(0.7),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 20),
 
                   // Name Input
                   TextField(
-                    controller: nameController,
+                    controller: loginController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'name'.tr,
                       hintText: 'enter_name'.tr,
@@ -129,6 +157,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   // Email Input
                   TextField(
                     controller: emailController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'email'.tr,
                       hintText: 'enter_email'.tr,
@@ -219,15 +248,69 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     style: theme.textTheme.bodyLarge,
                     cursorColor: theme.colorScheme.secondary,
                   ),
-                  const SizedBox(height: 20),
 
-                  // Password Input
+                  const SizedBox(height: 10),
+                  Divider(),
+                  const SizedBox(height: 10),
+
                   TextField(
                     controller: passwordController,
                     decoration: InputDecoration(
                       labelText: 'new_password'.tr,
                       hintText: 'enter_new_password'.tr,
                       helperText: 'password_change_hint'.tr,
+                      helperStyle: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.tertiary,
+                      ),
+                      helperMaxLines: 2,
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: theme.colorScheme.tertiary,
+                      ),
+                      filled: true,
+                      fillColor: theme.cardTheme.color,
+                      labelStyle: TextStyle(
+                        color: theme.colorScheme.tertiary,
+                      ),
+                      floatingLabelStyle: TextStyle(
+                        color: theme.colorScheme.secondary,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.tertiary.withOpacity(0.2),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.tertiary.withOpacity(0.2),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.secondary,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                    ),
+                    obscureText: true,
+                    style: theme.textTheme.bodyLarge,
+                    cursorColor: theme.colorScheme.secondary,
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Password Confirm Input
+                  TextField(
+                    controller: passwordConfirmController,
+                    decoration: InputDecoration(
+                      labelText: 'confirm_new_password'.tr,
+                      hintText: 'enter_new_password_confirm'.tr,
+                      helperText: 'password_change_confirm_hint'.tr,
                       helperStyle: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.tertiary,
                       ),
@@ -280,12 +363,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       onPressed: () async {
                         try {
                           await controller.updateProfile(
-                            nameController.text,
+                            loginController.text,
                             bioController.text,
                             emailController.text,
                             passwordController.text.isEmpty
                                 ? null
                                 : passwordController.text,
+                            _selectedAvatar,
                           );
                           Get.snackbar(
                             'success'.tr,
@@ -296,7 +380,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             margin: const EdgeInsets.all(16),
                             borderRadius: 12,
                           );
-                          Get.back();
                         } catch (e) {
                           Get.snackbar(
                             'error'.tr,

@@ -20,11 +20,13 @@ Logger _createLogger(bool isProduction) {
     level: isProduction ? Level.warning : Level.debug,
     printer: PrettyPrinter(
       methodCount: 0,
+      errorMethodCount: 0,
       lineLength: 80,
-      printEmojis: !isProduction,
-      colors: !isProduction, // Disable colors in production
-      dateTimeFormat: isProduction // Show timestamps in production
-          ? DateTimeFormat.onlyTimeAndSinceStart
+      printEmojis: false,
+      colors: !isProduction,
+      noBoxingByDefault: true, // Remove border boxes
+      dateTimeFormat: isProduction
+          ? DateTimeFormat.onlyTime // "HH:mm:ss" format
           : DateTimeFormat.none,
     ),
   );

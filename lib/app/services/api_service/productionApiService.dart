@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
@@ -193,15 +195,8 @@ class ProductionApiService extends ApiService {
 
       logger.d('Fetching scenario with ID: $endpoint');
 
-      final token =
-          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
-      if (token == null) {
-        throw Exception('No authentication token found');
-      }
-
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
       };
 
       final response = await http.get(
@@ -432,7 +427,7 @@ class ProductionApiService extends ApiService {
   Future<List<dynamic>> searchScenarios(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('$name$getAvailableGamebooksRoute?search=$query'),
+        Uri.parse('$name$getAvailableGamebooksRoute?limit=1000&search=$query'),
       );
 
       if (response.statusCode == 200) {
@@ -456,7 +451,8 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<void> updateUserProfile(Map<String, dynamic> profile) async {
+  Future<void> updateUserProfile(
+      Map<String, dynamic> profile, File? avatarFile) async {
     try {
       final endpoint = '$name$updateProfileRoute';
       final token =
@@ -466,18 +462,46 @@ class ProductionApiService extends ApiService {
         throw Exception('No authentication token found');
       }
 
-      final response = await http.put(
-        Uri.parse(endpoint),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(profile),
-      );
+      final logger = Get.find<Logger>();
+      // Create multipart request
+      final request = http.MultipartRequest('PUT', Uri.parse(endpoint))
+        ..headers.addAll(
+          {
+            'Authorization': 'Bearer $token',
+            // Add other headers if needed
+          },
+        );
+
+      // Add form fields
+      profile.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+
+      if (avatarFile != null) {
+        final fileStream = http.ByteStream(avatarFile.openRead());
+        final length = await avatarFile.length();
+        final multipartFile = http.MultipartFile(
+          'photo', // Field name must match server expectation
+          fileStream,
+          length,
+          filename: 'avatar.jpg',
+        );
+        request.files.add(multipartFile);
+      }
+
+      logger.d(request);
+      logger.d(request.fields);
+
+      // Send request
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to update profile: ${response.statusCode}');
+        throw Exception(
+            'Failed to update profile: ${response.statusCode} - $responseBody');
       }
+
+      logger.d("Profile updated");
     } catch (e) {
       logger.e('Error updating profile: $e');
       throw Exception('Failed to update profile: $e');
@@ -485,7 +509,7 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> getCurrentUserProfile() async {
+  Future<User> getCurrentUserProfile() async {
     try {
       final endpoint = '$name$getCurrentUserProfileRoute';
       final token =
@@ -505,20 +529,9 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
-        final dynamic parsed = jsonDecode(decodedResponse);
-        final userData = Map<String, dynamic>.from(parsed);
+        final parsed = jsonDecode(decodedResponse);
 
-        return {
-          'id': userData['id_user']?.toString() ?? '0',
-          'name': userData['login']?.toString() ?? 'Unknown User',
-          'email': userData['email']?.toString() ?? '',
-          'bio': userData['bio']?.toString() ?? '',
-          'gamesPlayed': (userData['gamesPlayed'] as int?) ?? 0,
-          'gamesFinished': (userData['gamesFinished'] as int?) ?? 0,
-          'preferences':
-              Map<String, dynamic>.from(userData['preferences'] ?? {}),
-          'avatar': userData['avatar']?.toString() ?? '',
-        };
+        return User.fromJson(parsed);
       } else {
         throw Exception(
             'Failed to load profile. Status: ${response.statusCode}');
@@ -720,7 +733,7 @@ class ProductionApiService extends ApiService {
 
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
-        return  gameHistoryRecordFromJson(decodedResponse);
+        return gameHistoryRecordFromJson(decodedResponse);
       } else {
         logger.e('Failed to get game history: ${response.statusCode}');
         throw Exception('Failed to get game history: ${response.statusCode}');
