@@ -2,6 +2,8 @@
 // specification for the REST API can be found in rest-api-specification.md
 // https://github.com/Serp-ent/zesp11/blob/feature/backend/rest-api-specification/rest_api_specification.md
 // WARNING: the link may expire after merge
+import 'dart:io';
+
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
@@ -59,8 +61,9 @@ abstract class ApiService {
   /* User endpoints */
   Future<User> getUserProfile(String id);
   Future<List<dynamic>> searchUsers(String query);
-  Future<Map<String, dynamic>> getCurrentUserProfile();
-  Future<void> updateUserProfile(Map<String, dynamic> profile);
+  Future<User> getCurrentUserProfile();
+  Future<void> updateUserProfile(
+      Map<String, dynamic> profile, File? avatarFile);
   // TODO: getUsersList;
   // TODO: removeAccount;
 

@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
 
-class SearchService {
+class SearchService extends GetxService {
   final ApiService apiService;
   final logger = Get.find<Logger>();
 

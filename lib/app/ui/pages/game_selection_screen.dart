@@ -10,13 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class GameSelectionScreen extends StatelessWidget {
-  final VoidCallback onGameSelected;
-  final VoidCallback onScenarioSelected;
-
-  const GameSelectionScreen({
-    required this.onGameSelected,
-    required this.onScenarioSelected,
-  });
+  const GameSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,38 +22,26 @@ class GameSelectionScreen extends StatelessWidget {
     return DefaultTabController(
       length: authController.isAuthenticated ? 2 : 1,
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: theme.colorScheme.surface,
-          title: Text(
-            'game_selection'.tr,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.onSurface,
-            ),
+        appBar: TabBar(
+          indicatorColor: theme.colorScheme.secondary,
+          labelColor: theme.colorScheme.secondary,
+          unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.7),
+          labelStyle: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
           ),
-          centerTitle: true,
-          bottom: TabBar(
-            indicatorColor: theme.colorScheme.secondary,
-            labelColor: theme.colorScheme.secondary,
-            unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.7),
-            labelStyle: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedLabelStyle: theme.textTheme.titleMedium,
-            indicatorWeight: 3,
-            dividerColor: Colors.transparent,
-            tabs: [
-              Tab(text: 'scenarios'.tr),
-              if (authController.isAuthenticated)
-                Tab(text: 'games_in_progress'.tr),
-            ],
-          ),
+          unselectedLabelStyle: theme.textTheme.titleMedium,
+          indicatorWeight: 3,
+          dividerColor: Colors.transparent,
+          tabs: [
+            Tab(text: 'scenarios'.tr),
+            if (authController.isAuthenticated)
+              Tab(text: 'games_in_progress'.tr),
+          ],
         ),
         body: SafeArea(
           child: TabBarView(
             children: [
               _ScenariosTab(
-                onGameSelected: onGameSelected,
-                onScenarioSelected: onScenarioSelected,
                 isSmallScreen: isSmallScreen,
                 size: size,
               ),
@@ -74,14 +56,10 @@ class GameSelectionScreen extends StatelessWidget {
 }
 
 class _ScenariosTab extends GetView<ScenarioController> {
-  final VoidCallback onGameSelected;
-  final VoidCallback onScenarioSelected;
   final bool isSmallScreen;
   final Size size;
 
   const _ScenariosTab({
-    required this.onGameSelected,
-    required this.onScenarioSelected,
     required this.isSmallScreen,
     required this.size,
   });
@@ -100,8 +78,6 @@ class _ScenariosTab extends GetView<ScenarioController> {
         (scenarios) => ScenarioListView(
           gamebooks: scenarios!,
           authController: authController,
-          onGameSelected: onGameSelected,
-          onScenarioSelected: onScenarioSelected,
         ),
         onLoading: ScenariosTabSkeleton(),
         onEmpty: Center(

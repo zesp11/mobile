@@ -15,8 +15,9 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'settings'.tr,
-          style: theme.textTheme.titleLarge?.copyWith(
+          'settings_title'.tr,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
             color: theme.colorScheme.onBackground,
           ),
         ),
@@ -32,23 +33,6 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'settings_title'.tr,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'settings_subtitle'.tr,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onBackground
-                        .withOpacity(isDark ? 0.7 : 0.8),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
                 // Appearance Section
                 _buildSectionHeader(
                     context, 'appearance'.tr, Icons.palette_outlined),
@@ -253,13 +237,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'settings_fab',
-        onPressed: () => Get.back(),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-        child: Icon(Icons.arrow_back),
       ),
     );
   }

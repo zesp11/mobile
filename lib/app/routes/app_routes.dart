@@ -66,18 +66,11 @@ class AppRoutes {
           children: [
             GetPage(
               name: "/select",
-              page: () => GameSelectionScreen(
-                onGameSelected: () {},
-                onScenarioSelected: () {},
-              ),
+              page: () => GameSelectionScreen(),
             ),
             GetPage(
               name: "/:id",
-              page: () => GamePlayScreen(
-                onReturnToSelection: () {
-                  Get.toNamed('/');
-                },
-              ),
+              page: () => GamePlayScreen(),
             ),
 
             // GetPage(name: gameDecision, page: () => GameDecisionScreen()),

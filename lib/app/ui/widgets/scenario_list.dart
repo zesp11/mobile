@@ -6,15 +6,11 @@ import 'package:gotale/app/ui/widgets/scenario_item.dart';
 class ScenarioListView extends StatelessWidget {
   final List<Scenario> gamebooks;
   final AuthController authController;
-  final VoidCallback onGameSelected;
-  final VoidCallback onScenarioSelected;
 
   const ScenarioListView({
     Key? key,
     required this.gamebooks,
     required this.authController,
-    required this.onGameSelected,
-    required this.onScenarioSelected,
   }) : super(key: key);
 
   @override
@@ -27,8 +23,6 @@ class ScenarioListView extends StatelessWidget {
         return ScenarioCard(
           gamebook: gamebook,
           authController: authController,
-          onGameSelected: onGameSelected,
-          onScenarioSelected: onScenarioSelected,
         );
       },
     );

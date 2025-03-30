@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:gotale/app/ui/widgets/section_widget.dart';
 
 class NearbyGamesWidget extends StatelessWidget {
-  const NearbyGamesWidget({Key? key}) : super(key: key);
+  const NearbyGamesWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SectionWidget(
-      title: "Nearby Games",
       child: Column(
         children: List.generate(3, (index) {
           // Mocked data for nearby games

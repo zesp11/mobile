@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:gotale/app/ui/widgets/section_widget.dart';
 
 class LastGameWidget extends StatelessWidget {
-  const LastGameWidget({Key? key}) : super(key: key);
+  const LastGameWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SectionWidget(
-      title: "Last Game",
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
