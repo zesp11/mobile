@@ -79,9 +79,8 @@ void main() async {
 
   initServices();
   // Load translations before app start
-  final messages = await Messages.loadTranslations();
-
   final settingsService = Get.find<SettingsService>();
+  final messages = await Messages.loadTranslations();
 
   // Check first launch
   bool firstLaunch = settingsService.isFirstLaunch();
