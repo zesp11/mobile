@@ -26,6 +26,11 @@ class GamePlayScreen extends StatelessWidget {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
 
+    final TabController tabController =
+        TabController(length: 3, vsync: Navigator.of(context));
+
+    Get.put(tabController);
+
     logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
     logger.d("[DEV_DEBUG] Current gamebook: ${controller.currentGame.value}");
     logger.d("[DEV_DEBUG] Current step: ${controller.currentStep.value}");
@@ -850,29 +855,45 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void checkDistance() {
-    if (distanceToWaypoint <= 50 && !arrived) {
+    if (distanceToWaypoint <= 50 && !arrived && gamePlayController.hasArrivedAtLocation.value == false) {
       arrived = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           context: context,
           barrierDismissible: false, 
           builder: (context) {
+            final theme = Theme.of(context);
             return StatefulBuilder(
               builder: (context, setDialogState) {
                 return AlertDialog(
-                  title: Text("Cel osiągnięty!"),
-                  content: Text("Dotarłeś do punktu docelowego."),
+                  backgroundColor: theme.colorScheme.primary,
+                  title: Text(
+                    "You've arrived at the designated location!",
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                    ),
+                  content: Text(
+                    "You may proceed with your adventure.",
+                    style: TextStyle(color: theme.colorScheme.onSurface),
+                    ),
                   actions: [
                     TextButton(
                       onPressed: () {
-                        if (distanceToWaypoint > 50) {
+                        arrived = false;
+                        gamePlayController.hasArrivedAtLocation.value = true;
+                        Navigator.of(context, rootNavigator: true).pop();
+                        Get.find<TabController>().animateTo(0);
+                        /*if (distanceToWaypoint > 50) {
                           Navigator.of(context).pop();
                           setState(() {
                             arrived = false;
                           });
-                        }
+                        }*/
                       },
-                      child: Text("OK"),
+                      style: TextButton.styleFrom(backgroundColor: theme.colorScheme.secondary),
+                      child: Text(
+                        "Go to the story",
+                        style: TextStyle(color: theme.colorScheme.primary),
+                        ),
                     ),
                   ],
                 );
@@ -882,7 +903,7 @@ class _OSMFlutterMapState extends State<MapWidget>
         );
       });
     }
-    else{
+    /*else{
       if (arrived) {
       arrived = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -891,7 +912,7 @@ class _OSMFlutterMapState extends State<MapWidget>
         }
       });
     }
-    }
+    }*/
   }
 /*
   void updatePosition(LatLng position)
@@ -1086,7 +1107,7 @@ class StoryTab extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
-                        .onBackground
+                        .onSurface
                         .withOpacity(0.6),
                   ),
               textAlign: TextAlign.center,

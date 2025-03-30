@@ -220,6 +220,7 @@ class GamePlayController extends GetxController with StateMixin {
   var waypoints = <LatLng>[].obs;
 
   void addWaypoint(double latitude, double longitude) {
+    waypoints.clear();
     waypoints.add(LatLng(latitude, longitude));
   }
 
