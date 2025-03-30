@@ -855,25 +855,42 @@ class _OSMFlutterMapState extends State<MapWidget>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           context: context,
+          barrierDismissible: false, 
           builder: (context) {
-            return AlertDialog(
-              title: Text("Cel osiągnięty!"),
-              content: Text("Dotarłeś do punktu docelowego."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    setState(() {
-                      arrived = false;
-                    });
-                  },
-                  child: Text("OK"),
-                ),
-              ],
+            return StatefulBuilder(
+              builder: (context, setDialogState) {
+                return AlertDialog(
+                  title: Text("Cel osiągnięty!"),
+                  content: Text("Dotarłeś do punktu docelowego."),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        if (distanceToWaypoint > 50) {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            arrived = false;
+                          });
+                        }
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                );
+              },
             );
           },
         );
       });
+    }
+    else{
+      if (arrived) {
+      arrived = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Navigator.canPop(context)) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+      });
+    }
     }
   }
 /*
@@ -887,6 +904,8 @@ class _OSMFlutterMapState extends State<MapWidget>
   //bool isLocationPressed = false;
   bool isTracking = true;
   bool headingReset = false;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -912,7 +931,7 @@ class _OSMFlutterMapState extends State<MapWidget>
           FlutterMap(
             options: MapOptions(
               initialCenter: const LatLng(52.06516, 19.25248),
-              initialZoom: 12,
+              initialZoom: 14,
               minZoom: 0,
               maxZoom: 19,
               /*onLongPress: (tapPosition, point) {       //adding waypoints by pressing for debug
