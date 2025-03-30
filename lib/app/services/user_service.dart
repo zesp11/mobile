@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:get/get.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
+import 'package:logger/logger.dart';
 
 // The service should add types to responses returned from the ApiServices
 class UserService {
@@ -17,16 +21,16 @@ class UserService {
 
   Future<User> fetchCurrentUserProfile() async {
     try {
-      final response = await apiService.getCurrentUserProfile();
-      return User.fromJson(response);
+      return apiService.getCurrentUserProfile();
     } catch (e) {
       throw Exception('Failed to fetch current user profile: $e');
     }
   }
 
-  Future<void> updateUserProfile(Map<String, dynamic> profileData) async {
+  Future<void> updateUserProfile(
+      Map<String, dynamic> profileData, File? avatarFile) async {
     try {
-      await apiService.updateUserProfile(profileData);
+      await apiService.updateUserProfile(profileData, avatarFile);
     } catch (e) {
       throw Exception('Failed to update user profile: $e');
     }

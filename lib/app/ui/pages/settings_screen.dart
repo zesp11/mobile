@@ -13,6 +13,16 @@ class SettingsScreen extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'settings_title'.tr,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onBackground,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -23,23 +33,6 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'settings_title'.tr,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'settings_subtitle'.tr,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onBackground
-                        .withOpacity(isDark ? 0.7 : 0.8),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
                 // Appearance Section
                 _buildSectionHeader(
                     context, 'appearance'.tr, Icons.palette_outlined),
