@@ -4,8 +4,7 @@ import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:gotale/utils/env_config.dart';
 import 'package:logger/logger.dart';
 
-// TODO: add services should inherit from GetxService
-class AuthService {
+class AuthService extends GetxService {
   final ApiService apiService;
   final logger = Get.find<Logger>();
 
