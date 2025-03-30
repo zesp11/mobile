@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/auth_service.dart';
@@ -81,6 +82,8 @@ class AuthController extends GetxController with StateMixin<User> {
 
       await _fetchUserProfile(response.userId.toString());
       logger.i("[AUTH_DEBUG] Logged in successfully");
+
+      Get.find<GameSelectionController>().fetchGamesInProgress();
 
       // Navigate to home screen after successful login
       // Get.offAllNamed(AppRoutes.home);
