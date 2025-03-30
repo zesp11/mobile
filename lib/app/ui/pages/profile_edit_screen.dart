@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -18,6 +21,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordConfirmController =
       TextEditingController();
+  File? _selectedAvatar;
 
   @override
   void initState() {
@@ -33,6 +37,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     bioController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedAvatar = File(pickedFile.path);
+      });
+    }
   }
 
   @override
@@ -66,6 +80,33 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Center(
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          CircleAvatar(
+                            radius: 48,
+                            backgroundImage: _selectedAvatar != null
+                                ? FileImage(_selectedAvatar!)
+                                : (userProfile.photoUrl != null
+                                    ? NetworkImage(userProfile.photoUrl!)
+                                    : AssetImage(
+                                            'assets/images/default_avatar.png')
+                                        as ImageProvider),
+                          ),
+                          IconButton(
+                            onPressed: _pickImage,
+                            icon: Icon(Icons.camera_alt,
+                                color: theme.colorScheme.secondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+
                   // Name Input
                   TextField(
                     controller: loginController,
@@ -328,6 +369,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             passwordController.text.isEmpty
                                 ? null
                                 : passwordController.text,
+                            _selectedAvatar,
                           );
                           Get.snackbar(
                             'success'.tr,

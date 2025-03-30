@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
@@ -25,11 +27,10 @@ class UserService {
     }
   }
 
-  Future<void> updateUserProfile(Map<String, dynamic> profileData) async {
+  Future<void> updateUserProfile(
+      Map<String, dynamic> profileData, File? avatarFile) async {
     try {
-      await apiService.updateUserProfile(profileData);
-      // Refetch user data from the server
-      await fetchCurrentUserProfile();
+      await apiService.updateUserProfile(profileData, avatarFile);
     } catch (e) {
       throw Exception('Failed to update user profile: $e');
     }

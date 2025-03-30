@@ -1,4 +1,6 @@
 // Displays user information and allows profile editing.
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/user_service.dart';
@@ -73,8 +75,8 @@ class ProfileController extends GetxController with StateMixin<User> {
     }
   }
 
-  Future<void> updateProfile(
-      String login, String bio, String email, String? password) async {
+  Future<void> updateProfile(String login, String bio, String email,
+      String? password, File? avatarFile) async {
     try {
       if (userProfile.value == null) {
         throw Exception('No user profile to update');
@@ -87,7 +89,10 @@ class ProfileController extends GetxController with StateMixin<User> {
         'email': email,
         if (password != null && password.isNotEmpty) 'password': password,
       };
-      await userService.updateUserProfile(updateData);
+      await userService.updateUserProfile(updateData, avatarFile);
+
+      // Refetch user data from the server
+      await fetchCurrentUserProfile();
 
       // Update the state
       change(userProfile.value, status: RxStatus.success());

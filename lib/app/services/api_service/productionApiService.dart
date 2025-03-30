@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
@@ -449,7 +451,8 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<void> updateUserProfile(Map<String, dynamic> profile) async {
+  Future<void> updateUserProfile(
+      Map<String, dynamic> profile, File? avatarFile) async {
     try {
       final endpoint = '$name$updateProfileRoute';
       final token =
@@ -473,6 +476,18 @@ class ProductionApiService extends ApiService {
       profile.forEach((key, value) {
         request.fields[key] = value.toString();
       });
+
+      if (avatarFile != null) {
+        final fileStream = http.ByteStream(avatarFile.openRead());
+        final length = await avatarFile.length();
+        final multipartFile = http.MultipartFile(
+          'photo', // Field name must match server expectation
+          fileStream,
+          length,
+          filename: 'avatar.jpg',
+        );
+        request.files.add(multipartFile);
+      }
 
       logger.d(request);
       logger.d(request.fields);
