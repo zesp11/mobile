@@ -785,7 +785,6 @@ class _OSMFlutterMapState extends State<MapWidget>
   List<Marker> markers = [];
   double distanceToWaypoint = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -820,7 +819,6 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   void addWaypoint(LatLng point, Color markerColor) {
     setState(() {
-
       gamePlayController.waypoints.add(point);
     });
   }
@@ -831,12 +829,14 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void checkDistance() {
-    if (distanceToWaypoint <= 50 && !arrived && !gamePlayController.hasArrivedAtLocation.value) {
+    if (distanceToWaypoint <= 50 &&
+        !arrived &&
+        !gamePlayController.hasArrivedAtLocation.value) {
       arrived = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           context: savedTabContext!,
-          barrierDismissible: false, 
+          barrierDismissible: false,
           builder: (context) {
             final theme = Theme.of(context);
             return StatefulBuilder(
@@ -860,7 +860,8 @@ class _OSMFlutterMapState extends State<MapWidget>
                         // Użycie DefaultTabController do zmiany tabów
                         DefaultTabController.of(savedTabContext!).animateTo(0);
                       },
-                      style: TextButton.styleFrom(backgroundColor: theme.colorScheme.secondary),
+                      style: TextButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary),
                       child: Text(
                         "Go to the story",
                         style: TextStyle(color: theme.colorScheme.primary),
@@ -888,8 +889,6 @@ class _OSMFlutterMapState extends State<MapWidget>
   bool isTracking = true;
   bool headingReset = false;
 
-
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -905,8 +904,9 @@ class _OSMFlutterMapState extends State<MapWidget>
               : 0.0;
       */
 
-       if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
-        distanceToWaypoint = calculateDistance(currentPosition!, gamePlayController.waypoints.last);
+      if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
+        distanceToWaypoint = calculateDistance(
+            currentPosition!, gamePlayController.waypoints.last);
         checkDistance();
       }
 
