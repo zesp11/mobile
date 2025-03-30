@@ -374,7 +374,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           Get.snackbar(
                             'success'.tr,
                             'profile_updated'.tr,
-                            snackPosition: SnackPosition.BOTTOM,
+                            snackPosition: SnackPosition.TOP,
                             backgroundColor: Colors.green.withOpacity(0.1),
                             colorText: Colors.green,
                             margin: const EdgeInsets.all(16),
