@@ -6,7 +6,7 @@ import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/logger.dart';
 
 // The service should add types to responses returned from the ApiServices
-class UserService {
+class UserService extends GetxService {
   final ApiService apiService;
 
   UserService({required this.apiService});
