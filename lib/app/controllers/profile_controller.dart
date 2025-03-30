@@ -74,31 +74,19 @@ class ProfileController extends GetxController with StateMixin<User> {
   }
 
   Future<void> updateProfile(
-      String name, String bio, String email, String? password) async {
+      String login, String bio, String email, String? password) async {
     try {
       if (userProfile.value == null) {
         throw Exception('No user profile to update');
       }
+      change(null, status: RxStatus.loading());
 
-      // Update the profile locally
-      // TODO:
-      // userProfile.value!.name = name;
-      // userProfile.value!.bio = bio;
-      userProfile.value!.email = email;
-
-      // Create update data
       final updateData = {
-        'name': name,
+        'login': login,
         'bio': bio,
         'email': email,
+        if (password != null && password.isNotEmpty) 'password': password,
       };
-
-      // Add password to update data if provided
-      if (password != null && password.isNotEmpty) {
-        updateData['password'] = password;
-      }
-
-      // Update the profile on the server
       await userService.updateUserProfile(updateData);
 
       // Update the state

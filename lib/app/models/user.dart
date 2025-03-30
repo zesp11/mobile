@@ -1,12 +1,3 @@
-// TODO:
-// final String id;
-// String name;
-// String email;
-// String avatar;
-// String bio;
-// final int gamesPlayed;
-// final int gamesFinished;
-// final Map<String, dynamic> preferences;
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 

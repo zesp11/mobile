@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
+import 'package:gotale/app/routes/app_routes.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -337,7 +338,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             margin: const EdgeInsets.all(16),
                             borderRadius: 12,
                           );
-                          Get.back();
                         } catch (e) {
                           Get.snackbar(
                             'error'.tr,
