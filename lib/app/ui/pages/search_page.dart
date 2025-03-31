@@ -4,6 +4,7 @@ import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
+import 'package:intl/intl.dart';
 
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
   @override
@@ -237,7 +238,7 @@ class SearchResults extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         leading: CircleAvatar(
-          radius: 24,
+          radius: 18, // Total diameter will be 64
           backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
           backgroundImage:
               user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
@@ -245,6 +246,7 @@ class SearchResults extends StatelessWidget {
               ? Icon(
                   Icons.person,
                   color: theme.colorScheme.secondary,
+                  size: 36,
                 )
               : null,
         ),
@@ -268,40 +270,121 @@ class SearchResults extends StatelessWidget {
   }
 
   Widget _buildScenarioCard(ThemeData theme, Scenario scenario) {
+    final timeago = DateFormat('MMM dd, yyyy').format(scenario.creationDate);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        height: 120, // Fixed card height
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Image Pane
+            Container(
+              width: 120,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(12),
+                ),
+                color: theme.colorScheme.primary.withOpacity(0.1),
+              ),
+              child: scenario.photoUrl != null
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(12),
+                        ),
+                        child: Image.network(
+                          scenario.photoUrl!,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: Icon(
+                          Icons.auto_stories,
+                          color: theme.colorScheme.secondary,
+                          size: 36,
+                        ),
+                      ),
+                    ),
+            ),
+            // Content Pane
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          scenario.name ?? 'Untitled Scenario',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          scenario.description ?? 'No description provided',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        _buildInfoChip(
+                          icon: Icons.people_outline,
+                          text: '${scenario.limitPlayers}',
+                          theme: theme,
+                        ),
+                        const SizedBox(width: 12),
+                        _buildInfoChip(
+                          icon: Icons.calendar_today_outlined,
+                          text: timeago,
+                          theme: theme,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        leading: CircleAvatar(
-          radius: 24,
-          backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-          child: Icon(
-            Icons.auto_stories,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        title: Text(
-          scenario.name ?? 'Untitled scenario',
-          style: theme.textTheme.titleMedium,
-        ),
-        subtitle: Text(
-          scenario.description ?? 'No description',
-          style: theme.textTheme.bodyMedium?.copyWith(
+      ),
+    );
+  }
+
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String text,
+    required ThemeData theme,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon,
+            size: 16, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.6),
           ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
         ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: theme.colorScheme.tertiary,
-        ),
-        onTap: () => _handleScenarioTap(scenario),
-      ),
+      ],
     );
   }
 
