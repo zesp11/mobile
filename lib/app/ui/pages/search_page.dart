@@ -6,8 +6,6 @@ import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
-  final RxList<String> selectedFilters = RxList<String>([]);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,14 +14,83 @@ class SearchScreen extends GetView<goTaleSearch.SearchController> {
           children: [
             SearchBar(controller: controller),
             const SizedBox(height: 12),
-            FilterButtons(
-                selectedFilters: selectedFilters, controller: controller),
-            const SizedBox(height: 16),
+            FilterButtons(controller: controller), // Remove local state
+            const SizedBox(height: 12),
             Expanded(child: SearchResults(controller: controller)),
           ],
         ),
       ),
     );
+  }
+}
+
+class FilterButtons extends StatelessWidget {
+  final goTaleSearch.SearchController controller;
+
+  const FilterButtons({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          _buildFilterButton(goTaleSearch.SearchController.userFilter, context),
+          const SizedBox(width: 12),
+          _buildFilterButton(
+              goTaleSearch.SearchController.scenarioFilter, context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(String filterType, BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Obx(() {
+      bool isSelected = controller.selectedFilters.contains(filterType);
+      return Expanded(
+        child: ElevatedButton(
+          onPressed: () {
+            if (isSelected) {
+              controller.selectedFilters.remove(filterType);
+            } else {
+              controller.selectedFilters.add(filterType);
+            }
+            controller.searchItems(controller.query.value);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isSelected
+                ? theme.colorScheme.secondary
+                : theme.cardTheme.color,
+            foregroundColor: isSelected
+                ? theme.colorScheme.onSecondary
+                : theme.colorScheme.onBackground,
+            elevation: isSelected ? 2 : 0,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isSelected
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.tertiary.withOpacity(0.2),
+              ),
+            ),
+          ),
+          child: Text(
+            filterType == goTaleSearch.SearchController.userFilter
+                ? 'user'.tr
+                : 'scenario'.tr,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isSelected
+                  ? theme.colorScheme.onSecondary
+                  : theme.colorScheme.onBackground,
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -90,74 +157,6 @@ class _SearchBarState extends State<SearchBar> {
   }
 }
 
-class FilterButtons extends StatelessWidget {
-  final RxList<String> selectedFilters;
-  final goTaleSearch.SearchController controller;
-
-  FilterButtons({required this.selectedFilters, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          _buildFilterButton("user".tr, context),
-          const SizedBox(width: 12),
-          _buildFilterButton("scenario".tr, context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterButton(String filterType, BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Obx(() {
-      bool isSelected = selectedFilters.contains(filterType);
-      return Expanded(
-        child: ElevatedButton(
-          onPressed: () {
-            if (isSelected) {
-              selectedFilters.remove(filterType);
-            } else {
-              selectedFilters.add(filterType);
-            }
-            // controller.filterItemsByTypes(selectedFilters);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isSelected
-                ? theme.colorScheme.secondary
-                : theme.cardTheme.color,
-            foregroundColor: isSelected
-                ? theme.colorScheme.onSecondary
-                : theme.colorScheme.onBackground,
-            elevation: isSelected ? 2 : 0,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: isSelected
-                    ? theme.colorScheme.secondary
-                    : theme.colorScheme.tertiary.withOpacity(0.2),
-              ),
-            ),
-          ),
-          child: Text(
-            filterType,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected
-                  ? theme.colorScheme.onSecondary
-                  : theme.colorScheme.onBackground,
-            ),
-          ),
-        ),
-      );
-    });
-  }
-}
-
 class SearchResults extends StatelessWidget {
   final goTaleSearch.SearchController controller;
 
@@ -198,7 +197,7 @@ class SearchResults extends StatelessWidget {
             }
 
             return ListView(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               children: listItems,
             );
           },

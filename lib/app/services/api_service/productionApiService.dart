@@ -428,7 +428,6 @@ class ProductionApiService extends ApiService {
         final decodedResponse = utf8.decode(response.bodyBytes);
         final Map<String, dynamic> responseBody = jsonDecode(decodedResponse);
         final List<dynamic> scenarios = responseBody['data'] ?? [];
-        logger.d("scenarios =$scenarios");
         return scenarios.map((x) => Scenario.fromJson(x)).toList();
       } else {
         throw Exception(
