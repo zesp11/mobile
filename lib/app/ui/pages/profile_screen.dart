@@ -292,6 +292,63 @@ class ProfileScreen extends GetView<AuthController> {
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    Get.dialog(
+                      AlertDialog(
+                        title: Text('confirm_logout'.tr),
+                        content: Text('logout_confirmation_message'.tr),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: Text(
+                              'cancel'.tr,
+                              style: TextStyle(
+                                color: theme.colorScheme.secondary,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.back();
+                              controller.logout();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.error,
+                              foregroundColor: theme.colorScheme.onError,
+                            ),
+                            child: Text('logout'.tr),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.logout,
+                    size: 20,
+                    color: theme.colorScheme.error,
+                  ),
+                  label: Text(
+                    'logout'.tr,
+                    style: TextStyle(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    backgroundColor:
+                        theme.colorScheme.errorContainer.withOpacity(0.1),
+                  ),
+                ),
               ],
             ),
           ),
