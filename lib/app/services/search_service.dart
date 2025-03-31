@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:logger/web.dart';
@@ -18,15 +19,14 @@ class SearchService extends GetxService {
     }
   }
 
-  // Future<List<Map<String, String>>> searchScenarios(String query) async {
-  //   try {
-  //     final response = await apiService.searchScenarios(query);
-  //     return _processScenarioResults(response);
-  //   } catch (error) {
-  //     logger.e("Scenario search error: $error");
-  //     return [];
-  //   }
-  // }
+  Future<List<Scenario>> searchScenarios(String query) async {
+    try {
+      return apiService.searchScenarios(query);
+    } catch (error) {
+      logger.e("Scenario search error: $error");
+      return [];
+    }
+  }
 
   // List<Map<String, String>> _processUserResults(List<dynamic> response) {
   //   return response

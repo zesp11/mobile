@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
+import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 
@@ -169,8 +170,8 @@ class SearchResults extends StatelessWidget {
     return Stack(
       children: [
         controller.obx(
-          (users) {
-            if (users == null || users.isEmpty) {
+          (searchResult) {
+            if (searchResult == null || searchResult.isEmpty) {
               return Center(
                 child: Text(
                   'no_results_found'.tr,
@@ -179,53 +180,26 @@ class SearchResults extends StatelessWidget {
               );
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                final user = users[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    leading: CircleAvatar(
-                      radius: 24,
-                      backgroundColor:
-                          theme.colorScheme.secondary.withOpacity(0.1),
-                      backgroundImage: user.photoUrl != null
-                          ? NetworkImage(user.photoUrl!)
-                          : null,
-                      child: user.photoUrl == null
-                          ? Icon(
-                              Icons.person,
-                              color: theme.colorScheme.secondary,
-                            )
-                          : null,
-                    ),
-                    title: Text(
-                      user.login,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    subtitle: Text(
-                      user.email,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                    ),
-                    trailing: Icon(
-                      Icons.chevron_right,
-                      color: theme.colorScheme.tertiary,
-                    ),
-                    onTap: () => _handleUserTap(user),
-                  ),
-                );
-              },
+            // Combine both lists with section headers
+            final List<Widget> listItems = [];
+
+            // Users section
+            if (searchResult.users.isNotEmpty) {
+              listItems.add(_buildSectionHeader(theme, 'Users'));
+              listItems.addAll(searchResult.users
+                  .map((user) => _buildUserCard(theme, user)));
+            }
+
+            // Scenarios section
+            if (searchResult.scenarios.isNotEmpty) {
+              listItems.add(_buildSectionHeader(theme, 'Scenarios'));
+              listItems.addAll(searchResult.scenarios
+                  .map((scenario) => _buildScenarioCard(theme, scenario)));
+            }
+
+            return ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              children: listItems,
             );
           },
           onLoading: Center(
@@ -242,7 +216,101 @@ class SearchResults extends StatelessWidget {
     );
   }
 
+  Widget _buildSectionHeader(ThemeData theme, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Text(
+        title,
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserCard(ThemeData theme, User user) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
+          backgroundImage:
+              user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+          child: user.photoUrl == null
+              ? Icon(
+                  Icons.person,
+                  color: theme.colorScheme.secondary,
+                )
+              : null,
+        ),
+        title: Text(
+          user.login,
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(
+          user.email,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: theme.colorScheme.tertiary,
+        ),
+        onTap: () => _handleUserTap(user),
+      ),
+    );
+  }
+
+  Widget _buildScenarioCard(ThemeData theme, Scenario scenario) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+          child: Icon(
+            Icons.auto_stories,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+        title: Text(
+          scenario.name ?? 'Untitled scenario',
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(
+          scenario.description ?? 'No description',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: theme.colorScheme.tertiary,
+        ),
+        onTap: () => _handleScenarioTap(scenario),
+      ),
+    );
+  }
+
   void _handleUserTap(User user) {
     Get.toNamed('/profile/${user.id}');
+  }
+
+  void _handleScenarioTap(Scenario scenario) {
+    Get.toNamed('/scenarios/${scenario.id}');
   }
 }

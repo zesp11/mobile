@@ -418,23 +418,18 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<List<dynamic>> searchScenarios(String query) async {
+  Future<List<Scenario>> searchScenarios(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('$name$getAvailableGamebooksRoute?limit=1000&search=$query'),
+        Uri.parse('$name$getAvailableGamebooksRoute?search=$query'),
       );
 
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
         final Map<String, dynamic> responseBody = jsonDecode(decodedResponse);
         final List<dynamic> scenarios = responseBody['data'] ?? [];
-        return scenarios
-            .map((scenario) => {
-                  'name': scenario['name'] ?? 'Unknown Scenario',
-                  'type': 'scenario',
-                  'id': scenario['id'].toString(),
-                })
-            .toList();
+        logger.d("scenarios =$scenarios");
+        return scenarios.map((x) => Scenario.fromJson(x)).toList();
       } else {
         throw Exception(
             'Scenario search failed with status: ${response.statusCode}');

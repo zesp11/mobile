@@ -1,20 +1,15 @@
 // This screen allows searching across different entities
 // like players, gamebooks, or cities.
 import 'package:get/get.dart';
-import 'package:gotale/app/models/user.dart';
+import 'package:gotale/app/models/search_result.dart';
 import 'package:gotale/app/services/search_service.dart';
 import 'package:logger/logger.dart';
 
-class SearchController extends GetxController with StateMixin<List<User>> {
+class SearchController extends GetxController with StateMixin<SearchResult> {
   final SearchService searchService;
   final logger = Get.find<Logger>();
 
   var query = ''.obs; // Reactive query for search
-
-  // List of filtered items based on the query
-  // final filteredUsers = Rx<List<User>>([]);
-
-  // List of selected filters
   Rx<List<String>> selectedFilters = Rx<List<String>>([]);
 
   SearchController({required this.searchService});
@@ -22,16 +17,17 @@ class SearchController extends GetxController with StateMixin<List<User>> {
   @override
   void onInit() {
     super.onInit();
-    // Initialize with empty state
-    change([], status: RxStatus.success());
+    change(
+      SearchResult(users: [], scenarios: []),
+      status: RxStatus.success(),
+    );
     // Load initial items
     searchItems('');
   }
 
-  // Update the query value and perform search
   void updateQuery(String value) {
     query.value = value;
-    searchItems(value); // Trigger search when query changes
+    searchItems(value);
   }
 
   // Fetch all items or filter based on the query
@@ -66,7 +62,12 @@ class SearchController extends GetxController with StateMixin<List<User>> {
 
       final userResults = await searchService.searchUsers(query);
       logger.d('Found ${userResults.length} users');
-      change(userResults, status: RxStatus.success());
+      final scenarioResults = await searchService.searchScenarios(query);
+      logger.d('Found ${scenarioResults.length} scenarios');
+      change(
+        SearchResult(users: userResults, scenarios: scenarioResults),
+        status: RxStatus.success(),
+      );
     } catch (e) {
       logger.e('Search error: $e');
       change(null, status: RxStatus.error("Failed to load items: $e"));
