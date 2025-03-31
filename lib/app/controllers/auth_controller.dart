@@ -26,7 +26,8 @@ class AuthController extends GetxController with StateMixin<User> {
   @override
   void onInit() {
     super.onInit();
-    checkAuthStatus();
+    // checkAuthStatus();
+    change(null, status: RxStatus.error("Authentication check failed "));
   }
 
   Future<void> checkAuthStatus() async {
