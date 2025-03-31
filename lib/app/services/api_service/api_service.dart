@@ -60,7 +60,7 @@ abstract class ApiService {
 
   /* User endpoints */
   Future<User> getUserProfile(String id);
-  Future<List<dynamic>> searchUsers(String query);
+  Future<List<User>> searchUsers(String query);
   Future<User> getCurrentUserProfile();
   Future<void> updateUserProfile(
       Map<String, dynamic> profile, File? avatarFile);

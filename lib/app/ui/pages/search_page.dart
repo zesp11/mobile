@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
@@ -121,7 +122,7 @@ class FilterButtons extends StatelessWidget {
             } else {
               selectedFilters.add(filterType);
             }
-            controller.filterItemsByTypes(selectedFilters);
+            // controller.filterItemsByTypes(selectedFilters);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: isSelected
@@ -168,8 +169,8 @@ class SearchResults extends StatelessWidget {
     return Stack(
       children: [
         controller.obx(
-          (state) {
-            if (state == null || state.isEmpty) {
+          (users) {
+            if (users == null || users.isEmpty) {
               return Center(
                 child: Text(
                   'no_results_found'.tr,
@@ -178,60 +179,53 @@ class SearchResults extends StatelessWidget {
               );
             }
 
-            Map<String, List<Map<String, String>>> groupedItems = {};
-            for (var item in state) {
-              final type = item['type']!;
-              groupedItems.putIfAbsent(type, () => []).add(item);
-            }
-
-            return ListView(
+            return ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: groupedItems.entries.map((entry) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        entry.key.tr,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.secondary,
-                          fontWeight: FontWeight.w600,
-                        ),
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    leading: CircleAvatar(
+                      radius: 24,
+                      backgroundColor:
+                          theme.colorScheme.secondary.withOpacity(0.1),
+                      backgroundImage: user.photoUrl != null
+                          ? NetworkImage(user.photoUrl!)
+                          : null,
+                      child: user.photoUrl == null
+                          ? Icon(
+                              Icons.person,
+                              color: theme.colorScheme.secondary,
+                            )
+                          : null,
+                    ),
+                    title: Text(
+                      user.login,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      user.email,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
-                    ...entry.value.map((item) {
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          leading: CircleAvatar(
-                            backgroundColor:
-                                theme.colorScheme.secondary.withOpacity(0.1),
-                            child: Icon(
-                              _getIconForType(item['type']!),
-                              color: theme.colorScheme.secondary,
-                            ),
-                          ),
-                          title: Text(
-                            item['name']!,
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: theme.colorScheme.tertiary,
-                          ),
-                          onTap: () => _handleItemTap(item),
-                        ),
-                      );
-                    }),
-                  ],
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    onTap: () => _handleUserTap(user),
+                  ),
                 );
-              }).toList(),
+              },
             );
           },
           onLoading: Center(
@@ -248,20 +242,7 @@ class SearchResults extends StatelessWidget {
     );
   }
 
-  IconData _getIconForType(String type) {
-    return _typeIcons[type] ?? Icons.help_outline;
-  }
-
-  final _typeIcons = {
-    'user': Icons.person,
-    'scenario': Icons.map,
-  };
-
-  void _handleItemTap(Map<String, String> item) {
-    if (item['type'] == 'user') {
-      Get.toNamed('/profile/${item["id"]}');
-    } else if (item['type'] == 'scenario') {
-      Get.toNamed('/scenario/${item["id"]}');
-    }
+  void _handleUserTap(User user) {
+    Get.toNamed('/profile/${user.id}');
   }
 }
