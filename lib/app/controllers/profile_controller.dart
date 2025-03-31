@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:logger/logger.dart';
@@ -93,6 +94,8 @@ class ProfileController extends GetxController with StateMixin<User> {
 
       // Refetch user data from the server
       await fetchCurrentUserProfile();
+      final authController = Get.find<AuthController>();
+      authController.change(userProfile.value, status: RxStatus.success());
 
       // Update the state
       change(userProfile.value, status: RxStatus.success());
