@@ -65,7 +65,7 @@
   "no_games_in_progress": "No games in progress",
   "continue_playing": "Continue",
   "confirm_logout": "Confirm logout",
-  "confirm_logout_message": "Please confrim that you want to logout from this device",
+  "logout_confirmation_message": "Please please that you want to logout from this device",
   "settings_title": "Settings",
 
   "forge_legend": "Forge Your Legend",
@@ -76,5 +76,13 @@
   "shape_destiny_desc": "Each decision branches into new possibilities carving your unique path to glory",
   "skip": "Skip",
   "next": "Next",
-  "begin_adventure": "Begin Adventure"
+  "begin_adventure": "Begin Adventure",
+  "get_the_full_experience": "Odkryj aplikację",
+  "get_the_full_experience_desc": "Zarejestruj się żeby zyskać dostęp do historii swoich gier, osiągnięć oraz polecanych scenariuszy",
+  "sign_in": "Zaloguj się",
+  "login_to_play": "Zaloguj się",
+  "start_adventure": "Rozpocznij przygodę",
+  "username": "Nazwa użytkownika",
+  "password": "Hasło",
+  "resume_last_game": "Last game"
 }

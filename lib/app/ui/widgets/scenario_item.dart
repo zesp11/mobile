@@ -88,7 +88,7 @@ class ScenarioListItem extends StatelessWidget {
         size: 24,
       ),
       label: Text(
-        canPlay ? 'Start Adventure' : 'Login to Play',
+        canPlay ? 'start_adventure'.tr : 'login_to_play'.tr,
         style: theme.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w600,
         ),
