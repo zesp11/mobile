@@ -90,24 +90,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               },
               children: _pages,
             ),
-            // Back Arrow (top-left)
-            if (_currentPage > 0)
-              Positioned(
-                top: 40,
-                left: 20,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: theme.colorScheme.onBackground,
-                  ),
-                  onPressed: () {
-                    _pageController.previousPage(
-                      duration: Duration(milliseconds: 400),
-                      curve: Curves.easeInOut,
-                    );
-                  },
-                ),
-              ),
             // Skip Button (top-right)
             if (_currentPage < _pages.length - 1)
               Positioned(
