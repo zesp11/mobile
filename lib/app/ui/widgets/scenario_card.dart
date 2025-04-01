@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:intl/intl.dart';
 
-
 Widget buildScenarioCard(ThemeData theme, Scenario scenario) {
   final timeago = DateFormat('MMM dd, yyyy').format(scenario.creationDate);
 

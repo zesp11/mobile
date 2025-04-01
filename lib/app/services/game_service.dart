@@ -83,7 +83,8 @@ class GameService extends GetxService {
   Future<List<Game>> fetchGamesInProgress(
       {bool includeFinished = false}) async {
     try {
-      return await apiService.getGamesInProgress(includeFinished: includeFinished);
+      return await apiService.getGamesInProgress(
+          includeFinished: includeFinished);
     } catch (e) {
       logger.e("Error fetching games in progress: $e");
       return [];

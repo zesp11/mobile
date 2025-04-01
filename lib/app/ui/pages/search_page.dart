@@ -270,7 +270,6 @@ class SearchResults extends StatelessWidget {
     );
   }
 
-
   void _handleUserTap(User user) {
     Get.toNamed('/profile/${user.id}');
   }
