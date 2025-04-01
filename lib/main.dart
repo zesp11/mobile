@@ -113,7 +113,7 @@ class GoTale extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () => GetMaterialApp(
-        title: 'Gamebook App',
+        title: 'GoTale',
         // initialRoute: firstLaunch ? '/welcome' : '/',
         initialRoute: true ? '/welcome' : '/',
         translations: messages,

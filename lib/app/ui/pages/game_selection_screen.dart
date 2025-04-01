@@ -243,130 +243,148 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
         horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
         vertical: 16.0,
       ),
-      child: controller.obx(
-        (games) => ListView.separated(
-          itemCount: games!.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final game = games[index];
-            final startTime = game.startTime.toLocal();
+      child: Column(
+        children: [
+          // Add filter row
+          Obx(() => CheckboxListTile(
+                title: Text('include_finished_games'.tr),
+                value: controller.includeFinished.value,
+                onChanged: (value) => controller.toggleIncludeFinished(value!),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                controlAffinity: ListTileControlAffinity.leading,
+              )),
+          const SizedBox(height: 8),
+          Expanded(
+            child: controller.obx(
+              (games) => ListView.separated(
+                itemCount: games!.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final game = games[index];
+                  final startTime = game.startTime.toLocal();
 
-            return Card(
-              elevation: 2,
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () => Get.toNamed(
-                  AppRoutes.gameDetail
-                      .replaceFirst(':id', game.idGame.toString()),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              game.scenarioName,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.onBackground,
+                  return Card(
+                    elevation: 2,
+                    margin: EdgeInsets.zero,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => Get.toNamed(
+                        AppRoutes.gameDetail
+                            .replaceFirst(':id', game.idGame.toString()),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    game.scenarioName,
+                                    style:
+                                        theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.onBackground,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Chip(
+                                  backgroundColor: theme.colorScheme.secondary
+                                      .withOpacity(0.1),
+                                  label: Text(
+                                    '#${game.idGame}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.secondary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _buildGameInfoRow(
+                              context,
+                              icon: Icons.timelapse_outlined,
+                              label: 'Started ${dateFormat.format(startTime)}',
+                            ),
+                            _buildGameInfoRow(
+                              context,
+                              icon: Icons.article_outlined,
+                              label: 'Current Step: ${game.currentStep}',
+                            ),
+                            if (game.currentStepText.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  game.currentStepText,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.tertiary,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Chip(
-                            backgroundColor:
-                                theme.colorScheme.secondary.withOpacity(0.1),
-                            label: Text(
-                              '#${game.idGame}',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.secondary,
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: FilledButton.icon(
+                                icon: const Icon(Icons.play_arrow, size: 20),
+                                label: Text('continue_playing'.tr),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.secondary,
+                                  foregroundColor:
+                                      theme.colorScheme.onSecondary,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20)),
+                                ),
+                                onPressed: () => Get.toNamed(
+                                  AppRoutes.gameDetail.replaceFirst(
+                                      ':id', game.idGame.toString()),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildGameInfoRow(
-                        context,
-                        icon: Icons.timelapse_outlined,
-                        label: 'Started ${dateFormat.format(startTime)}',
-                      ),
-                      _buildGameInfoRow(
-                        context,
-                        icon: Icons.article_outlined,
-                        label: 'Current Step: ${game.currentStep}',
-                      ),
-                      if (game.currentStepText.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            game.currentStepText,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.tertiary,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      const SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.play_arrow, size: 20),
-                          label: Text('continue_playing'.tr),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: theme.colorScheme.secondary,
-                            foregroundColor: theme.colorScheme.onSecondary,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                          ),
-                          onPressed: () => Get.toNamed(
-                            AppRoutes.gameDetail
-                                .replaceFirst(':id', game.idGame.toString()),
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  );
+                },
+              ),
+              onLoading: const GamesInProgressSkeleton(),
+              onEmpty: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.sports_esports_outlined,
+                      size: 64,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'no_games_in_progress'.tr,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.tertiary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
-        onLoading: const GamesInProgressSkeleton(),
-        onEmpty: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.sports_esports_outlined,
-                size: 64,
-                color: theme.colorScheme.tertiary,
+              onError: (error) => Center(
+                child: Text(error!,
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: theme.colorScheme.error)),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'no_games_in_progress'.tr,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.tertiary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
-        ),
-        onError: (error) => Center(
-          child: Text(error!,
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: theme.colorScheme.error)),
-        ),
+        ],
       ),
     );
   }

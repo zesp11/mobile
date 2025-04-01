@@ -81,7 +81,7 @@ abstract class ApiService {
   // Future<void> getNearbyGames(int id);
   Future<GameStep> getCurrentStep(int gameId);
   Future<Game> getGameWithId(int gameId);
-  Future<List<Game>> getGamesInProgress();
+  Future<List<Game>> getGamesInProgress({bool includeFinished = false});
   Future<List<GameHistoryRecord>> getGameHistory(int gameId);
   Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId);
   // Future<void> getStep(int id);

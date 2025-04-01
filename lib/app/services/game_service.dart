@@ -64,7 +64,6 @@ class GameService extends GetxService {
   Future<GameStep> getCurrentStep(int gameId) async {
     try {
       final step = await apiService.getCurrentStep(gameId);
-      step.choices.forEach((c) => logger.d("in service ${c.text}"));
       return step;
     } catch (e) {
       logger.e("Error getting current step: $e");
@@ -81,9 +80,10 @@ class GameService extends GetxService {
     }
   }
 
-  Future<List<Game>> fetchGamesInProgress() async {
+  Future<List<Game>> fetchGamesInProgress(
+      {bool includeFinished = false}) async {
     try {
-      return await apiService.getGamesInProgress();
+      return await apiService.getGamesInProgress(includeFinished: includeFinished);
     } catch (e) {
       logger.e("Error fetching games in progress: $e");
       return [];
