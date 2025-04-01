@@ -120,8 +120,7 @@ class LoginScreen extends GetView<AuthController> {
                   TweenAnimationBuilder(
                     duration: Duration(milliseconds: 600),
                     tween:
-                        Tween<Offset>(begin: Offset(0.2, 0), end: Offset.zero),
-                    curve: Curves.easeOutCubic,
+                        Tween<Offset>(begin: Offset(-0.2, 0), end: Offset.zero),
                     builder: (context, Offset offset, child) {
                       return Transform.translate(
                         offset: offset * 100,
