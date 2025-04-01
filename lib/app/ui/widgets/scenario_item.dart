@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+// TODO: remove that unused class
 class ScenarioCard extends StatelessWidget {
   final Scenario gamebook;
   final AuthController authController;
