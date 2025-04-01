@@ -102,8 +102,6 @@ class GamePlayController extends GetxController with StateMixin {
     try {
       logger.i("[DEV_DEBUG] Fetching current step for game ID: $gameId");
       final step = await gameService.getCurrentStep(gameId);
-      step.choices.forEach((c) => logger.d("in controller ${c.text}"));
-      logger.d("[DEV_DEBUG] Parsed step object: $step");
       // Check for end of game
       if (step.title == 'EOG' && step.title == 'END_OF_GAME') {
         logger.i("[DEV_DEBUG] Game has ended");

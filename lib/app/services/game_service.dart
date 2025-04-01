@@ -64,7 +64,6 @@ class GameService extends GetxService {
   Future<GameStep> getCurrentStep(int gameId) async {
     try {
       final step = await apiService.getCurrentStep(gameId);
-      step.choices.forEach((c) => logger.d("in service ${c.text}"));
       return step;
     } catch (e) {
       logger.e("Error getting current step: $e");

@@ -22,7 +22,7 @@ class GameStep {
   double? longitude;
   @JsonKey(name: "latitude")
   double? latitude;
-  @JsonKey(name: "photoUrl")
+  @JsonKey(name: "photo_url")
   String? photoUrl;
   @JsonKey(name: "choices")
   List<Choice> choices;

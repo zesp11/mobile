@@ -604,7 +604,9 @@ class ProductionApiService extends ApiService {
         // Extract the nested 'step' object
         final stepJson = responseJson['step'] as Map<String, dynamic>;
         logger.d('in api service $stepJson');
-        return GameStep.fromJson(stepJson);
+        final step = GameStep.fromJson(stepJson);
+        logger.d("[DEV_DEBUG] Parsed step object photoUrl: ${step.photoUrl}");
+        return step;
       } else {
         throw Exception('Failed to get current step: ${response.statusCode}');
       }
@@ -656,7 +658,8 @@ class ProductionApiService extends ApiService {
   @override
   Future<List<Game>> getGamesInProgress({bool includeFinished = false}) async {
     try {
-      var endpoint = '$name$getUserGamesRoute?includeFinished=${includeFinished}';
+      var endpoint =
+          '$name$getUserGamesRoute?includeFinished=${includeFinished}';
       final logger = Get.find<Logger>();
 
       logger.i('Fetching user games in progress from: $endpoint');
