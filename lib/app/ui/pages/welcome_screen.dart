@@ -17,23 +17,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final List<Widget> _pages = [
     _OnboardingPage(
       icon: Icons.auto_awesome,
-      title: "Forge Your Legend",
-      description:
-          "Embark on quests where every choice etches your story\nin the annals of this realm",
+      title: "forge_legend".tr,
+      description: "forge_legend_desc".tr,
       color: Color(0xFFFA802F),
     ),
     _OnboardingPage(
       icon: Icons.map,
-      title: "Explore Boundless Realms",
-      description:
-          "Journey through mystical lands filled with\nancient secrets and hidden dangers",
+      title: "explore_realms".tr,
+      description: "explore_realms_desc".tr,
       color: Color(0xFF9C8B73),
     ),
     _OnboardingPage(
       icon: Icons.account_tree,
-      title: "Shape Your Destiny",
-      description:
-          "Each decision branches into new possibilities\ncarving your unique path to glory",
+      title: "shape_destiny".tr,
+      description: "shape_destiny_desc".tr,
       color: Color(0xFF322505),
     ),
   ];
@@ -98,7 +95,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: TextButton(
                   onPressed: () => Get.offAllNamed('/'),
                   child: Text(
-                    'Skip',
+                    'skip'.tr,
                     style: TextStyle(
                       color: theme.colorScheme.onBackground,
                       fontSize: 16,
@@ -154,8 +151,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         ),
                         child: Text(
                           _currentPage == _pages.length - 1
-                              ? 'Begin Adventure'
-                              : 'Next',
+                              ? 'begin_adventure'.tr
+                              : 'next'.tr,
                           style: TextStyle(
                             color: isDark
                                 ? theme.colorScheme.onSecondary

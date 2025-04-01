@@ -8,13 +8,12 @@ import 'package:intl/intl.dart';
 import 'package:readmore/readmore.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-// TODO: remove that unused class
-class ScenarioCard extends StatelessWidget {
+class ScenarioListItem extends StatelessWidget {
   final Scenario gamebook;
   final AuthController authController;
   final gamePlayController = Get.find<GamePlayController>();
 
-  ScenarioCard({
+  ScenarioListItem({
     Key? key,
     required this.gamebook,
     required this.authController,
@@ -22,18 +21,13 @@ class ScenarioCard extends StatelessWidget {
 
   Widget _buildActionButtons(
       BuildContext context, ThemeData theme, bool isDark) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Always use column layout for actions and author info
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildAuthorInfo(context, theme, gamebook.author),
-            const SizedBox(height: 12),
-            _buildButtonPair(context, theme, isDark),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildAuthorInfo(context, theme, gamebook.author),
+        const SizedBox(height: 16),
+        _buildPlayButton(context, theme, isDark),
+      ],
     );
   }
 
@@ -44,31 +38,33 @@ class ScenarioCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () => Get.toNamed('/profile/${author.id}'),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant,
+            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.outline.withOpacity(0.1),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildAuthorAvatar(theme, author),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Flexible(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       author.login ?? 'Anonymous',
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                      style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      DateFormat.yMMMd().format(author.creationDate),
+                      'Created ${DateFormat.yMMMd().format(author.creationDate)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
@@ -78,6 +74,217 @@ class ScenarioCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayButton(BuildContext context, ThemeData theme, bool isDark) {
+    final canPlay = authController.isAuthenticated;
+
+    return ElevatedButton.icon(
+      icon: Icon(
+        canPlay ? Icons.play_arrow_rounded : Icons.lock_outline,
+        size: 24,
+      ),
+      label: Text(
+        canPlay ? 'Start Adventure' : 'Login to Play',
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        backgroundColor: canPlay
+            ? theme.colorScheme.primary
+            : theme.colorScheme.surfaceVariant,
+        foregroundColor: canPlay
+            ? theme.colorScheme.onPrimary
+            : theme.colorScheme.onSurfaceVariant,
+        elevation: 2,
+        shadowColor: theme.colorScheme.shadow.withOpacity(0.1),
+      ),
+      onPressed: canPlay
+          ? () async {
+              final gameController = Get.find<GamePlayController>();
+              await gameController.createGameFromScenario(gamebook.id);
+              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                  ":id", gameController.currentGame.value!.idGame.toString()));
+            }
+          : () => _handlePlayRestriction(context, canPlay),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: theme.colorScheme.outline.withOpacity(0.08),
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => Get.toNamed(
+          '${AppRoutes.scenario}/${gamebook.id}',
+          arguments: gamebook,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final bool useCompactLayout = constraints.maxWidth < 500;
+
+                  return useCompactLayout
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildCoverImage(theme),
+                            const SizedBox(height: 20),
+                            _buildContent(theme),
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildCoverImage(theme),
+                            const SizedBox(width: 24),
+                            Expanded(child: _buildContent(theme)),
+                          ],
+                        );
+                },
+              ),
+              if (gamebook.description != null) ...[
+                const SizedBox(height: 20),
+                Text(
+                  gamebook.description!,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                    height: 1.6,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              const SizedBox(height: 24),
+              _buildActionButtons(context, theme, isDark),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          gamebook.name!,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: theme.colorScheme.primary,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 16),
+        _buildInfoChips(theme),
+      ],
+    );
+  }
+
+  Widget _buildInfoChips(ThemeData theme) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        _buildInfoChip(
+          icon: Icons.people_alt_outlined,
+          label: '${gamebook.limitPlayers} Players',
+          theme: theme,
+        ),
+        _buildInfoChip(
+          icon: Icons.schedule_outlined,
+          label: '${gamebook.creationDate} mins',
+          theme: theme,
+        ),
+        // _buildInfoChip(
+        //   icon: Icons.calendar_month_outlined,
+        //   label: DateFormat('MMM dd, yyyy').format(gamebook.creationDate),
+        //   theme: theme,
+        // ),
+      ],
+    );
+  }
+
+  Widget _buildInfoChip({
+    required IconData icon,
+    required String label,
+    required ThemeData theme,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: theme.colorScheme.secondary),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.secondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoverImage(ThemeData theme) {
+    return Hero(
+      tag: 'scenario-cover-${gamebook.id}',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: 120,
+          height: 160,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                theme.colorScheme.surfaceVariant.withOpacity(0.4),
+                theme.colorScheme.surfaceVariant.withOpacity(0.1),
+              ],
+            ),
+          ),
+          child: gamebook.photoUrl != null
+              ? Image.network(gamebook.photoUrl!, fit: BoxFit.cover)
+              : Center(
+                  child: Icon(
+                    Icons.auto_stories_outlined,
+                    size: 40,
+                    color: theme.colorScheme.onSurface.withOpacity(0.2),
+                  ),
+                ),
         ),
       ),
     );
@@ -120,205 +327,6 @@ class ScenarioCard extends StatelessWidget {
           Get.toNamed('${AppRoutes.scenario}/${gamebook.id}',
               arguments: gamebook);
         },
-      ),
-    );
-  }
-
-  Widget _buildPlayButton(BuildContext context, ThemeData theme, bool isDark) {
-    final canPlay = authController.isAuthenticated;
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 120),
-      child: ElevatedButton.icon(
-        icon: Icon(
-          canPlay ? Icons.play_arrow_rounded : Icons.error_outline,
-          size: 20,
-        ),
-        label: Text(canPlay ? 'play'.tr : 'not_ready'.tr),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-            side: canPlay
-                ? BorderSide.none
-                : BorderSide(
-                    color: theme.colorScheme.outline.withOpacity(0.2),
-                    width: 1,
-                  ),
-          ),
-          elevation: canPlay ? 2 : 0,
-          backgroundColor: canPlay
-              ? theme.colorScheme.secondary
-              : theme.colorScheme.tertiary.withOpacity(0.1),
-          foregroundColor: canPlay
-              ? theme.colorScheme.onSecondary
-              : theme.colorScheme.tertiary,
-        ),
-        onPressed: canPlay
-            ? () async {
-                final gameController = Get.find<GamePlayController>();
-                await gameController.createGameFromScenario(gamebook.id);
-                Get.toNamed(AppRoutes.gameDetail.replaceFirst(":id",
-                    gameController.currentGame.value!.idGame.toString()));
-              }
-            : () => _handlePlayRestriction(context, canPlay),
-      ),
-    );
-  }
-
-  // Updated Card Styling
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withOpacity(isDark ? 0.1 : 0.05),
-          width: 1,
-        ),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {/* ... */},
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Improved responsive layout
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final bool useCompactLayout = constraints.maxWidth < 500;
-
-                  return useCompactLayout
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildCoverImage(theme),
-                            const SizedBox(height: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  gamebook.name!,
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: -0.25,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildInfoChips(context),
-                              ],
-                            ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildCoverImage(theme),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    gamebook.name!,
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: -0.25,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildInfoChips(context),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                },
-              ),
-              if (gamebook.description != null) ...[
-                const SizedBox(height: 16),
-                ReadMoreText(
-                  gamebook.description!,
-                  trimLines: 2,
-                  colorClickableText: theme.colorScheme.secondary,
-                  trimMode: TrimMode.Line,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface
-                        .withOpacity(isDark ? 0.85 : 0.75),
-                    height: 1.5,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 20),
-              _buildActionButtons(context, theme, isDark),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoChips(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _buildInfoChip(
-          context,
-          icon: Icons.people_outline,
-          label: '${gamebook.limitPlayers} players',
-        ),
-        SizedBox(
-          width: 8,
-        ),
-        _buildInfoChip(
-          context,
-          icon: Icons.calendar_today_outlined,
-          label: DateFormat('MMM dd, yyyy').format(gamebook.creationDate),
-        ),
-      ],
-    );
-  }
-
-  // Enhanced Info Chip Design
-  Widget _buildInfoChip(BuildContext context,
-      {required IconData icon, required String label}) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.tertiary.withOpacity(isDark ? 0.15 : 0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 16,
-            color: theme.colorScheme.tertiary,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.tertiary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -394,30 +402,6 @@ class ScenarioCard extends StatelessWidget {
               ),
             )
           : null,
-    );
-  }
-
-  Widget _buildCoverImage(ThemeData theme) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.secondaryContainer.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: gamebook.photoUrl != null
-            ? Image.network(
-                gamebook.photoUrl!,
-                fit: BoxFit.cover,
-              )
-            : Icon(
-                Icons.auto_stories,
-                size: 32,
-                color: theme.colorScheme.secondary,
-              ),
-      ),
     );
   }
 
