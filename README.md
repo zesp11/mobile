@@ -1,13 +1,9 @@
 ## Table of Contents
-- [Project Description](#project-description)
 - [Goal](#goal)
 - [Use Cases](#use-cases)
 - [Architecture](#architecture)
-- [Mobile Application](#mobile-application)
 - [Building the Project](#building-the-project)
 - [Summary](#summary)
-
-## Project Description
 
 ## Goal
 
