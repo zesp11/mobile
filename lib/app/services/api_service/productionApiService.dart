@@ -654,9 +654,9 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<List<Game>> getGamesInProgress() async {
+  Future<List<Game>> getGamesInProgress({bool includeFinished = false}) async {
     try {
-      final endpoint = '$name$getUserGamesRoute';
+      var endpoint = '$name$getUserGamesRoute?includeFinished=${includeFinished}';
       final logger = Get.find<Logger>();
 
       logger.i('Fetching user games in progress from: $endpoint');
