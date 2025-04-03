@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 
 class AuthController extends GetxController with StateMixin<User> {
   final Rx<RxStatus> loginStatus = Rx<RxStatus>(RxStatus.empty());
-  // final Rx<RxStatus> loginStatus = Rx<RxStatus>(RxStatus.empty());
+  final Rx<RxStatus> registerStatus = Rx<RxStatus>(RxStatus.empty());
 
   final UserService userService;
   final AuthService authService;
@@ -147,6 +147,7 @@ class AuthController extends GetxController with StateMixin<User> {
 
   Future<void> register(String username, String email, String password) async {
     try {
+      registerStatus.value = RxStatus.loading();
       await authService.register(username, email, password);
       logger.i("Registration successful");
 
@@ -160,11 +161,12 @@ class AuthController extends GetxController with StateMixin<User> {
         colorText: Colors.white,
         duration: Duration(seconds: 3),
       );
+      registerStatus.value = RxStatus.success();
 
       Future.delayed(Duration(milliseconds: 100));
     } catch (e) {
       logger.e("Registration failed: $e");
-      change(null, status: RxStatus.error(e.toString()));
+      registerStatus.value = RxStatus.error(e.toString());
     }
   }
 }
