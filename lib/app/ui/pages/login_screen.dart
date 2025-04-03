@@ -2,15 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 
-/*
- BUG: the problem with LoginScreen showing retry button, is 
- because it's wrapped in ProfileScreen onEmpty if user is not 
- authenticated yet, but on failed login the LoginScreen throws 
- error, which causes parent to show ErrorScreen,
- because both (LoginScreen, ProfileScreen) share authController
- and manage one state.
- TODO: fix above but
- */
 class LoginScreen extends GetView<AuthController> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -120,8 +111,7 @@ class LoginScreen extends GetView<AuthController> {
                   TweenAnimationBuilder(
                     duration: Duration(milliseconds: 600),
                     tween:
-                        Tween<Offset>(begin: Offset(0.2, 0), end: Offset.zero),
-                    curve: Curves.easeOutCubic,
+                        Tween<Offset>(begin: Offset(-0.2, 0), end: Offset.zero),
                     builder: (context, Offset offset, child) {
                       return Transform.translate(
                         offset: offset * 100,
@@ -176,74 +166,81 @@ class LoginScreen extends GetView<AuthController> {
                   const SizedBox(height: 24),
 
                   // Error and Loading States
-                  controller.obx(
-                    onLoading: Center(
-                      child: Column(
-                        children: [
-                          TweenAnimationBuilder(
-                            duration: Duration(milliseconds: 400),
-                            tween: Tween<double>(begin: 0, end: 1),
-                            builder: (context, double value, child) {
-                              return Transform.scale(
-                                scale: value,
-                                child: child,
-                              );
-                            },
-                            child: CircularProgressIndicator(
-                              color: theme.colorScheme.secondary,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'logging_in'.tr,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    onError: (error) => TweenAnimationBuilder(
-                      duration: Duration(milliseconds: 400),
-                      tween: Tween<double>(begin: 0, end: 1),
-                      builder: (context, double value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: Opacity(
-                            opacity: value,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.error.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: theme.colorScheme.error,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              color: theme.colorScheme.error,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'login_failed'.tr,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.error,
+                  // Error and Loading States
+                  Obx(
+                    () {
+                      if (controller.loginStatus.value.isLoading) {
+                        return Center(
+                          child: Column(
+                            children: [
+                              TweenAnimationBuilder(
+                                duration: Duration(milliseconds: 400),
+                                tween: Tween<double>(begin: 0, end: 1),
+                                builder: (context, double value, child) {
+                                  return Transform.scale(
+                                    scale: value,
+                                    child: child,
+                                  );
+                                },
+                                child: CircularProgressIndicator(
+                                  color: theme.colorScheme.secondary,
                                 ),
                               ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'logging_in'.tr,
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        );
+                      } else if (controller.loginStatus.value.isError) {
+                        return TweenAnimationBuilder(
+                          duration: Duration(milliseconds: 400),
+                          tween: Tween<double>(begin: 0, end: 1),
+                          builder: (context, double value, child) {
+                            return Transform.scale(
+                              scale: value,
+                              child: Opacity(
+                                opacity: value,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.error.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: theme.colorScheme.error,
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    onEmpty: const SizedBox.shrink(),
-                    (state) => const SizedBox.shrink(),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: theme.colorScheme.error,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    controller.loginStatus.value.errorMessage ??
+                                        'login_failed'.tr,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: theme.colorScheme.error,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
                   ),
 
                   // Login Button with animation
@@ -278,6 +275,8 @@ class LoginScreen extends GetView<AuthController> {
                                   );
                                   return;
                                 }
+
+                                controller.loginStatus.value = RxStatus.empty();
 
                                 await controller.login(username, password);
                               },

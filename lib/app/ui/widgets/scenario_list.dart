@@ -20,7 +20,7 @@ class ScenarioListView extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemBuilder: (context, index) {
         final gamebook = gamebooks[index];
-        return ScenarioListItem(
+        return ScenarioCard(
           gamebook: gamebook,
           authController: authController,
         );
