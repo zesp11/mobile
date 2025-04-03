@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 
-// TODO: the popup for errors should be slightly red
 class RegisterScreen extends GetView<AuthController> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -230,53 +229,56 @@ class RegisterScreen extends GetView<AuthController> {
                 ),
                 const SizedBox(height: 24),
 
-                // Error and Loading States
-                controller.obx(
-                  onLoading: Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(
-                          color: theme.colorScheme.secondary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'creating_account'.tr,
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                  onError: (error) => Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: theme.colorScheme.error,
+                Obx(() {
+                  if (controller.registerStatus.value.isLoading) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(
+                            color: theme.colorScheme.secondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'creating_account'.tr,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
+                    );
+                  }
+                  if (controller.registerStatus.value.isError) {
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
                           color: theme.colorScheme.error,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            error?.toString() ?? 'registration_failed'.tr,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.error,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: theme.colorScheme.error,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              controller.registerStatus.value.errorMessage ??
+                                  'registration_failed'.tr,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.error,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onEmpty: const SizedBox.shrink(),
-                  (state) => const SizedBox.shrink(),
-                ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
 
                 // Register Button
                 SizedBox(
