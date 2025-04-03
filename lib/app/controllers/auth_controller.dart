@@ -11,9 +11,9 @@ import 'package:logger/logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
-// TODO: implement that class fully
-// currently it only mocks user
 class AuthController extends GetxController with StateMixin<User> {
+  final Rx<RxStatus> loginStatus = Rx<RxStatus>(RxStatus.empty());
+
   final UserService userService;
   final AuthService authService;
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
@@ -71,7 +71,8 @@ class AuthController extends GetxController with StateMixin<User> {
 
   Future<void> login(String username, String password) async {
     try {
-      change(null, status: RxStatus.loading());
+      loginStatus.value =
+          RxStatus.loading(); // Update loginStatus instead of main state
       final response = await authService.login(username, password);
 
       await _storeAuthData(
@@ -81,17 +82,11 @@ class AuthController extends GetxController with StateMixin<User> {
       );
 
       await _fetchUserProfile(response.userId.toString());
-      logger.i("[AUTH_DEBUG] Logged in successfully");
-
-      Get.find<GameSelectionController>().fetchGamesInProgress();
-
-      // Navigate to home screen after successful login
-      // Get.offAllNamed(AppRoutes.home);
-      // // Redirect on successful login
-      Get.rootDelegate.offNamed(AppRoutes.home);
+      loginStatus.value = RxStatus.success(); // Update loginStatus on success
     } catch (e) {
       logger.e("Login failed: $e");
-      change(null, status: RxStatus.error("Login failed: ${e.toString()}"));
+      loginStatus.value = RxStatus.error(
+          "Login failed: ${e.toString()}"); // Update loginStatus on error
     }
   }
 
