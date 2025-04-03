@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 
 class AuthController extends GetxController with StateMixin<User> {
   final Rx<RxStatus> loginStatus = Rx<RxStatus>(RxStatus.empty());
+  // final Rx<RxStatus> loginStatus = Rx<RxStatus>(RxStatus.empty());
 
   final UserService userService;
   final AuthService authService;
@@ -81,8 +82,9 @@ class AuthController extends GetxController with StateMixin<User> {
         response.userId.toString(),
       );
 
-      await _fetchUserProfile(response.userId.toString());
       loginStatus.value = RxStatus.success(); // Update loginStatus on success
+      await _fetchUserProfile(response.userId.toString());
+      Get.rootDelegate.toNamed(AppRoutes.home);
     } catch (e) {
       logger.e("Login failed: $e");
       loginStatus.value = RxStatus.error(
@@ -145,10 +147,10 @@ class AuthController extends GetxController with StateMixin<User> {
 
   Future<void> register(String username, String email, String password) async {
     try {
-      change(null, status: RxStatus.loading());
       await authService.register(username, email, password);
       logger.i("Registration successful");
 
+      Get.back(); // back to login screen
       // Show success message
       Get.snackbar(
         'Success',
@@ -159,24 +161,10 @@ class AuthController extends GetxController with StateMixin<User> {
         duration: Duration(seconds: 3),
       );
 
-      // Reset loading state before navigation
-      change(null, status: RxStatus.empty());
-
-      // Navigate to login screen while preserving root layout
-      Get.toNamed('/login');
+      Future.delayed(Duration(milliseconds: 100));
     } catch (e) {
       logger.e("Registration failed: $e");
       change(null, status: RxStatus.error(e.toString()));
-
-      // Show error message
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: Duration(seconds: 3),
-      );
     }
   }
 }
