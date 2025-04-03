@@ -371,6 +371,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 : passwordController.text,
                             _selectedAvatar,
                           );
+                          Get.back();
                           Get.snackbar(
                             'success'.tr,
                             'profile_updated'.tr,

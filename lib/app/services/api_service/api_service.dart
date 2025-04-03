@@ -60,7 +60,7 @@ abstract class ApiService {
 
   /* User endpoints */
   Future<User> getUserProfile(String id);
-  Future<List<dynamic>> searchUsers(String query);
+  Future<List<User>> searchUsers(String query);
   Future<User> getCurrentUserProfile();
   Future<void> updateUserProfile(
       Map<String, dynamic> profile, File? avatarFile);
@@ -71,7 +71,7 @@ abstract class ApiService {
   // INFO: the mobile app doesn't allow for scenario creation
   Future<List<Scenario>> getAvailableGamebooks();
   Future<Scenario> getScenarioWithId(int gamebookId);
-  Future<List<dynamic>> searchScenarios(String query);
+  Future<List<Scenario>> searchScenarios(String query);
   Future<GameCreated> createGameFromScenario(int scenarioId);
   // TODO: removeScenario();
 
@@ -81,7 +81,7 @@ abstract class ApiService {
   // Future<void> getNearbyGames(int id);
   Future<GameStep> getCurrentStep(int gameId);
   Future<Game> getGameWithId(int gameId);
-  Future<List<Game>> getGamesInProgress();
+  Future<List<Game>> getGamesInProgress({bool includeFinished = false});
   Future<List<GameHistoryRecord>> getGameHistory(int gameId);
   Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId);
   // Future<void> getStep(int id);

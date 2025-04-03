@@ -11,7 +11,7 @@ GameStep _$GameStepFromJson(Map<String, dynamic> json) => GameStep(
       text: json['text'] as String?,
       longitude: (json['longitude'] as num?)?.toDouble(),
       latitude: (json['latitude'] as num?)?.toDouble(),
-      photoUrl: json['photoUrl'] as String?,
+      photoUrl: json['photo_url'] as String?,
       choices: (json['choices'] as List<dynamic>)
           .map((e) => Choice.fromJson(e as Map<String, dynamic>))
           .toList(),

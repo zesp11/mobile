@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
+import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
+import 'package:gotale/app/ui/widgets/scenario_card.dart';
+import 'package:intl/intl.dart';
 
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
-  final RxList<String> selectedFilters = RxList<String>([]);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,14 +16,83 @@ class SearchScreen extends GetView<goTaleSearch.SearchController> {
           children: [
             SearchBar(controller: controller),
             const SizedBox(height: 12),
-            FilterButtons(
-                selectedFilters: selectedFilters, controller: controller),
-            const SizedBox(height: 16),
+            FilterButtons(controller: controller), // Remove local state
+            const SizedBox(height: 12),
             Expanded(child: SearchResults(controller: controller)),
           ],
         ),
       ),
     );
+  }
+}
+
+class FilterButtons extends StatelessWidget {
+  final goTaleSearch.SearchController controller;
+
+  const FilterButtons({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          _buildFilterButton(goTaleSearch.SearchController.userFilter, context),
+          const SizedBox(width: 12),
+          _buildFilterButton(
+              goTaleSearch.SearchController.scenarioFilter, context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(String filterType, BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Obx(() {
+      bool isSelected = controller.selectedFilters.contains(filterType);
+      return Expanded(
+        child: ElevatedButton(
+          onPressed: () {
+            if (isSelected) {
+              controller.selectedFilters.remove(filterType);
+            } else {
+              controller.selectedFilters.add(filterType);
+            }
+            controller.searchItems(controller.query.value);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isSelected
+                ? theme.colorScheme.secondary
+                : theme.cardTheme.color,
+            foregroundColor: isSelected
+                ? theme.colorScheme.onSecondary
+                : theme.colorScheme.onBackground,
+            elevation: isSelected ? 2 : 0,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isSelected
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.tertiary.withOpacity(0.2),
+              ),
+            ),
+          ),
+          child: Text(
+            filterType == goTaleSearch.SearchController.userFilter
+                ? 'user'.tr
+                : 'scenario'.tr,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isSelected
+                  ? theme.colorScheme.onSecondary
+                  : theme.colorScheme.onBackground,
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -88,74 +159,6 @@ class _SearchBarState extends State<SearchBar> {
   }
 }
 
-class FilterButtons extends StatelessWidget {
-  final RxList<String> selectedFilters;
-  final goTaleSearch.SearchController controller;
-
-  FilterButtons({required this.selectedFilters, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          _buildFilterButton("user".tr, context),
-          const SizedBox(width: 12),
-          _buildFilterButton("scenario".tr, context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterButton(String filterType, BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Obx(() {
-      bool isSelected = selectedFilters.contains(filterType);
-      return Expanded(
-        child: ElevatedButton(
-          onPressed: () {
-            if (isSelected) {
-              selectedFilters.remove(filterType);
-            } else {
-              selectedFilters.add(filterType);
-            }
-            controller.filterItemsByTypes(selectedFilters);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isSelected
-                ? theme.colorScheme.secondary
-                : theme.cardTheme.color,
-            foregroundColor: isSelected
-                ? theme.colorScheme.onSecondary
-                : theme.colorScheme.onBackground,
-            elevation: isSelected ? 2 : 0,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: isSelected
-                    ? theme.colorScheme.secondary
-                    : theme.colorScheme.tertiary.withOpacity(0.2),
-              ),
-            ),
-          ),
-          child: Text(
-            filterType,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected
-                  ? theme.colorScheme.onSecondary
-                  : theme.colorScheme.onBackground,
-            ),
-          ),
-        ),
-      );
-    });
-  }
-}
-
 class SearchResults extends StatelessWidget {
   final goTaleSearch.SearchController controller;
 
@@ -168,8 +171,8 @@ class SearchResults extends StatelessWidget {
     return Stack(
       children: [
         controller.obx(
-          (state) {
-            if (state == null || state.isEmpty) {
+          (searchResult) {
+            if (searchResult == null || searchResult.isEmpty) {
               return Center(
                 child: Text(
                   'no_results_found'.tr,
@@ -178,60 +181,26 @@ class SearchResults extends StatelessWidget {
               );
             }
 
-            Map<String, List<Map<String, String>>> groupedItems = {};
-            for (var item in state) {
-              final type = item['type']!;
-              groupedItems.putIfAbsent(type, () => []).add(item);
+            // Combine both lists with section headers
+            final List<Widget> listItems = [];
+
+            // Users section
+            if (searchResult.users.isNotEmpty) {
+              listItems.add(_buildSectionHeader(theme, 'Users'));
+              listItems.addAll(searchResult.users
+                  .map((user) => _buildUserCard(theme, user)));
+            }
+
+            // Scenarios section
+            if (searchResult.scenarios.isNotEmpty) {
+              listItems.add(_buildSectionHeader(theme, 'Scenarios'));
+              listItems.addAll(searchResult.scenarios
+                  .map((scenario) => buildScenarioCard(theme, scenario)));
             }
 
             return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: groupedItems.entries.map((entry) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        entry.key.tr,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.secondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    ...entry.value.map((item) {
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          leading: CircleAvatar(
-                            backgroundColor:
-                                theme.colorScheme.secondary.withOpacity(0.1),
-                            child: Icon(
-                              _getIconForType(item['type']!),
-                              color: theme.colorScheme.secondary,
-                            ),
-                          ),
-                          title: Text(
-                            item['name']!,
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: theme.colorScheme.tertiary,
-                          ),
-                          onTap: () => _handleItemTap(item),
-                        ),
-                      );
-                    }),
-                  ],
-                );
-              }).toList(),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              children: listItems,
             );
           },
           onLoading: Center(
@@ -248,20 +217,64 @@ class SearchResults extends StatelessWidget {
     );
   }
 
-  IconData _getIconForType(String type) {
-    return _typeIcons[type] ?? Icons.help_outline;
+  Widget _buildSectionHeader(ThemeData theme, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Text(
+        title,
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 
-  final _typeIcons = {
-    'user': Icons.person,
-    'scenario': Icons.map,
-  };
+  Widget _buildUserCard(ThemeData theme, User user) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        leading: CircleAvatar(
+          radius: 18, // Total diameter will be 64
+          backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
+          backgroundImage:
+              user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+          child: user.photoUrl == null
+              ? Icon(
+                  Icons.person,
+                  color: theme.colorScheme.secondary,
+                  size: 36,
+                )
+              : null,
+        ),
+        title: Text(
+          user.login,
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(
+          user.email,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: theme.colorScheme.tertiary,
+        ),
+        onTap: () => _handleUserTap(user),
+      ),
+    );
+  }
 
-  void _handleItemTap(Map<String, String> item) {
-    if (item['type'] == 'user') {
-      Get.toNamed('/profile/${item["id"]}');
-    } else if (item['type'] == 'scenario') {
-      Get.toNamed('/scenario/${item["id"]}');
-    }
+  void _handleUserTap(User user) {
+    Get.toNamed('/profile/${user.id}');
+  }
+
+  void _handleScenarioTap(Scenario scenario) {
+    Get.toNamed('/scenarios/${scenario.id}');
   }
 }

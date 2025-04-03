@@ -26,7 +26,7 @@ class LoginPromptWidget extends StatelessWidget {
                   color: colorScheme.secondary, // Use accent color
                 ),
                 title: Text(
-                  'Get the full experience!',
+                  'get_the_full_experience'.tr,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: isDark ? Colors.white : colorScheme.primary,
                         fontWeight: FontWeight.w600,
@@ -35,8 +35,7 @@ class LoginPromptWidget extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Sign in to access your game history, achievements, '
-                'and personalized recommendations.',
+                'get_the_full_experience_desc'.tr,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: isDark
                           ? colorScheme.tertiary
@@ -50,7 +49,7 @@ class LoginPromptWidget extends StatelessWidget {
                     child: OutlinedButton.icon(
                       icon: Icon(Icons.login, color: colorScheme.secondary),
                       label: Text(
-                        'Sign In',
+                        'sign_in'.tr,
                         style: TextStyle(color: colorScheme.secondary),
                       ),
                       style: OutlinedButton.styleFrom(
@@ -68,7 +67,7 @@ class LoginPromptWidget extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.person_add),
-                      label: const Text('Register'),
+                      label: Text('register'.tr),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.secondary,
                         padding: const EdgeInsets.symmetric(vertical: 14),

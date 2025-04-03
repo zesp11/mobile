@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:get/get.dart';
+import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 
 class UserProfileScreen extends GetView<ProfileController> {
@@ -15,14 +16,14 @@ class UserProfileScreen extends GetView<ProfileController> {
     final isSmallScreen = size.width < 600;
 
     // Redirect to '/profile' if the user views their own profile
-    if (authController.state?.id == userId) {
+    if (authController.state?.id.toString() == userId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Get.offNamed('/profile');
+        Get.toNamed(AppRoutes.profile);
       });
     }
 
     // Fetch the user profile if it's not already loaded
-    if (controller.state?.id != userId) {
+    if (controller.state?.id.toString() != userId) {
       controller.fetchUserProfile(userId);
     }
 
