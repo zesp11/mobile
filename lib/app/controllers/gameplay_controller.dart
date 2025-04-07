@@ -8,10 +8,14 @@ import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 import 'package:geolocator/geolocator.dart';
 
+enum GameType { single, multi }
+
 class GamePlayController extends GetxController with StateMixin {
   final GameService gameService;
   final logger = Get.find<Logger>();
   final _devBypassLocation = false.obs;
+
+  GameType gameType = GameType.single;
 
   void toggleDevBypassLocation(bool value) {
     _devBypassLocation.value = value;
