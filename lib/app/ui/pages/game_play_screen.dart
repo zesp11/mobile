@@ -13,6 +13,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 
+bool isMulti = false;
+
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
@@ -23,7 +25,7 @@ class GamePlayScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
-    final isMulti = controller.gameType == GameType.multi;
+    isMulti = controller.gameType == GameType.multi;
     final tabCount = isMulti ? 4 : 3;
 
     final TabController tabController =
@@ -281,6 +283,7 @@ class _DecisionTabState extends State<DecisionTab> {
     );
   }
 
+
   Widget _buildDecisionSuccessMessage(BuildContext context) {
     return Center(
       child: Column(
@@ -314,7 +317,7 @@ class _DecisionTabState extends State<DecisionTab> {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(2),
+            onPressed: () => DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
           ),
         ],
       ),
@@ -397,7 +400,7 @@ class _DecisionTabState extends State<DecisionTab> {
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
-              onPressed: () => DefaultTabController.of(context).animateTo(2),
+              onPressed: () => DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
             ),
           ],
         ),
@@ -891,7 +894,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                         gamePlayController.hasArrivedAtLocation.value = true;
                         Navigator.of(context, rootNavigator: true).pop();
                         // Użycie DefaultTabController do zmiany tabów
-                        DefaultTabController.of(savedTabContext!).animateTo(0);
+                        DefaultTabController.of(savedTabContext!).animateTo(isMulti ? 1 : 0);
                       },
                       style: TextButton.styleFrom(
                           backgroundColor: theme.colorScheme.secondary),
