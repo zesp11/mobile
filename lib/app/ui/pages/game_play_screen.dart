@@ -23,9 +23,11 @@ class GamePlayScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
+    final isMulti = controller.gameType == GameType.multi;
+    final tabCount = isMulti ? 4 : 3;
 
     final TabController tabController =
-        TabController(length: 3, vsync: Navigator.of(context));
+        TabController(length: tabCount, vsync: Navigator.of(context));
 
     Get.put(tabController);
 
@@ -34,7 +36,7 @@ class GamePlayScreen extends StatelessWidget {
     logger.d("Current step: ${controller.currentStep.value}");
 
     return DefaultTabController(
-      length: 3,
+      length: tabCount,
       child: Scaffold(
         appBar: AppBar(
           title: controller.obx(
@@ -50,6 +52,11 @@ class GamePlayScreen extends StatelessWidget {
             unselectedLabelColor:
                 Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             tabs: [
+              if (isMulti) Tab( //TODO: add translations here
+                text: 'players',
+                icon: Icon(Icons.groups,
+                    color: Theme.of(context).colorScheme.secondary),
+              ),
               Obx(
                 () => Tab(
                   text: 'decision'.tr,
@@ -78,6 +85,7 @@ class GamePlayScreen extends StatelessWidget {
                 icon: Icon(Icons.map,
                     color: Theme.of(context).colorScheme.secondary),
               ),
+              
             ],
           ),
         ),
@@ -85,6 +93,7 @@ class GamePlayScreen extends StatelessWidget {
           child: controller.obx(
             (state) => TabBarView(
               children: [
+                if (isMulti) LobbyTab(),
                 DecisionTab(),
                 StoryTab(),
                 MapWidget(),
@@ -112,6 +121,30 @@ class GamePlayScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class LobbyTab extends StatelessWidget {
+  const LobbyTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("test")),
+          );
+        },
+        icon: const Icon(Icons.check),
+        label: const Text("Gotowy"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+        ),
+      ),
+    );
+  }
+  
 }
 
 class GameTitle extends StatelessWidget {

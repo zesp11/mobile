@@ -183,6 +183,10 @@ class ScenarioScreen extends StatelessWidget {
                                   Get.find<GamePlayController>();
                               await gameController
                                   .createGameFromScenario(gamebook.id);
+                              final bool isMulti = gamebook.limitPlayers > 1;
+                              gameController.gameType = 
+                              isMulti ? GameType.multi : GameType.single;
+
                               Get.toNamed(AppRoutes.gameDetail.replaceFirst(
                                   ":id",
                                   gameController.currentGame.value!.idGame
