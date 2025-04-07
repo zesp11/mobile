@@ -18,6 +18,8 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/location_service.dart';
 
+bool isMulti = false;
+
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
@@ -28,7 +30,7 @@ class GamePlayScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
-    final isMulti = controller.gameType == GameType.multi;
+    isMulti = controller.gameType == GameType.multi;
     final tabCount = isMulti ? 4 : 3;
 
     final TabController tabController =
@@ -284,6 +286,7 @@ class _DecisionTabState extends State<DecisionTab> {
     );
   }
 
+
   Widget _buildDecisionSuccessMessage(BuildContext context) {
     return Center(
       child: Column(
@@ -317,7 +320,7 @@ class _DecisionTabState extends State<DecisionTab> {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(2),
+            onPressed: () => DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
           ),
         ],
       ),
