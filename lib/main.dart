@@ -5,6 +5,7 @@ import 'package:gotale/app/bindings/app_binding.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/location_service.dart';
+import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/settings_service.dart';
 import 'package:gotale/app/themes/app_theme.dart';
 import 'package:gotale/utils/env_config.dart';
@@ -36,6 +37,7 @@ void initServices() async {
   Get.put(HomeService(apiService: Get.find()));
   Get.put(GameService(apiService: Get.find()));
   Get.put(AuthService(apiService: Get.find()));
+  Get.put(LobbyService(apiService: Get.find()));
   Get.put(FlutterSecureStorage());
   Get.put(SettingsService());
   Get.put(LocationService());
