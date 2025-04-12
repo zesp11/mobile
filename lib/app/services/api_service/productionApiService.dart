@@ -122,10 +122,18 @@ class ProductionApiService extends ApiService {
       final endpoint =
           '$name${createLobbyRoute.replaceFirst(':id', scenarioId.toString())}';
 
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
       logger.d('Creating lobby at endpoint: $endpoint');
 
       final headers = {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
       };
 
       final response = await http.post(
