@@ -6,6 +6,7 @@ import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
+import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
 import 'package:intl/intl.dart';
@@ -135,21 +136,44 @@ class LobbyTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton.icon(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("test")),
-          );
-        },
-        icon: const Icon(Icons.check),
-        label: const Text("Gotowy"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Colors.white,
+    final GamePlayController controller = Get.find<GamePlayController>();
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+          onPressed: () async {
+            try {
+              Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
+              Get.snackbar(
+                "Lobby stworzone!",
+                "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            } catch (e) {
+              Get.snackbar(
+                "Błąd",
+                "Nie udało się stworzyć lobby: $e",
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            }
+          },
+          child: const Text("Stwórz Lobby"),
         ),
-      ),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            // Inny kod tutaj
+          },
+          child: Text('Another Button'),
+        ),
+      ],
     );
+    
   }
   
 }

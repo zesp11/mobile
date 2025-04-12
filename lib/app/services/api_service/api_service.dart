@@ -11,6 +11,7 @@ import 'package:gotale/app/models/game_in_progress.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/user.dart';
+import 'package:gotale/app/models/lobby.dart';
 
 abstract class ApiService {
   /* (TODO: reconsider those endpoints)
@@ -91,4 +92,6 @@ abstract class ApiService {
 
   // Search functionality for players, gamebooks, and cities
   Future<List<dynamic>> search(String query, String category);
+
+  Future<Lobby> createLobby(int scenarioId);
 }

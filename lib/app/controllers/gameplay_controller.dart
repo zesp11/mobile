@@ -3,6 +3,8 @@ import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
+import 'package:gotale/app/models/lobby.dart' as lobbyModel;
+import 'package:gotale/app/services/lobby_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
@@ -249,6 +251,22 @@ class GamePlayController extends GetxController with StateMixin {
   void addWaypoint(double latitude, double longitude) {
     waypoints.clear();
     waypoints.add(LatLng(latitude, longitude));
+  }
+
+  final LobbyService lobbyService = Get.find();
+  final Rxn<lobbyModel.Lobby> createdLobby = Rxn<lobbyModel.Lobby>();
+
+  Future<lobbyModel.Lobby> createLobby(int id) async {
+    try {
+      final lobby = await lobbyService.createLobby(id);
+      //print("Lobby utworzone: ${lobby.name}");
+      logger.d("[DEV_DEBUG] Decision response: $lobby");
+      createdLobby.value = lobby;
+      return lobby;
+      } catch (e) {
+      logger.e("[DEV_DEBUG] Error processing decision: $e");
+      throw Exception("Failed to process decision: $e");
+    }
   }
 
   @override
