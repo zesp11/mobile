@@ -60,7 +60,7 @@ class GamePlayScreen extends StatelessWidget {
                 Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             tabs: [
               if (isMulti) Tab( //TODO: add translations here
-                text: 'players',
+                text: 'lobby',
                 icon: Icon(Icons.groups,
                     color: Theme.of(context).colorScheme.secondary),
               ),
