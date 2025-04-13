@@ -92,4 +92,5 @@ abstract class ApiService {
   Future<List<dynamic>> search(String query, String category);
 
   Future<Lobby> createLobby(int scenarioId);
+  Future<List<Lobby>> searchLobbies(String query);
 }

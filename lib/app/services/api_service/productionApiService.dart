@@ -52,6 +52,7 @@ class ProductionApiService extends ApiService {
 
   // Lobby endpoints
   static const String createLobbyRoute = '/api/lobby/:id';
+  static const String searchLobbiesRoute = '/api/lobby';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -482,6 +483,27 @@ class ProductionApiService extends ApiService {
       }
     } catch (e) {
       throw Exception('Scenario search failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Lobby>> searchLobbies(String query) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$name$searchLobbiesRoute?search=$query'),
+      );
+
+      if (response.statusCode == 200) {
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final List<dynamic> responseBody = jsonDecode(decodedResponse);
+        //final List<dynamic> lobbies = responseBody['data'] ?? [];
+        return responseBody.map((x) => Lobby.fromJson(x)).toList();
+      } else {
+        throw Exception(
+            'Lobby search failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Lobby search failed: ${e.toString()}');
     }
   }
 
