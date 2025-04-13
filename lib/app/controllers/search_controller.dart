@@ -1,6 +1,7 @@
 // This screen allows searching across different entities
 // like players, gamebooks, or cities.
 import 'package:get/get.dart';
+import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/search_result.dart';
 import 'package:gotale/app/models/user.dart';
@@ -10,6 +11,7 @@ import 'package:logger/logger.dart';
 class SearchController extends GetxController with StateMixin<SearchResult> {
   static const userFilter = 'user';
   static const scenarioFilter = 'scenario';
+  static const lobbyFilter = 'lobby';
 
   final SearchService searchService;
   final logger = Get.find<Logger>();
@@ -23,7 +25,7 @@ class SearchController extends GetxController with StateMixin<SearchResult> {
   void onInit() {
     super.onInit();
     change(
-      SearchResult(users: [], scenarios: []),
+      SearchResult(users: [], scenarios: [], lobbies: []),
       status: RxStatus.success(),
     );
     // Load initial items
@@ -43,6 +45,7 @@ class SearchController extends GetxController with StateMixin<SearchResult> {
       final List<Future> futures = [];
       List<User> userResults = [];
       List<Scenario> scenarioResults = [];
+      List<Lobby> lobbyResults = [];
 
       if (selectedFilters.isEmpty || selectedFilters.contains(userFilter)) {
         futures.add(searchService
@@ -57,9 +60,12 @@ class SearchController extends GetxController with StateMixin<SearchResult> {
       }
 
       await Future.wait(futures);
+      if (selectedFilters.isEmpty || selectedFilters.contains(lobbyFilter)) {
+        lobbyResults = await searchService.searchLobbies(query);
+      }
 
       change(
-        SearchResult(users: userResults, scenarios: scenarioResults),
+        SearchResult(users: userResults, scenarios: scenarioResults, lobbies: lobbyResults),
         status: RxStatus.success(),
       );
     } catch (e) {

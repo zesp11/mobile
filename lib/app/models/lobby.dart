@@ -8,7 +8,7 @@ class Lobby {
   final int idGame;
   final String name;
   final String photoUrl;
-  final StepData firstStep;
+  final StepData? firstStep;
 
   Lobby({
     required this.idLobby,
@@ -25,16 +25,18 @@ class Lobby {
 
   factory Lobby.fromJson(Map<String, dynamic> json) {
     return Lobby(
-      idLobby: json['id_lobby'],
-      status: json['status'],
+      idLobby: json['id_lobby'] ?? 0,
+      status: json['status'] ?? 'Unknown',
       creationDate: DateTime.parse(json['creation_date']),
-      userId: json['user_id'],
-      idSes: json['id_ses'],
-      idAuthor: json['id_author'],
-      idGame: json['id_game'],
-      name: json['name'],
-      photoUrl: json['photo_url'],
-      firstStep: StepData.fromJson(json['first_step']),
+      userId: json['user_id'] ?? -1,
+      idSes: json['id_ses'] ?? -1,
+      idAuthor: json['id_author'] ?? -1,
+      idGame: json['id_game'] ?? 0,
+      name: json['name'] ?? '',
+      photoUrl: json['photo_url'] ?? '',
+      firstStep: json['first_step'] != null
+        ? StepData.fromJson(json['first_step'])
+        : null,
     );
   }
 }
