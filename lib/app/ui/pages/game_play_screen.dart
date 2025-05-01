@@ -614,6 +614,7 @@ class _DecisionTabState extends State<DecisionTab> {
                       layoutStyle: buttonLayout,
                       onDecisionMade: (decision) {
                         // setState(() => _showButtons = True);
+                        controller.hasArrivedAtLocation.value = false; //important part
                         controller.makeDecision(decision);
                       },
                     ),
