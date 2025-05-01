@@ -31,12 +31,12 @@ class Lobby {
       userId: json['user_id'] ?? -1,
       idSes: json['id_ses'] ?? -1,
       idAuthor: json['id_author'] ?? -1,
-      idGame: json['id_game'] ?? 0,
+      idGame: json['id_game'] ?? -1,
       name: json['name'] ?? '',
       photoUrl: json['photo_url'] ?? '',
       firstStep: json['first_step'] != null
-        ? StepData.fromJson(json['first_step'])
-        : null,
+          ? StepData.fromJson(json['first_step'])
+          : null,
     );
   }
 }
