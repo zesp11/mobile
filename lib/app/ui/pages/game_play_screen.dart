@@ -156,7 +156,7 @@ class LobbyTab extends StatelessWidget {
                 snackPosition: SnackPosition.BOTTOM,
               );
               Get.to(() => LobbySocketPanel(
-                    jwtToken: controller.jwtToken.value!,
+                    jwtToken: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",//controller.jwtToken.value!,
                     lobbyId: lobby.idLobby.toString(),
                   ));
             } catch (e) {
