@@ -2,6 +2,91 @@ import 'dart:convert';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class SocketService {
+  late StompClient _client;
+  late String _sessionId;
+  bool _isConnected = false;
+
+  bool get isConnected => _isConnected;
+
+  void connect({
+    required String jwtToken,
+    required String lobbyId,
+    required Function(String message) onLog,
+    required Function(String error) onError,
+  }) {
+    _client = StompClient(
+      config: StompConfig(
+        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // ✅ czysty WebSocket
+        useSockJS: false, // ❌ bez SockJS
+        stompConnectHeaders: {
+          'Authorization': 'Bearer $jwtToken',
+          'lobby-id': lobbyId,
+        },
+        webSocketConnectHeaders: {
+          'Authorization': 'Bearer $jwtToken',
+        },
+        onConnect: (StompFrame frame) {
+          _isConnected = true;
+
+          // ✅ Generujemy własne sessionId
+          _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+          onLog("✅ Połączono, sessionId: $_sessionId");
+
+          _subscribeToErrors(onError, onLog);
+          _subscribeToLobby(lobbyId, onLog);
+        },
+        onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
+        onStompError: (frame) => onError("❌ STOMP error: ${frame.body}"),
+        onDisconnect: (_) {
+          _isConnected = false;
+          onLog("🔌 Rozłączono");
+        },
+      ),
+    );
+
+    _client.activate();
+  }
+
+  void _subscribeToLobby(String lobbyId, Function(String message) onLog) {
+    _client.subscribe(
+      destination: '/topic/lobby.$lobbyId',
+      headers: {'lobby-id': lobbyId},
+      callback: (StompFrame frame) {
+        onLog("📥 Otrzymano: ${frame.body}");
+      },
+    );
+  }
+
+  void _subscribeToErrors(Function(String message) onError, Function(String log) onLog) {
+    _client.subscribe(
+      destination: '/queue/errors/$_sessionId',
+      callback: (StompFrame frame) {
+        onError("⛔ Błąd: ${frame.body}");
+        disconnect();
+      },
+    );
+  }
+
+  void sendMessage(String lobbyId, String message) {
+    if (_isConnected) {
+      _client.send(
+        destination: '/app/lobby/send/$lobbyId',
+        body: message,
+      );
+    }
+  }
+
+  void disconnect() {
+    if (_isConnected) {
+      _client.deactivate();
+      _isConnected = false;
+    }
+  }
+}
+
+
+
+/*class SocketService {
   StompClient? _client;
   bool _isConnected = false;
   String? _sessionId;
@@ -18,8 +103,8 @@ class SocketService {
 
     _client = StompClient(
       config: StompConfig(
-        url: 'http://localhost:8080/websocket',
-        useSockJS: true,
+        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket',
+        useSockJS: false,
         stompConnectHeaders: {
           'Authorization': 'Bearer $jwtToken',
           'lobby-id': lobbyId,
@@ -117,4 +202,4 @@ class SocketService {
     final parts = url.split('/');
     return parts[parts.length - 2];
   }
-}
+}*/

@@ -35,7 +35,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
   @override
   void initState() {
     super.initState();
-    socketService.connectToLobby(
+    socketService.connect(
       jwtToken: widget.jwtToken,
       lobbyId: widget.lobbyId,
       onLog: _log,
@@ -45,7 +45,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
 
   @override
   void dispose() {
-    socketService.disconnect(() => _log("Rozłączono"));
+    socketService.disconnect();
     super.dispose();
   }
 
@@ -55,7 +55,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
       children: [
         ElevatedButton(
           onPressed: () {
-            socketService.sendLobbyMessage(widget.lobbyId, _log);
+            socketService.sendMessage(widget.lobbyId, "testtttt\n");
           },
           child: Text("Wyślij wiadomość"),
         ),
