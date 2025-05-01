@@ -297,17 +297,17 @@ class SearchResults extends StatelessWidget {
         leading: CircleAvatar(
           radius: 18, // Total diameter will be 64
           backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
-          backgroundImage: lobby.photoUrl != null ? NetworkImage(lobby.photoUrl!) : null,
+          /*backgroundImage: lobby.photoUrl != null ? NetworkImage(lobby.photoUrl!) : null,
           child: lobby.photoUrl == null
               ? Icon(
                   Icons.groups,
                   color: theme.colorScheme.secondary,
                   size: 36,
                 )
-              : null,
+              : null,*/
         ),
         title: Text(
-          lobby.name,
+          lobby.idLobby.toString(),
           style: theme.textTheme.titleMedium,
         ),
         subtitle: Text(

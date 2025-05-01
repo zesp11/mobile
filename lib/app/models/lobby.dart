@@ -1,4 +1,4 @@
-class Lobby {
+/*class Lobby {
   final int idLobby;
   final String status;
   final DateTime creationDate;
@@ -39,7 +39,7 @@ class Lobby {
           : null,
     );
   }
-}
+}*/
 
 class StepData {
   final int idStep;
@@ -91,6 +91,29 @@ class Choice {
       idChoice: json['id_choice'],
       idNextStep: json['id_next_step'],
       choiceText: json['choice_text'],
+    );
+  }
+}
+
+class Lobby {
+  final int idLobby;
+  final String status;
+  final DateTime creationDate;
+  final int userId;
+
+  Lobby({
+    required this.idLobby,
+    required this.status,
+    required this.creationDate,
+    required this.userId,
+  });
+
+  factory Lobby.fromJson(Map<String, dynamic> json) {
+    return Lobby(
+      idLobby: json['id_lobby'] ?? 0,
+      status: json['status'] ?? 'Unknown',
+      creationDate: DateTime.parse(json['creation_date']),
+      userId: json['user_id'] ?? -1,
     );
   }
 }
