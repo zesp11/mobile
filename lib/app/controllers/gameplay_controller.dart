@@ -12,6 +12,13 @@ import 'package:logger/logger.dart';
 enum GameType { single, multi }
 
 class GamePlayController extends GetxController with StateMixin {
+  
+  final Rx<String?> jwtToken = Rx<String?>(null);
+
+  void setToken(String token) {
+    jwtToken.value = token;
+  }
+  
   final GameService gameService;
   final logger = Get.find<Logger>();
   final _devBypassLocation = false.obs;
