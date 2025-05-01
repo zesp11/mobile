@@ -586,6 +586,7 @@ class _DecisionTabState extends State<DecisionTab> {
                       layoutStyle: buttonLayout,
                       onDecisionMade: (decision) {
                         // setState(() => _showButtons = True);
+                        controller.hasArrivedAtLocation.value = false; //important part
                         controller.makeDecision(decision);
                       },
                     ),
@@ -889,9 +890,11 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void checkDistance() {
-    if (distanceToWaypoint <= 50 &&
+    if (distanceToWaypoint <= 20 &&
         !arrived &&
-        !gamePlayController.hasArrivedAtLocation.value) {
+        !gamePlayController.hasArrivedAtLocation.value &&
+        DefaultTabController.of(context).index == (isMulti ? 3 : 2)
+        ) {
       arrived = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
