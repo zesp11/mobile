@@ -9,6 +9,7 @@ import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
+import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/web.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
@@ -154,6 +155,10 @@ class LobbyTab extends StatelessWidget {
                 "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
                 snackPosition: SnackPosition.BOTTOM,
               );
+              Get.to(() => LobbySocketPanel(
+                    jwtToken: controller.jwtToken.value!,
+                    lobbyId: lobby.idLobby.toString(),
+                  ));
             } catch (e) {
               Get.snackbar(
                 "Błąd",
