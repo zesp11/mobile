@@ -183,10 +183,11 @@ class GamePlayController extends GetxController with StateMixin {
       showPostDecisionMessage.value = true;
       hasArrivedAtLocation.value = false;
     }
-    _processDecision(decision);
+    
+    await _processDecision(decision);
   }
 
-  void _processDecision(Choice decision) async {
+  Future<void> _processDecision(Choice decision) async {
     if (currentStep.value != null && currentGame.value != null) {
       try {
         // Make the decision through the API
@@ -200,6 +201,22 @@ class GamePlayController extends GetxController with StateMixin {
           fetchGameHistory(currentGame.value!.idGame),
           fetchCurrentStep(currentGame.value!.idGame),
         ]);
+
+        if (!isDevelopmentMode) {
+        /*if (currentStep.value != null &&
+            currentStep.value!.latitude != null &&
+            currentStep.value!.longitude != null &&
+            (currentStep.value!.latitude != 0.0 ||
+                currentStep.value!.longitude != 0.0)) {
+          // When new step requires localisation
+          showPostDecisionMessage.value = false;
+          hasArrivedAtLocation.value = false;
+        } else {
+          showPostDecisionMessage.value = false;
+          hasArrivedAtLocation.value = true;
+        }*/
+        hasArrivedAtLocation.value = false;
+      }
       } catch (e) {
         logger.e("[DEV_DEBUG] Error processing decision: $e");
         throw Exception("Failed to process decision: $e");
