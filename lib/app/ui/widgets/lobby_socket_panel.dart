@@ -45,7 +45,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
 
   @override
   void dispose() {
-    socketService.disconnect();
+    socketService.disconnect((){print("Socket rozłączony pomyślnie");});
     super.dispose();
   }
 
