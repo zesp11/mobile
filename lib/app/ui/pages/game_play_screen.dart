@@ -144,15 +144,15 @@ class LobbyTab extends StatelessWidget {
           ),
           onPressed: () async {
             try {
-              Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
+              /*Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
               Get.snackbar(
                 "Lobby stworzone!",
                 "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
                 snackPosition: SnackPosition.BOTTOM,
-              );
+              );*/
               Get.to(() => LobbySocketPanel(
                     jwtToken: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",//controller.jwtToken.value!,
-                    lobbyId: lobby.idLobby.toString(),
+                    lobbyId: "999",//lobby.idLobby.toString(),
                   ));
             } catch (e) {
               Get.snackbar(

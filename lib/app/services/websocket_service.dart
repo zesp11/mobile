@@ -16,6 +16,7 @@ class SocketService {
   }) {
     _client = StompClient(
       config: StompConfig(
+        //url: "ws://localhost:8080/websocket/websocket",
         url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // ✅ czysty WebSocket
         useSockJS: false, // ❌ bez SockJS
         stompConnectHeaders: {
@@ -57,12 +58,42 @@ class SocketService {
     );
   }
 
-  void _subscribeToErrors(Function(String message) onError, Function(String log) onLog) {
-    _client.subscribe(
-      destination: '/queue/errors/$_sessionId',
-      callback: (StompFrame frame) {
-        onError("⛔ Błąd: ${frame.body}");
-        disconnect();
+  void _subscribeToErrors(void Function(String) onError, void Function(String) onLog) {
+    if (_sessionId == null) return;
+
+    _client?.subscribe(
+      destination: "/queue/errors/$_sessionId",
+      callback: (frame) {
+        try {
+          final Map<String, dynamic> error = frame.body != null ? Map<String, dynamic>.from(jsonDecode(frame.body!)) : {};
+          final type = error['type'];
+
+          switch (type) {
+            case "LOBBY_NOT_FOUND":
+              onError("Lobby nie istnieje.");
+              disconnect(() => onLog("Rozłączono - brak lobby"));
+              break;
+            case "LOBBY_FULL":
+              onError("Lobby pełne.");
+              disconnect(() => onLog("Rozłączono - pełne lobby"));
+              break;
+            case "AUTH_ERROR":
+              onError("JWT error: ${error['message']}");
+              disconnect(() => onLog("JWT problem"));
+              break;
+            case "DUPLICATE_SESSION":
+              onError("Zduplikowana sesja.");
+              disconnect(() => onLog("Starsze połączenie zamknięte"));
+              break;
+            case "NO_LOBBY":
+              onError("Nie podano ID lobby.");
+              break;
+            default:
+              onError("Nieznany błąd: ${error['message'] ?? "brak info"}");
+          }
+        } catch (e) {
+          onError("Błąd (nie JSON): ${frame.body}");
+        }
       },
     );
   }
@@ -76,12 +107,17 @@ class SocketService {
     }
   }
 
-  void disconnect() {
+  void disconnect(void Function() onDisconnected) {
     if (_isConnected) {
       _client.deactivate();
       _isConnected = false;
+      onDisconnected();
     }
   }
+
+  void disconnectSilently() {
+  disconnect(() {});
+}
 }
 
 
