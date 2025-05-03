@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:gotale/app/bindings/app_binding.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/location_service.dart';
 import 'package:gotale/app/services/settings_service.dart';
 import 'package:gotale/app/themes/app_theme.dart';
 import 'package:gotale/utils/env_config.dart';
@@ -37,6 +38,7 @@ void initServices() async {
   Get.put(AuthService(apiService: Get.find()));
   Get.put(FlutterSecureStorage());
   Get.put(SettingsService());
+  Get.put(LocationService());
 
   logger.i("All services started");
 }

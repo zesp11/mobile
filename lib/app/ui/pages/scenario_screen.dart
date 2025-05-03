@@ -7,11 +7,14 @@ import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/game_service.dart';
+import 'package:gotale/app/services/location_service.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 
 class ScenarioScreen extends StatelessWidget {
   final GameService service = Get.find<GameService>();
   final authController = Get.find<AuthController>();
+  final LocationService locationService = Get.find<LocationService>();
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +345,8 @@ class ScenarioScreen extends StatelessWidget {
                   child: Icon(
                     Icons.text_snippet_outlined,
                     size: 20,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    // color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
                 const WidgetSpan(child: SizedBox(width: 8)),
@@ -440,7 +444,7 @@ class ScenarioScreen extends StatelessWidget {
         Icon(
           Icons.info_outline,
           size: 20,
-          color: theme.colorScheme.onSurface.withOpacity(0.6),
+          color: theme.colorScheme.secondary,
         ),
         const SizedBox(width: 8),
         Text(
@@ -586,11 +590,34 @@ class ScenarioScreen extends StatelessWidget {
 
                 // Location Info
                 if (hasLocation)
-                  _buildInfoChip(
-                    context,
-                    icon: Icons.location_pin,
-                    text: 'location_provided'.tr,
-                    color: theme.colorScheme.tertiary,
+                  FutureBuilder<String>(
+                    future: locationService.getPlaceName(
+                      LatLng(step.latitude!, step.longitude!),
+                    ),
+                    builder: (context, snapshot) {
+                      String text;
+                      IconData icon;
+                      Color color = theme.colorScheme.secondary;
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        text = 'loading_location'.tr;
+                        icon = Icons.hourglass_top;
+                      } else if (snapshot.hasError) {
+                        text = 'location_unavailable'.tr;
+                        icon = Icons.error_outline;
+                        color = theme.colorScheme.error;
+                      } else {
+                        text = snapshot.data ?? 'location_unavailable'.tr;
+                        icon = Icons.location_pin;
+                      }
+
+                      return _buildInfoChip(
+                        context,
+                        icon: icon,
+                        text: text,
+                        color: color,
+                      );
+                    },
                   ),
               ],
             ),
