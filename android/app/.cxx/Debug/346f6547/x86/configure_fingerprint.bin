@@ -2,6 +2,7 @@ C/C++ Structured Logg
 e
 c/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/additional_project_files.txtC
 A
+<<<<<<< HEAD
 ?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	ªî¢Áé2 ùì™Áé2d
 b
 `/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/android_gradle_build.json	ªî¢Áé2 úì™Áé2i
@@ -26,3 +27,29 @@ Y/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/prefab_c
 ^/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/symbol_folder_index.txt	ªî¢Áé2U üì™Áé2`
 ^
 \/home/kenny/fvm/versions/stable/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt	ªî¢Áé2¤ ˆòÞÁÞ2
+=======
+?com.android.build.gradle.internal.cxx.io.EncodedFileFingerPrint	·öÒ¯é2 »ÔÀ­é2d
+b
+`/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/android_gradle_build.json	·öÒ¯é2 »ÔÀ­é2i
+g
+e/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/android_gradle_build_mini.json	·öÒ¯é2º »ÔÀ­é2V
+T
+R/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/build.ninja	·öÒ¯é2£¶ ²ÔÀ­é2Z
+X
+V/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/build.ninja.txt	·öÒ¯é2_
+]
+[/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/build_file_index.txt	·öÒ¯é2\ ½ÔÀ­é2`
+^
+\/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/compile_commands.json	·öÒ¯é2d
+b
+`/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/compile_commands.json.bin	·öÒ¯é2	j
+h
+f/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/metadata_generation_command.txt	·öÒ¯é2
+ô ½ÔÀ­é2]
+[
+Y/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/prefab_config.json	·öÒ¯é2( ½ÔÀ­é2b
+`
+^/home/kenny/Desktop/projekt/mobile/android/app/.cxx/Debug/346f6547/x86/symbol_folder_index.txt	·öÒ¯é2U ½ÔÀ­é2`
+^
+\/home/kenny/fvm/versions/stable/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt	·öÒ¯é2¤ ˆòÞÁÞ2
+>>>>>>> main

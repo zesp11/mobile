@@ -161,8 +161,8 @@ class DecisionTab extends StatefulWidget {
 class _DecisionTabState extends State<DecisionTab> {
   final controller = Get.find<GamePlayController>();
   bool _showButtons = false;
-  int _devSwipeCount = 0;
-  DateTime? _lastSwipeTime;
+  int _devTapCount = 0;
+  DateTime? _lastTapTime;
 
   @override
   void initState() {
@@ -172,28 +172,26 @@ class _DecisionTabState extends State<DecisionTab> {
     });
   }
 
-  void _handleDevModeSwipe(DragEndDetails details) {
+  void _handleDevModeTap() {
     final now = DateTime.now();
-    if (_lastSwipeTime != null && now.difference(_lastSwipeTime!) > 2.seconds) {
-      _devSwipeCount = 0; // Reset counter if more than 2 seconds between swipes
+    if (_lastTapTime != null && now.difference(_lastTapTime!) > 2.seconds) {
+      _devTapCount = 0; // Reset counter if more than 2 seconds between taps
     }
 
-    if (details.primaryVelocity != null && details.primaryVelocity! > 1000) {
-      _devSwipeCount++;
-      _lastSwipeTime = now;
+    _devTapCount++;
+    _lastTapTime = now;
 
-      if (_devSwipeCount >= 5) {
-        controller.toggleDevBypassLocation(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(controller.isDevMode
-                ? 'Developer mode activated'
-                : 'Developer mode deactivated'),
-            duration: 2.seconds,
-          ),
-        );
-        _devSwipeCount = 0;
-      }
+    if (_devTapCount >= 5) {
+      controller.toggleDevBypassLocation(true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(controller.isDevMode
+              ? 'Developer mode activated'
+              : 'Developer mode deactivated'),
+          duration: 2.seconds,
+        ),
+      );
+      _devTapCount = 0;
     }
   }
 
@@ -334,43 +332,68 @@ class _DecisionTabState extends State<DecisionTab> {
 
   Widget _buildArrivalRequiredMessage(BuildContext context) {
     return GestureDetector(
-      onVerticalDragEnd: _handleDevModeSwipe,
+      onTap: _handleDevModeTap,
       behavior: HitTestBehavior.translucent,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.location_off,
-              size: 50,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Location Required",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          // This will trigger a location check
+          await controller.checkLocation();
+        },
+        color: Theme.of(context).colorScheme.secondary,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.location_off,
+                    size: 50,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "Confirm your arrival at the current location\nin the Map tab to continue",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 25),
-            ElevatedButton.icon(
-              icon: Icon(Icons.map,
-                  color: Theme.of(context).colorScheme.onSecondary),
-              label: Text(
-                "Go to Map",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Location Required",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Confirm your arrival at the current location\nin the Map tab to continue",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 25),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.map,
+                        color: Theme.of(context).colorScheme.onSecondary),
+                    label: Text(
+                      "Go to Map",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    ),
+                    onPressed: () =>
+                        DefaultTabController.of(context).animateTo(2),
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    "Pull down to refresh location status",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.7),
+                          fontStyle: FontStyle.italic,
+                        ),
+                  ),
+                ],
               ),
-              onPressed: () => DefaultTabController.of(context).animateTo(2),
             ),
-          ],
+          ),
         ),
       ),
     );
