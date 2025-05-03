@@ -578,6 +578,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   final GamePlayController gamePlayController = Get.find<GamePlayController>();
   BuildContext? savedTabContext;
   late StreamSubscription<LocationMarkerPosition?> _positionSubscription;
+  bool _isMapReady = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -660,7 +661,7 @@ class _OSMFlutterMapState extends State<MapWidget>
       circles: [
         CircleMarker(
           point: waypoint,
-          color: Colors.orange.withOpacity(0.3),
+          color: Colors.orange.withOpacity(0.4),
           borderColor: Colors.orange,
           borderStrokeWidth: 2,
           radius: radius,
@@ -773,6 +774,17 @@ class _OSMFlutterMapState extends State<MapWidget>
             gamePlayController.waypoints.last,
           );
 
+    bool isDestinationVisible = false;
+    if (_isMapReady) {
+      try {
+        isDestinationVisible = gamePlayController.waypoints.isNotEmpty &&
+            mapController.camera.visibleBounds.contains(
+              gamePlayController.waypoints.last,
+            );
+      } catch (e) {
+        debugPrint('Visibility check error: $e');
+      }
+    }
     return Scaffold(
       body: Stack(
         children: [
@@ -782,8 +794,12 @@ class _OSMFlutterMapState extends State<MapWidget>
               initialZoom: currentZoom,
               minZoom: 5,
               maxZoom: 19,
-              onPositionChanged: (pos, _) =>
-                  setState(() => currentZoom = pos.zoom),
+              onPositionChanged: (pos, _) {
+                if (!_isMapReady) {
+                  setState(() => _isMapReady = true);
+                }
+                setState(() => currentZoom = pos.zoom);
+              },
             ),
             mapController: mapController,
             children: [
@@ -802,7 +818,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
               ),
               _buildWaypointVisualization(),
-              if (distance > _arrivalRadiusMeters)
+              if (distance > _arrivalRadiusMeters && !isDestinationVisible)
                 MarkerLayer(
                   markers: [
                     Marker(
