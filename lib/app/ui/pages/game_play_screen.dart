@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
@@ -772,84 +774,81 @@ class MapWidget extends StatefulWidget {
 
 class _OSMFlutterMapState extends State<MapWidget>
     with AutomaticKeepAliveClientMixin {
-  late MapController mapController;
+  late final MapController mapController;
   final GamePlayController gamePlayController = Get.find<GamePlayController>();
   BuildContext? savedTabContext;
+  late StreamSubscription<LocationMarkerPosition?> _positionSubscription;
 
   @override
   bool get wantKeepAlive => true;
   bool arrived = false;
   LatLng? currentPosition;
   double currentZoom = 14.0;
-  List<Marker> markers = [];
-  bool isTracking = true;
-  bool _showDestination = true; // New state variable
-  static const double _waypointZoomThreshold = 16.0; // Zoom level for switch
+  bool _showDestination = true;
+  static const double _waypointZoomThreshold = 16.0;
   static const double _arrowOffsetDistance = 20.0;
+  static const double _arrivalRadiusMeters = 50.0;
+  static const double _minDialogDisplayDistance = 50.0;
+
+  @override
+  void initState() {
+    super.initState();
+    mapController = MapController();
+    _startTracking();
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription.cancel();
+    super.dispose();
+  }
+
+  void _startTracking() {
+    final stream =
+        const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
+    _positionSubscription = stream.listen((position) {
+      if (position != null && mounted) {
+        setState(() => currentPosition = position.latLng);
+      }
+    });
+  }
 
   LatLng _calculateArrowPosition(LatLng start, double bearing) {
-    try {
-      const distance = latlong2.Distance();
-      return distance.offset(start, _arrowOffsetDistance, bearing);
-    } catch (e) {
-      return start; // Fallback to original position
-    }
+    const distance = latlong2.Distance();
+    return distance.offset(start, _arrowOffsetDistance, bearing);
   }
 
   Widget _buildWaypointVisualization() {
-    if (gamePlayController.waypoints.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (gamePlayController.waypoints.isEmpty) return const SizedBox.shrink();
 
     final waypoint = gamePlayController.waypoints.last;
-
-    // Show circle when zoomed in, icon when zoomed out
-    return currentZoom >= _waypointZoomThreshold
-        ? _buildDynamicCircle()
-        : MarkerLayer(
-            markers: [
-              Marker(
-                rotate: true,
-                point: waypoint,
-                width: 37,
-                height: 37,
-                child: Icon(
-                  Icons.location_pin,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 40,
-                ),
-              ),
-            ],
-          );
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: currentZoom >= _waypointZoomThreshold
+          ? _buildDynamicCircle(waypoint)
+          : _buildWaypointMarker(waypoint),
+    );
   }
 
-  double _calculateCircleRadius(LatLng point) {
-    try {
-      const distance = latlong2.Distance();
-      final eastPoint = distance.offset(point, 50, 90); // 50 meters east
-      final customPoint1 = mapController.camera.project(point);
-      final customPoint2 = mapController.camera.project(eastPoint);
-      return (customPoint2.x - customPoint1.x).abs();
-    } catch (e) {
-      return 50.0; // Fallback value
-    }
+  Widget _buildWaypointMarker(LatLng waypoint) {
+    return MarkerLayer(
+      markers: [
+        Marker(
+          point: waypoint,
+          width: 37,
+          height: 37,
+          child: Icon(
+            Icons.location_pin,
+            color: Theme.of(context).colorScheme.secondary,
+            size: 40,
+          ),
+        ),
+      ],
+    );
   }
 
-  void moveToDestination() {
-    if (gamePlayController.waypoints.isNotEmpty) {
-      final destination = gamePlayController.waypoints.last;
-      mapController.move(destination, currentZoom);
-    }
-  }
-
-  Widget _buildDynamicCircle() {
-    if (gamePlayController.waypoints.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final waypoint = gamePlayController.waypoints.last;
+  Widget _buildDynamicCircle(LatLng waypoint) {
     final radius = _calculateCircleRadius(waypoint);
-
     return CircleLayer(
       circles: [
         CircleMarker(
@@ -863,122 +862,121 @@ class _OSMFlutterMapState extends State<MapWidget>
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    mapController = MapController();
-    _startTracking();
-  }
-
-  void _startTracking() {
-    final stream =
-        const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
-    stream.listen((LocationMarkerPosition? position) {
-      if (position != null) {
-        setState(() => currentPosition = position.latLng);
-      }
-    });
-  }
-
-  void moveToCurrentPosition() async {
-    final stream =
-        const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
-    final LocationMarkerPosition? position = await stream.first;
-    if (position != null) {
-      mapController.move(position.latLng, currentZoom);
+  double _calculateCircleRadius(LatLng point) {
+    try {
+      const distance = latlong2.Distance();
+      final eastPoint = distance.offset(point, _arrivalRadiusMeters, 90);
+      final p1 = mapController.camera.project(point);
+      final p2 = mapController.camera.project(eastPoint);
+      return (p2.x - p1.x).abs();
+    } catch (e) {
+      return _arrivalRadiusMeters;
     }
   }
 
-  double calculateDistance(LatLng point1, LatLng point2) {
-    return const latlong2.Distance().as(
-      latlong2.LengthUnit.Meter,
-      point1,
-      point2,
-    );
+  void _moveCamera(LatLng target) {
+    // if (mapController.camera.isInitialized) {
+    mapController.move(target, currentZoom);
+    // }
+  }
+
+  Future<void> moveToCurrentPosition() async {
+    try {
+      final position = await Geolocator.getLastKnownPosition();
+      if (position != null) {
+        _moveCamera(LatLng(position.latitude, position.longitude));
+      }
+    } catch (e) {
+      debugPrint('Error getting current position: $e');
+    }
   }
 
   void checkDistance(double distance) {
-    if (distance <= 50 &&
-        !arrived &&
-        !gamePlayController.hasArrivedAtLocation.value) {
-      arrived = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: savedTabContext!,
-          barrierDismissible: false,
-          builder: (context) => StatefulBuilder(
-            builder: (context, setDialogState) {
-              final theme = Theme.of(context);
-              return AlertDialog(
-                backgroundColor: theme.colorScheme.primary,
-                title: Text(
-                  "You've arrived at the designated location!",
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                ),
-                content: Text(
-                  "You may proceed with your adventure.",
-                  style: TextStyle(color: theme.colorScheme.onSurface),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      arrived = false;
-                      gamePlayController.hasArrivedAtLocation.value = true;
-                      Navigator.of(context, rootNavigator: true).pop();
-                      DefaultTabController.of(savedTabContext!).animateTo(0);
-                    },
-                    style: TextButton.styleFrom(
-                        backgroundColor: theme.colorScheme.secondary),
-                    child: Text(
-                      "Go to the story",
-                      style: TextStyle(color: theme.colorScheme.primary),
-                    ),
-                  ),
-                ],
-              );
-            },
+    if (distance > _minDialogDisplayDistance ||
+        !mounted ||
+        arrived ||
+        gamePlayController.hasArrivedAtLocation.value) return;
+
+    arrived = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (savedTabContext == null) return;
+
+      showDialog(
+        context: savedTabContext!,
+        barrierDismissible: false,
+        builder: (context) => _buildArrivalDialog(context),
+      );
+    });
+  }
+
+  Widget _buildArrivalDialog(BuildContext context) {
+    final theme = Theme.of(context);
+    return AlertDialog(
+      backgroundColor: theme.colorScheme.primary,
+      title: Text(
+        "You've arrived!",
+        style: TextStyle(color: theme.colorScheme.onSurface),
+      ),
+      content: Text(
+        "Proceed with your adventure.",
+        style: TextStyle(color: theme.colorScheme.onSurface),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            gamePlayController.hasArrivedAtLocation.value = true;
+            Navigator.of(context).pop();
+            if (savedTabContext?.mounted ?? false) {
+              DefaultTabController.of(savedTabContext!).animateTo(0);
+            }
+          },
+          child: Text(
+            "Continue",
+            style: TextStyle(color: theme.colorScheme.secondary),
           ),
-        );
-      });
-    }
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     savedTabContext = context;
-    double bearing = 0;
-    bool shouldShowArrow = false;
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (currentPosition == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    double distance =
-        calculateDistance(currentPosition!, gamePlayController.waypoints.last);
-    if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
-      checkDistance(distance);
+    final distance = gamePlayController.waypoints.isEmpty
+        ? 0.0
+        : const latlong2.Distance().as(
+            latlong2.LengthUnit.Meter,
+            currentPosition!,
+            gamePlayController.waypoints.last,
+          );
 
-      if (distance > 50) {
-        shouldShowArrow = true;
-        final waypoint = gamePlayController.waypoints.last;
-        bearing = const latlong2.Distance().bearing(currentPosition!, waypoint);
-      }
-    }
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    checkDistance(distance);
+
+    final bearing = gamePlayController.waypoints.isEmpty
+        ? 0.0
+        : const latlong2.Distance().bearing(
+            currentPosition!,
+            gamePlayController.waypoints.last,
+          );
 
     return Scaffold(
       body: Stack(
         children: [
           FlutterMap(
             options: MapOptions(
-              initialZoom: 14,
-              minZoom: 0,
+              initialCenter: currentPosition!,
+              initialZoom: currentZoom,
+              minZoom: 5,
               maxZoom: 19,
-              onPositionChanged: (position, hasGesture) {
-                setState(() => currentZoom = position.zoom);
-              },
+              onPositionChanged: (pos, _) =>
+                  setState(() => currentZoom = pos.zoom),
             ),
             mapController: mapController,
             children: [
@@ -986,120 +984,113 @@ class _OSMFlutterMapState extends State<MapWidget>
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.app',
               ),
-              if (isTracking)
-                CurrentLocationLayer(
-                  alignPositionOnUpdate: AlignOnUpdate.once,
-                  alignDirectionOnUpdate: AlignOnUpdate.never,
-                  style: LocationMarkerStyle(
-                    marker: DefaultLocationMarker(),
-                    markerDirection: MarkerDirection.heading,
+              CurrentLocationLayer(
+                alignPositionOnUpdate: AlignOnUpdate.always,
+                alignDirectionOnUpdate: AlignOnUpdate.never,
+                style: LocationMarkerStyle(
+                  marker: DefaultLocationMarker(
+                    color: colorScheme.secondary,
                   ),
+                  markerDirection: MarkerDirection.heading,
                 ),
+              ),
               _buildWaypointVisualization(),
-              if (shouldShowArrow)
+              if (distance > _minDialogDisplayDistance)
                 MarkerLayer(
                   markers: [
                     Marker(
-                      // Calculate position 20m ahead along bearing
-                      point: _calculateArrowPosition(currentPosition!, bearing),
-                      width: 40,
-                      height: 40,
-                      child: Stack(
-                        children: [
-                          // Background circle
-                          Container(
-                            decoration: BoxDecoration(
-                              // color: Colors.white.withOpacity(0.8),
-                              color: Theme.of(context).colorScheme.primary,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
-                                )
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: Transform.rotate(
-                              angle: bearing * (math.pi / 180),
-                              child: Icon(
-                                Icons.arrow_upward_rounded,
-                                color: Theme.of(context).colorScheme.secondary,
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        point:
+                            _calculateArrowPosition(currentPosition!, bearing),
+                        child: _buildDirectionArrow(bearing, colorScheme)),
                   ],
                 ),
             ],
           ),
-          Positioned(
-              bottom: 100,
-              right: 20,
-              child: FloatingActionButton(
-                backgroundColor: isTracking ? primaryColor : secondaryColor,
-                onPressed: () {
-                  markers.clear();
-                  mapController.rotate(0.0);
-                },
-                child: Transform.rotate(
-                  angle: 135 * pi / 180,
-                  child: Icon(
-                    Icons.explore,
-                    color: isTracking ? secondaryColor : primaryColor,
-                  ),
-                ),
-              )),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: FloatingActionButton(
-              backgroundColor: primaryColor,
-              onPressed: () {
-                if (_showDestination) {
-                  moveToDestination();
-                } else {
-                  moveToCurrentPosition();
-                }
-                setState(() => _showDestination = !_showDestination);
-              },
+          _buildControlButtons(colorScheme),
+          _buildDistanceIndicator(distance, colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDirectionArrow(double bearing, ColorScheme colorScheme) {
+    return Transform.rotate(
+      angle: bearing * (math.pi / 180),
+      child: Icon(
+        Icons.navigation,
+        color: colorScheme.secondary,
+        size: 32,
+        shadows: [
+          Shadow(
+            color: colorScheme.primary.withOpacity(0.8),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildControlButtons(ColorScheme colorScheme) {
+    return Positioned(
+      bottom: 20,
+      right: 20,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            backgroundColor: colorScheme.primary,
+            onPressed: () {
+              // why???
+              // markers.clear();
+              mapController.rotate(0.0);
+            },
+            child: Transform.rotate(
+              angle: 135 * pi / 180,
               child: Icon(
-                _showDestination ? Icons.my_location : Icons.location_on,
-                color: secondaryColor,
+                Icons.explore,
+                color: colorScheme.secondary,
               ),
             ),
           ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: isTracking && gamePlayController.waypoints.isNotEmpty
-                ? 20
-                : -100,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: primaryColor,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  )
-                ],
-              ),
-              child: Text(
-                '${distance.toStringAsFixed(0)} m',
-                style: TextStyle(color: secondaryColor, fontSize: 16),
-              ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'location',
+            backgroundColor: colorScheme.primary,
+            onPressed: () {
+              _showDestination
+                  ? _moveCamera(gamePlayController.waypoints.last)
+                  : moveToCurrentPosition();
+              setState(() => _showDestination = !_showDestination);
+            },
+            child: Icon(
+              _showDestination ? Icons.my_location : Icons.location_on,
+              color: colorScheme.secondary,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDistanceIndicator(double distance, ColorScheme colorScheme) {
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
+      bottom: gamePlayController.waypoints.isNotEmpty ? 20 : -100,
+      left: 20,
+      child: Material(
+        borderRadius: BorderRadius.circular(8),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Text(
+            '${distance.toStringAsFixed(0)} m',
+            style: TextStyle(
+              color: colorScheme.secondary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
     );
   }
