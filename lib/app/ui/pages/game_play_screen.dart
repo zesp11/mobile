@@ -583,7 +583,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   bool get wantKeepAlive => true;
   bool arrived = false;
   LatLng? currentPosition;
-  double currentZoom = 14.0;
+  double currentZoom = 18.0;
   bool _isTracking = false;
   static const double _waypointZoomThreshold = 16.0;
   static const double _arrowOffsetDistance = 10.0;
