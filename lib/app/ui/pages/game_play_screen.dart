@@ -587,14 +587,20 @@ class _OSMFlutterMapState extends State<MapWidget>
   double currentZoom = 18.0;
   bool _isTracking = false;
   static const double _waypointZoomThreshold = 16.0;
-  static const double _arrowOffsetDistance = 10.0;
   static const double _arrivalRadiusMeters = 20.0;
+  static const double _arrowPixelOffset = 30.0;
 
   @override
   void initState() {
     super.initState();
     mapController = MapController();
     _startTracking();
+
+    mapController.mapEventStream.listen((event) {
+      if (!_isMapReady) {
+        setState(() => _isMapReady = true);
+      }
+    });
   }
 
   @override
@@ -620,8 +626,21 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   LatLng _calculateArrowPosition(LatLng start, double bearing) {
-    const distance = latlong2.Distance();
-    return distance.offset(start, _arrowOffsetDistance, bearing);
+    if (!_isMapReady) return start;
+
+    final screenPoint = mapController.camera.project(start);
+    final radians = bearing * (math.pi / 180);
+
+    // Calculate offset components
+    final dx = _arrowPixelOffset * math.sin(radians);
+    final dy = -_arrowPixelOffset * math.cos(radians);
+
+    final newScreenPoint = math.Point(
+      screenPoint.x + dx,
+      screenPoint.y + dy,
+    );
+
+    return mapController.camera.unproject(newScreenPoint);
   }
 
   Widget _buildWaypointVisualization() {
@@ -756,6 +775,12 @@ class _OSMFlutterMapState extends State<MapWidget>
     if (currentPosition == null) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isMapReady) {
+        setState(() {}); // Force rebuild after initial layout
+      }
+    });
 
     final distance = gamePlayController.waypoints.isEmpty
         ? 0.0
