@@ -587,7 +587,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   bool _isTracking = false;
   static const double _waypointZoomThreshold = 16.0;
   static const double _arrowOffsetDistance = 10.0;
-  static const double _arrivalRadiusMeters = 50.0;
+  static const double _arrivalRadiusMeters = 20.0;
 
   @override
   void initState() {
