@@ -40,22 +40,30 @@ class SearchController extends GetxController with StateMixin<SearchResult> {
     try {
       change(null, status: RxStatus.loading());
 
+      final List<Future> futures = [];
       List<User> userResults = [];
       List<Scenario> scenarioResults = [];
 
       if (selectedFilters.isEmpty || selectedFilters.contains(userFilter)) {
-        userResults = await searchService.searchUsers(query);
+        futures.add(searchService
+            .searchUsers(query)
+            .then((users) => userResults = users));
       }
 
       if (selectedFilters.isEmpty || selectedFilters.contains(scenarioFilter)) {
-        scenarioResults = await searchService.searchScenarios(query);
+        futures.add(searchService
+            .searchScenarios(query)
+            .then((scenarios) => scenarioResults = scenarios));
       }
+
+      await Future.wait(futures);
 
       change(
         SearchResult(users: userResults, scenarios: scenarioResults),
         status: RxStatus.success(),
       );
     } catch (e) {
+      logger.e('Search failed: $e');
       change(null, status: RxStatus.error("Failed to load items: $e"));
     }
   }

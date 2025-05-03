@@ -6,6 +6,7 @@ import 'package:gotale/app/models/game_step.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
+import 'package:geolocator/geolocator.dart';
 
 class GamePlayController extends GetxController with StateMixin {
   final GameService gameService;
@@ -209,6 +210,27 @@ class GamePlayController extends GetxController with StateMixin {
       return "There is no history yet, travel around the world to create your own...";
     } else {
       return gameHistory.join('\n');
+    }
+  }
+
+  // THIS IS IMPORTANT (DO NOT DELETE) - required in future
+  Future<void> checkLocation() async {
+    try {
+      if (waypoints.isEmpty) {
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      final currentLatLng = LatLng(position.latitude, position.longitude);
+      final distance =
+          const Distance().as(LengthUnit.Meter, currentLatLng, waypoints.last);
+
+      if (distance <= 50) {
+        hasArrivedAtLocation.value = true;
+        showPostDecisionMessage.value = false;
+      }
+    } catch (e) {
+      logger.e("[DEV_DEBUG] Error checking location: $e");
     }
   }
 
