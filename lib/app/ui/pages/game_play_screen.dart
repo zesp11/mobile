@@ -572,10 +572,6 @@ class MapWidget extends StatefulWidget {
   State<MapWidget> createState() => _OSMFlutterMapState();
 }
 
-/*class MapWidget extends StatelessWidget {
-  const MapWidget({super.key});
-*/
-
 class _OSMFlutterMapState extends State<MapWidget>
     with AutomaticKeepAliveClientMixin {
   late final MapController mapController;
@@ -791,7 +787,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                 userAgentPackageName: 'com.example.app',
               ),
               CurrentLocationLayer(
-                alignPositionOnUpdate: AlignOnUpdate.always,
+                alignPositionOnUpdate: AlignOnUpdate.never,
                 alignDirectionOnUpdate: AlignOnUpdate.never,
                 style: LocationMarkerStyle(
                   marker: DefaultLocationMarker(
