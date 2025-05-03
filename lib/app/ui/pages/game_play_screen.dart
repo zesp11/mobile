@@ -782,7 +782,6 @@ class _OSMFlutterMapState extends State<MapWidget>
   LatLng? currentPosition;
   double currentZoom = 14.0;
   List<Marker> markers = [];
-  double distanceToWaypoint = 0;
   bool isTracking = true;
   bool _showDestination = true; // New state variable
   static const double _waypointZoomThreshold = 16.0; // Zoom level for switch
@@ -810,6 +809,7 @@ class _OSMFlutterMapState extends State<MapWidget>
         : MarkerLayer(
             markers: [
               Marker(
+                rotate: true,
                 point: waypoint,
                 width: 37,
                 height: 37,
@@ -897,8 +897,8 @@ class _OSMFlutterMapState extends State<MapWidget>
     );
   }
 
-  void checkDistance() {
-    if (distanceToWaypoint <= 50 &&
+  void checkDistance(double distance) {
+    if (distance <= 50 &&
         !arrived &&
         !gamePlayController.hasArrivedAtLocation.value) {
       arrived = true;
@@ -950,12 +950,16 @@ class _OSMFlutterMapState extends State<MapWidget>
     double bearing = 0;
     bool shouldShowArrow = false;
 
-    if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
-      distanceToWaypoint = calculateDistance(
-          currentPosition!, gamePlayController.waypoints.last);
-      checkDistance();
+    if (currentPosition == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-      if (distanceToWaypoint > 50) {
+    double distance =
+        calculateDistance(currentPosition!, gamePlayController.waypoints.last);
+    if (currentPosition != null && gamePlayController.waypoints.isNotEmpty) {
+      checkDistance(distance);
+
+      if (distance > 50) {
         shouldShowArrow = true;
         final waypoint = gamePlayController.waypoints.last;
         bearing = const latlong2.Distance().bearing(currentPosition!, waypoint);
@@ -969,7 +973,6 @@ class _OSMFlutterMapState extends State<MapWidget>
         children: [
           FlutterMap(
             options: MapOptions(
-              initialCenter: const LatLng(52.06516, 19.25248),
               initialZoom: 14,
               minZoom: 0,
               maxZoom: 19,
@@ -1035,6 +1038,23 @@ class _OSMFlutterMapState extends State<MapWidget>
             ],
           ),
           Positioned(
+              bottom: 100,
+              right: 20,
+              child: FloatingActionButton(
+                backgroundColor: isTracking ? primaryColor : secondaryColor,
+                onPressed: () {
+                  markers.clear();
+                  mapController.rotate(0.0);
+                },
+                child: Transform.rotate(
+                  angle: 135 * pi / 180,
+                  child: Icon(
+                    Icons.explore,
+                    color: isTracking ? secondaryColor : primaryColor,
+                  ),
+                ),
+              )),
+          Positioned(
             bottom: 20,
             right: 20,
             child: FloatingActionButton(
@@ -1074,7 +1094,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ],
               ),
               child: Text(
-                '${distanceToWaypoint.toStringAsFixed(0)} m',
+                '${distance.toStringAsFixed(0)} m',
                 style: TextStyle(color: secondaryColor, fontSize: 16),
               ),
             ),
