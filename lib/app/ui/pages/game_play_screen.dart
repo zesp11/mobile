@@ -199,7 +199,7 @@ class _DecisionTabState extends State<DecisionTab> {
 
   Widget _buildSwipeUpIndicator() {
     return TweenAnimationBuilder<Offset>(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 0),
       tween: Tween<Offset>(
         begin: const Offset(0, -0.5),
         end: const Offset(0, 0.5),
@@ -584,11 +584,10 @@ class _OSMFlutterMapState extends State<MapWidget>
   bool arrived = false;
   LatLng? currentPosition;
   double currentZoom = 14.0;
-  bool _showDestination = true;
+  bool _isTracking = false;
   static const double _waypointZoomThreshold = 16.0;
-  static const double _arrowOffsetDistance = 20.0;
+  static const double _arrowOffsetDistance = 10.0;
   static const double _arrivalRadiusMeters = 50.0;
-  static const double _minDialogDisplayDistance = 50.0;
 
   @override
   void initState() {
@@ -608,7 +607,13 @@ class _OSMFlutterMapState extends State<MapWidget>
         const LocationMarkerDataStreamFactory().fromGeolocatorPositionStream();
     _positionSubscription = stream.listen((position) {
       if (position != null && mounted) {
-        setState(() => currentPosition = position.latLng);
+        setState(() {
+          currentPosition = position.latLng;
+          // If tracking is enabled, move camera to new position
+          if (_isTracking) {
+            _moveCamera(position.latLng);
+          }
+        });
       }
     });
   }
@@ -677,9 +682,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void _moveCamera(LatLng target) {
-    // if (mapController.camera.isInitialized) {
     mapController.move(target, currentZoom);
-    // }
   }
 
   Future<void> moveToCurrentPosition() async {
@@ -694,10 +697,12 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void checkDistance(double distance) {
-    if (distance > _minDialogDisplayDistance ||
+    if (distance > _arrivalRadiusMeters ||
         !mounted ||
         arrived ||
-        gamePlayController.hasArrivedAtLocation.value) return;
+        gamePlayController.hasArrivedAtLocation.value) {
+      return;
+    }
 
     arrived = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -797,7 +802,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
               ),
               _buildWaypointVisualization(),
-              if (distance > _minDialogDisplayDistance)
+              if (distance > _arrivalRadiusMeters)
                 MarkerLayer(
                   markers: [
                     Marker(
@@ -842,8 +847,6 @@ class _OSMFlutterMapState extends State<MapWidget>
           FloatingActionButton(
             backgroundColor: colorScheme.primary,
             onPressed: () {
-              // why???
-              // markers.clear();
               mapController.rotate(0.0);
             },
             child: Transform.rotate(
@@ -856,16 +859,18 @@ class _OSMFlutterMapState extends State<MapWidget>
           ),
           const SizedBox(height: 16),
           FloatingActionButton(
-            heroTag: 'location',
+            heroTag: 'tracking',
             backgroundColor: colorScheme.primary,
             onPressed: () {
-              _showDestination
-                  ? _moveCamera(gamePlayController.waypoints.last)
-                  : moveToCurrentPosition();
-              setState(() => _showDestination = !_showDestination);
+              setState(() {
+                _isTracking = !_isTracking;
+                if (_isTracking && currentPosition != null) {
+                  _moveCamera(currentPosition!);
+                }
+              });
             },
             child: Icon(
-              _showDestination ? Icons.my_location : Icons.location_on,
+              _isTracking ? Icons.gps_fixed : Icons.gps_not_fixed,
               color: colorScheme.secondary,
             ),
           ),
@@ -882,14 +887,36 @@ class _OSMFlutterMapState extends State<MapWidget>
       child: Material(
         borderRadius: BorderRadius.circular(8),
         elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Text(
-            '${distance.toStringAsFixed(0)} m',
-            style: TextStyle(
-              color: colorScheme.secondary,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            setState(() {
+              _isTracking =
+                  false; // Disable tracking when focusing on destination
+              if (gamePlayController.waypoints.isNotEmpty) {
+                _moveCamera(gamePlayController.waypoints.last);
+              }
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Text(
+                  '${distance.toStringAsFixed(0)} m',
+                  style: TextStyle(
+                    color: colorScheme.secondary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.location_on,
+                  color: colorScheme.secondary,
+                  size: 16,
+                ),
+              ],
             ),
           ),
         ),
