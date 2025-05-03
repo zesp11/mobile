@@ -833,8 +833,10 @@ class _OSMFlutterMapState extends State<MapWidget>
                 userAgentPackageName: 'com.example.app',
               ),
               CurrentLocationLayer(
-                alignPositionOnUpdate: AlignOnUpdate.never,
-                alignDirectionOnUpdate: AlignOnUpdate.never,
+                alignPositionOnUpdate:
+                    _isTracking ? AlignOnUpdate.always : AlignOnUpdate.never,
+                alignDirectionOnUpdate:
+                    _isTracking ? AlignOnUpdate.always : AlignOnUpdate.never,
                 style: LocationMarkerStyle(
                   marker: DefaultLocationMarker(
                     color: colorScheme.secondary,
