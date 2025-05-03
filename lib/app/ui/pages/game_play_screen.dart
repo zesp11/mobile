@@ -842,6 +842,8 @@ class _OSMFlutterMapState extends State<MapWidget>
             color: Theme.of(context).colorScheme.secondary,
             size: 40,
           ),
+          alignment: Alignment.topCenter,
+          rotate: true,
         ),
       ],
     );
