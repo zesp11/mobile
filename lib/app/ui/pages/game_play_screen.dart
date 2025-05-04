@@ -936,6 +936,19 @@ class _OSMFlutterMapState extends State<MapWidget>
               : const SizedBox.shrink()),
           _buildControlButtons(colorScheme),
           _buildDistanceIndicator(distance, colorScheme),
+          // Tutorial/help button
+          Positioned(
+            top: 20,
+            right: 20,
+            child: FloatingActionButton.small(
+              heroTag: 'map_tutorial',
+              backgroundColor: colorScheme.surface,
+              foregroundColor: colorScheme.secondary,
+              child: const Icon(Icons.help_outline),
+              onPressed: () => _showMapTutorial(context, colorScheme),
+              tooltip: 'Map tutorial',
+            ),
+          ),
         ],
       ),
     );
@@ -1041,6 +1054,74 @@ class _OSMFlutterMapState extends State<MapWidget>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showMapTutorial(BuildContext context, ColorScheme colorScheme) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.help_outline,
+                    color: colorScheme.secondary, size: 28),
+                const SizedBox(width: 12),
+                Text('Map Tutorial',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(color: colorScheme.secondary)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _tutorialItem(
+                Icons.touch_app, 'Move the map by dragging with one finger.'),
+            _tutorialItem(Icons.zoom_in,
+                'Zoom in/out using pinch gestures or double-tap.'),
+            _tutorialItem(
+                Icons.gps_fixed, 'Tap the GPS button to follow your location.'),
+            _tutorialItem(Icons.navigation,
+                'A navigation arrow appears if the destination is off-screen.'),
+            _tutorialItem(Icons.location_pin,
+                'A pin or circle marks your current destination.'),
+            _tutorialItem(Icons.label,
+                'The destination name appears when zoomed in and visible.'),
+            _tutorialItem(
+                Icons.explore, 'Tap the compass to reset map rotation.'),
+            _tutorialItem(Icons.location_on,
+                'Tap the meters/distance label to focus the map on the destination.'),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Got it!'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tutorialItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 22),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text)),
+        ],
       ),
     );
   }
