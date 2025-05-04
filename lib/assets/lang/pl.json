@@ -76,5 +76,13 @@
   "skip": "Pomiń",
   "next": "Dalej",
   "begin_adventure": "Rozpocznij przygodę",
-  "resume_last_game": "Ostatnia Gra"
+  "resume_last_game": "Ostatnia Gra",
+  "map_tutorial_move": "Przesuwaj mapę przeciągając jednym palcem.",
+  "map_tutorial_zoom": "Powiększaj i pomniejsz mapę gestem szczypania lub podwójnym stuknięciem.",
+  "map_tutorial_gps": "Dotknij przycisku GPS, aby śledzić swoją lokalizację.",
+  "map_tutorial_arrow": "Strzałka nawigacyjna pojawia się, gdy cel jest poza ekranem.",
+  "map_tutorial_pin": "Pinezka lub okrąg oznacza aktualny cel.",
+  "map_tutorial_label": "Nazwa celu pojawia się, gdy jest widoczny i odpowiednio powiększony.",
+  "map_tutorial_compass": "Dotknij kompasu, aby zresetować obrót mapy.",
+  "map_tutorial_distance": "Stuknij w etykietę z metrami, aby wyśrodkować mapę na celu."
 }
