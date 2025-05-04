@@ -1,2 +1,0 @@
-/home/kenny/Desktop/projekt/mobile/android/app/.cxx/RelWithDebInfo/43z4o425/x86/CMakeFiles/edit_cache.dir
-/home/kenny/Desktop/projekt/mobile/android/app/.cxx/RelWithDebInfo/43z4o425/x86/CMakeFiles/rebuild_cache.dir

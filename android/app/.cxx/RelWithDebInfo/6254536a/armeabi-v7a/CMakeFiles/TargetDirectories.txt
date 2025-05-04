@@ -1,2 +1,0 @@
-/home/kenny/Desktop/projekt/mobile/android/app/.cxx/RelWithDebInfo/6254536a/armeabi-v7a/CMakeFiles/edit_cache.dir
-/home/kenny/Desktop/projekt/mobile/android/app/.cxx/RelWithDebInfo/6254536a/armeabi-v7a/CMakeFiles/rebuild_cache.dir
