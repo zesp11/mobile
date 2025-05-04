@@ -16,6 +16,7 @@ import 'dart:math' as math;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:gotale/app/services/location_service.dart';
 
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
@@ -602,6 +603,8 @@ class _OSMFlutterMapState extends State<MapWidget>
   BuildContext? savedTabContext;
   late StreamSubscription<LocationMarkerPosition?> _positionSubscription;
   bool _isMapReady = false;
+  final LocationService locationService = Get.find<LocationService>();
+  RxString destinationName = ''.obs;
 
   @override
   bool get wantKeepAlive => true;
@@ -618,12 +621,29 @@ class _OSMFlutterMapState extends State<MapWidget>
     super.initState();
     mapController = MapController();
     _startTracking();
+    _updateDestinationName();
 
     mapController.mapEventStream.listen((event) {
       if (!_isMapReady) {
         setState(() => _isMapReady = true);
       }
     });
+  }
+
+  void _updateDestinationName() async {
+    if (gamePlayController.waypoints.isNotEmpty) {
+      final name =
+          await locationService.getPlaceName(gamePlayController.waypoints.last);
+      destinationName.value = name;
+    } else {
+      destinationName.value = '';
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateDestinationName();
   }
 
   @override
@@ -879,8 +899,56 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
             ],
           ),
+          // Show destination name at the top only if the destination is visible and the detailed circle is shown (zoomed in)
+          Obx(() => destinationName.value.isNotEmpty &&
+                  isDestinationVisible &&
+                  currentZoom >= _waypointZoomThreshold
+              ? Positioned(
+                  top: 40,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        destinationName.value,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink()),
           _buildControlButtons(colorScheme),
           _buildDistanceIndicator(distance, colorScheme),
+          // Tutorial/help button
+          Positioned(
+            top: 20,
+            right: 20,
+            child: FloatingActionButton.small(
+              heroTag: 'map_tutorial',
+              backgroundColor: colorScheme.surface,
+              foregroundColor: colorScheme.secondary,
+              child: const Icon(Icons.help_outline),
+              onPressed: () => _showMapTutorial(context, colorScheme),
+              tooltip: 'Map tutorial',
+            ),
+          ),
         ],
       ),
     );
@@ -986,6 +1054,74 @@ class _OSMFlutterMapState extends State<MapWidget>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showMapTutorial(BuildContext context, ColorScheme colorScheme) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.help_outline,
+                    color: colorScheme.secondary, size: 28),
+                const SizedBox(width: 12),
+                Text('Map Tutorial',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(color: colorScheme.secondary)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _tutorialItem(
+                Icons.touch_app, 'Move the map by dragging with one finger.'),
+            _tutorialItem(Icons.zoom_in,
+                'Zoom in/out using pinch gestures or double-tap.'),
+            _tutorialItem(
+                Icons.gps_fixed, 'Tap the GPS button to follow your location.'),
+            _tutorialItem(Icons.navigation,
+                'A navigation arrow appears if the destination is off-screen.'),
+            _tutorialItem(Icons.location_pin,
+                'A pin or circle marks your current destination.'),
+            _tutorialItem(Icons.label,
+                'The destination name appears when zoomed in and visible.'),
+            _tutorialItem(
+                Icons.explore, 'Tap the compass to reset map rotation.'),
+            _tutorialItem(Icons.location_on,
+                'Tap the meters/distance label to focus the map on the destination.'),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Got it!'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tutorialItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 22),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text)),
+        ],
       ),
     );
   }

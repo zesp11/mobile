@@ -79,8 +79,8 @@ class UserProfileScreen extends GetView<ProfileController> {
                                     userProfile.login
                                         .substring(0, 1)
                                         .toUpperCase(),
-                                    style:
-                                        theme.textTheme.headlineMedium?.copyWith(
+                                    style: theme.textTheme.headlineMedium
+                                        ?.copyWith(
                                       color: theme.colorScheme.secondary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: isSmallScreen ? 32 : 40,
@@ -101,8 +101,8 @@ class UserProfileScreen extends GetView<ProfileController> {
                             Text(
                               userProfile.email,
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                color:
-                                    theme.colorScheme.onSurface.withOpacity(0.7),
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.7),
                               ),
                               textAlign: TextAlign.center,
                             ),
