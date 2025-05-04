@@ -16,6 +16,7 @@ import 'dart:math' as math;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:gotale/app/services/location_service.dart';
 
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
@@ -602,6 +603,8 @@ class _OSMFlutterMapState extends State<MapWidget>
   BuildContext? savedTabContext;
   late StreamSubscription<LocationMarkerPosition?> _positionSubscription;
   bool _isMapReady = false;
+  final LocationService locationService = Get.find<LocationService>();
+  RxString destinationName = ''.obs;
 
   @override
   bool get wantKeepAlive => true;
@@ -618,12 +621,29 @@ class _OSMFlutterMapState extends State<MapWidget>
     super.initState();
     mapController = MapController();
     _startTracking();
+    _updateDestinationName();
 
     mapController.mapEventStream.listen((event) {
       if (!_isMapReady) {
         setState(() => _isMapReady = true);
       }
     });
+  }
+
+  void _updateDestinationName() async {
+    if (gamePlayController.waypoints.isNotEmpty) {
+      final name =
+          await locationService.getPlaceName(gamePlayController.waypoints.last);
+      destinationName.value = name;
+    } else {
+      destinationName.value = '';
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateDestinationName();
   }
 
   @override
@@ -879,6 +899,41 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
             ],
           ),
+          // Show destination name at the top only if the destination is visible and the detailed circle is shown (zoomed in)
+          Obx(() => destinationName.value.isNotEmpty &&
+                  isDestinationVisible &&
+                  currentZoom >= _waypointZoomThreshold
+              ? Positioned(
+                  top: 40,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        destinationName.value,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink()),
           _buildControlButtons(colorScheme),
           _buildDistanceIndicator(distance, colorScheme),
         ],
