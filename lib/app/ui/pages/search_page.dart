@@ -5,20 +5,34 @@ import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 import 'package:gotale/app/ui/widgets/scenario_card.dart';
-import 'package:intl/intl.dart';
 
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             SearchBar(controller: controller),
             const SizedBox(height: 12),
-            FilterButtons(controller: controller), // Remove local state
+            FilterButtons(controller: controller),
             const SizedBox(height: 12),
-            Expanded(child: SearchResults(controller: controller)),
+            Expanded(
+              child: RefreshIndicator(
+                color: theme.colorScheme.secondary,
+                backgroundColor: theme.colorScheme.primary,
+                onRefresh: () => controller.searchItems(controller.query.value),
+                child: NotificationListener<OverscrollIndicatorNotification>(
+                  onNotification: (OverscrollIndicatorNotification overscroll) {
+                    overscroll.disallowIndicator();
+                    return true;
+                  },
+                  child: SearchResults(controller: controller),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -168,52 +182,49 @@ class SearchResults extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Stack(
-      children: [
-        controller.obx(
-          (searchResult) {
-            if (searchResult == null || searchResult.isEmpty) {
-              return Center(
-                child: Text(
-                  'no_results_found'.tr,
-                  style: theme.textTheme.bodyLarge,
-                ),
-              );
-            }
-
-            // Combine both lists with section headers
-            final List<Widget> listItems = [];
-
-            // Users section
-            if (searchResult.users.isNotEmpty) {
-              listItems.add(_buildSectionHeader(theme, 'Users'));
-              listItems.addAll(searchResult.users
-                  .map((user) => _buildUserCard(theme, user)));
-            }
-
-            // Scenarios section
-            if (searchResult.scenarios.isNotEmpty) {
-              listItems.add(_buildSectionHeader(theme, 'Scenarios'));
-              listItems.addAll(searchResult.scenarios
-                  .map((scenario) => buildScenarioCard(theme, scenario)));
-            }
-
-            return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: listItems,
-            );
-          },
-          onLoading: Center(
-            child: CircularProgressIndicator(
-              color: theme.colorScheme.secondary,
+    return controller.obx(
+      (searchResult) {
+        if (searchResult == null || searchResult.isEmpty) {
+          return Center(
+            child: Text(
+              'no_results_found'.tr,
+              style: theme.textTheme.bodyLarge,
             ),
-          ),
-          onError: (error) => ErrorScreen(
-            onRetry: () => controller.searchItems(controller.query.value),
-            error: error,
-          ),
+          );
+        }
+
+        // Combine both lists with section headers
+        final List<Widget> listItems = [];
+
+        // Users section
+        if (searchResult.users.isNotEmpty) {
+          listItems.add(_buildSectionHeader(theme, 'Users'));
+          listItems.addAll(
+              searchResult.users.map((user) => _buildUserCard(theme, user)));
+        }
+
+        // Scenarios section
+        if (searchResult.scenarios.isNotEmpty) {
+          listItems.add(_buildSectionHeader(theme, 'Scenarios'));
+          listItems.addAll(searchResult.scenarios
+              .map((scenario) => buildScenarioCard(theme, scenario)));
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          itemCount: listItems.length,
+          itemBuilder: (context, index) => listItems[index],
+        );
+      },
+      onLoading: Center(
+        child: CircularProgressIndicator(
+          color: theme.colorScheme.secondary,
         ),
-      ],
+      ),
+      onError: (error) => ErrorScreen(
+        onRetry: () => controller.searchItems(controller.query.value),
+        error: error,
+      ),
     );
   }
 
@@ -272,9 +283,5 @@ class SearchResults extends StatelessWidget {
 
   void _handleUserTap(User user) {
     Get.toNamed('/profile/${user.id}');
-  }
-
-  void _handleScenarioTap(Scenario scenario) {
-    Get.toNamed('/scenarios/${scenario.id}');
   }
 }
