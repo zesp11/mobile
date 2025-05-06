@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
+import 'package:gotale/app/models/game_in_progress.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/user.dart';
@@ -81,7 +82,8 @@ abstract class ApiService {
   // Future<void> getNearbyGames(int id);
   Future<GameStep> getCurrentStep(int gameId);
   Future<Game> getGameWithId(int gameId);
-  Future<List<Game>> getGamesInProgress({bool includeFinished = false});
+  Future<List<GameInProgress>> getGamesInProgress(
+      {bool includeFinished = false});
   Future<List<GameHistoryRecord>> getGameHistory(int gameId);
   Future<Map<String, dynamic>> makeDecision(int gameId, int choiceId);
   // Future<void> getStep(int id);

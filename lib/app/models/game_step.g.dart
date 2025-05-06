@@ -23,7 +23,7 @@ Map<String, dynamic> _$GameStepToJson(GameStep instance) => <String, dynamic>{
       'text': instance.text,
       'longitude': instance.longitude,
       'latitude': instance.latitude,
-      'photoUrl': instance.photoUrl,
+      'photo_url': instance.photoUrl,
       'choices': instance.choices,
       'id_step': instance.id,
     };

@@ -76,6 +76,7 @@
   "skip": "Pomiń",
   "next": "Dalej",
   "begin_adventure": "Rozpocznij przygodę",
+  "started_on": "Rozpoczęto {date}",
   "resume_last_game": "Ostatnia Gra",
   "map_tutorial_move": "Przesuwaj mapę przeciągając jednym palcem.",
   "map_tutorial_zoom": "Powiększaj i pomniejsz mapę gestem szczypania lub podwójnym stuknięciem.",

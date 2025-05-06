@@ -1,10 +1,11 @@
 import 'package:get/get.dart';
 import 'package:gotale/app/models/game.dart';
+import 'package:gotale/app/models/game_in_progress.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 
 class GameSelectionController extends GetxController
-    with StateMixin<List<Game>> {
+    with StateMixin<List<GameInProgress>> {
   final GameService gameService;
   final logger = Get.find<Logger>();
   var includeFinished = false.obs;

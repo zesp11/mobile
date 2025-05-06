@@ -10,6 +10,7 @@ import 'package:gotale/app/services/game_service.dart';
 import 'package:gotale/app/services/location_service.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:logger/logger.dart';
 
 class ScenarioScreen extends StatelessWidget {
   final GameService service = Get.find<GameService>();
@@ -501,6 +502,9 @@ class ScenarioScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final hasLocation = step.latitude != null && step.longitude != null;
     final hasChoices = step.choices.isNotEmpty;
+
+    final logger = Get.find<Logger>();
+    logger.d('step: lat=${step.latitude}, long=${step.longitude}');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

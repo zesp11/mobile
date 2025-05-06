@@ -1132,6 +1132,7 @@ class StoryTab extends StatelessWidget {
   final controller = Get.find<GamePlayController>();
   final ScrollController _scrollController = ScrollController();
   final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy • HH:mm');
+  final LocationService locationService = Get.find<LocationService>();
 
   @override
   Widget build(BuildContext context) {
@@ -1156,7 +1157,7 @@ class StoryTab extends StatelessWidget {
 
         // Filter out entries where previousStepText is null
         final filteredHistory = controller.gameHistory
-            .where((entry) => entry.previousStepText != null)
+            .where((entry) => entry.previousStep != null)
             .toList();
 
         final hasCurrentStep = controller.currentStep.value != null;
@@ -1204,8 +1205,10 @@ class StoryTab extends StatelessWidget {
     );
   }
 
-  // Removed isStartEntry parameter as it's no longer needed
   Widget _buildStoryEntry(BuildContext context, GameHistoryRecord entry) {
+    final location =
+        LatLng(entry.currentStep.latitude, entry.currentStep.longitude);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -1235,7 +1238,7 @@ class StoryTab extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        entry.previousStepText!,
+                        entry.previousStep?.text ?? entry.currentStep.text,
                         softWrap: true,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
@@ -1245,7 +1248,47 @@ class StoryTab extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (entry.choiceText != null) ...[
+                const SizedBox(height: 8),
+                FutureBuilder<String>(
+                  future: locationService.getPlaceName(location),
+                  builder: (context, snapshot) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            snapshot.data ??
+                                locationService.formatCoordinates(location),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                if (entry.choice?.text != null) ...[
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -1291,7 +1334,7 @@ class StoryTab extends StatelessWidget {
                                     ),
                               ),
                               Text(
-                                entry.choiceText!,
+                                entry.choice!.text,
                                 softWrap: true,
                                 style: Theme.of(context)
                                     .textTheme

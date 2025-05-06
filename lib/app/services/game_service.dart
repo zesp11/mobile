@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
+import 'package:gotale/app/models/game_in_progress.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
@@ -80,11 +81,10 @@ class GameService extends GetxService {
     }
   }
 
-  Future<List<Game>> fetchGamesInProgress(
+  Future<List<GameInProgress>> fetchGamesInProgress(
       {bool includeFinished = false}) async {
     try {
-      return await apiService.getGamesInProgress(
-          includeFinished: includeFinished);
+      return apiService.getGamesInProgress(includeFinished: includeFinished);
     } catch (e) {
       logger.e("Error fetching games in progress: $e");
       return [];

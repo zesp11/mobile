@@ -16,11 +16,11 @@ class LocationService extends GetxService {
   static const Duration _cacheDuration =
       Duration(days: 30); // Cache for 30 days
   static const Duration _requestThrottle =
-      Duration(seconds: 1); // Minimum time between requests
+      Duration(milliseconds: 500); // Reduced from 1 second
   DateTime? _lastRequestTime;
 
   // Rate limiting
-  static const int _maxRequestsPerMinute = 10;
+  static const int _maxRequestsPerMinute = 20; // Increased from 10
   final Queue<DateTime> _requestTimes = Queue<DateTime>();
 
   Map<String, dynamic> get _locationCache {
@@ -38,12 +38,15 @@ class LocationService extends GetxService {
 
     // Check rate limit
     if (_requestTimes.length >= _maxRequestsPerMinute) {
+      logger.w('Rate limit reached. Queue size: ${_requestTimes.length}');
       return false;
     }
 
     // Check throttle
     if (_lastRequestTime != null &&
         now.difference(_lastRequestTime!) < _requestThrottle) {
+      logger.w(
+          'Request throttled. Time since last request: ${now.difference(_lastRequestTime!).inMilliseconds}ms');
       return false;
     }
 
@@ -60,9 +63,13 @@ class LocationService extends GetxService {
       isLoadingLocation.value = true;
       final cacheKey = _generateCacheKey(coordinates);
 
+      logger.d(
+          'Getting place name for coordinates: ${coordinates.latitude}, ${coordinates.longitude}');
+
       // Check cache first
       final cachedLocation = _checkCache(cacheKey);
       if (cachedLocation != null) {
+        logger.d('Found cached location: $cachedLocation');
         currentLocationName.value = cachedLocation;
         return cachedLocation;
       }
@@ -77,25 +84,39 @@ class LocationService extends GetxService {
       _lastRequestTime = DateTime.now();
       _requestTimes.add(_lastRequestTime!);
 
-      final placemarks = await placemarkFromCoordinates(
-        coordinates.latitude,
-        coordinates.longitude,
-      );
+      logger.d('Making geocoding request...');
+      List<Placemark> placemarks;
+      try {
+        placemarks = await placemarkFromCoordinates(
+          coordinates.latitude,
+          coordinates.longitude,
+        );
+      } catch (e) {
+        logger.e('Error in placemarkFromCoordinates: $e');
+        return formatCoordinates(coordinates);
+      }
 
+      logger.d('Received placemarks: $placemarks');
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
-        final locationName = _formatAddress(place);
+        String locationName;
+        try {
+          locationName = _formatAddress(place);
+        } catch (e) {
+          logger.e('Error formatting address: $e');
+          return formatCoordinates(coordinates);
+        }
+        logger.d('Formatted address: $locationName');
 
         // Cache the result
         _cacheLocation(cacheKey, locationName);
-
         currentLocationName.value = locationName;
         return locationName;
       }
 
       return formatCoordinates(coordinates);
-    } catch (e) {
-      logger.e('Error getting place name: $e');
+    } catch (e, stackTrace) {
+      logger.e('Error getting place name: $e\n$stackTrace');
       return formatCoordinates(coordinates);
     } finally {
       isLoadingLocation.value = false;
@@ -130,14 +151,18 @@ class LocationService extends GetxService {
   String _formatAddress(Placemark place) {
     final List<String> addressParts = [];
 
-    if (place.street?.isNotEmpty ?? false) {
-      addressParts.add(place.street!);
-    }
-    if (place.locality?.isNotEmpty ?? false) {
-      addressParts.add(place.locality!);
-    }
-    if (place.country?.isNotEmpty ?? false) {
-      addressParts.add(place.country!);
+    try {
+      if (place.street?.isNotEmpty ?? false) {
+        addressParts.add(place.street!);
+      }
+      if (place.locality?.isNotEmpty ?? false) {
+        addressParts.add(place.locality!);
+      }
+      if (place.country?.isNotEmpty ?? false) {
+        addressParts.add(place.country!);
+      }
+    } catch (e) {
+      logger.e('Error building address parts: $e');
     }
 
     return addressParts.isEmpty ? 'Unknown location' : addressParts.join(', ');

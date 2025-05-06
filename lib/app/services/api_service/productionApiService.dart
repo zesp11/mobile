@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
+import 'package:gotale/app/models/game_in_progress.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
@@ -656,7 +657,8 @@ class ProductionApiService extends ApiService {
   }
 
   @override
-  Future<List<Game>> getGamesInProgress({bool includeFinished = false}) async {
+  Future<List<GameInProgress>> getGamesInProgress(
+      {bool includeFinished = false}) async {
     try {
       var endpoint =
           '$name$getUserGamesRoute?includeFinished=${includeFinished}';
@@ -683,7 +685,7 @@ class ProductionApiService extends ApiService {
       logger.i('Get games in progress response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final decodedResponse = utf8.decode(response.bodyBytes);
-        return gameListFromJson(decodedResponse);
+        return gameInProgressListFromJson(decodedResponse);
       } else {
         logger.e('Failed to get games in progress: ${response.statusCode}');
         throw Exception(
