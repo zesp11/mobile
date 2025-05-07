@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
@@ -12,13 +13,32 @@ import 'package:logger/logger.dart';
 enum GameType { single, multi }
 
 class GamePlayController extends GetxController with StateMixin {
-  
   final Rx<String?> jwtToken = Rx<String?>(null);
 
-  void setToken(String token) {
-    jwtToken.value = token;
+  final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadToken();
   }
-  
+
+  Future<void> loadToken() async {
+    final token = await secureStorage.read(key: 'accessToken');
+    if (token != null) {
+      jwtToken.value = 'Bearer $token';
+      print(jwtToken.value); //delete this later ofc
+    } else {
+      jwtToken.value = null;
+    }
+  }
+
+  /*void setToken(String token) {
+    jwtToken.value = "Bearer token";
+  }*/
+
+  //eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes
+
   final GameService gameService;
   final logger = Get.find<Logger>();
   final _devBypassLocation = false.obs;
@@ -189,7 +209,7 @@ class GamePlayController extends GetxController with StateMixin {
       showPostDecisionMessage.value = true;
       hasArrivedAtLocation.value = false;
     }
-    
+
     await _processDecision(decision);
   }
 
@@ -209,7 +229,7 @@ class GamePlayController extends GetxController with StateMixin {
         ]);
 
         if (!isDevelopmentMode) {
-        /*if (currentStep.value != null &&
+          /*if (currentStep.value != null &&
             currentStep.value!.latitude != null &&
             currentStep.value!.longitude != null &&
             (currentStep.value!.latitude != 0.0 ||
@@ -221,8 +241,8 @@ class GamePlayController extends GetxController with StateMixin {
           showPostDecisionMessage.value = false;
           hasArrivedAtLocation.value = true;
         }*/
-        hasArrivedAtLocation.value = false;
-      }
+          hasArrivedAtLocation.value = false;
+        }
       } catch (e) {
         logger.e("[DEV_DEBUG] Error processing decision: $e");
         throw Exception("Failed to process decision: $e");
@@ -265,7 +285,7 @@ class GamePlayController extends GetxController with StateMixin {
       logger.d("[DEV_DEBUG] Decision response: $lobby");
       createdLobby.value = lobby;
       return lobby;
-      } catch (e) {
+    } catch (e) {
       logger.e("[DEV_DEBUG] Error processing decision: $e");
       throw Exception("Failed to process decision: $e");
     }

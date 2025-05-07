@@ -56,11 +56,13 @@ class GamePlayScreen extends StatelessWidget {
             unselectedLabelColor:
                 Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             tabs: [
-              if (isMulti) Tab( //TODO: add translations here
-                text: 'lobby',
-                icon: Icon(Icons.groups,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
+              if (isMulti)
+                Tab(
+                  //TODO: add translations here
+                  text: 'lobby',
+                  icon: Icon(Icons.groups,
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
               Obx(
                 () => Tab(
                   text: 'decision'.tr,
@@ -89,7 +91,6 @@ class GamePlayScreen extends StatelessWidget {
                 icon: Icon(Icons.map,
                     color: Theme.of(context).colorScheme.secondary),
               ),
-              
             ],
           ),
         ),
@@ -150,11 +151,22 @@ class LobbyTab extends StatelessWidget {
                 "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
                 snackPosition: SnackPosition.BOTTOM,
               );*/
-              Get.to(() => LobbySocketPanel(
-                    jwtToken: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",//controller.jwtToken.value!,
-                    //jwtToken: "",
-                    lobbyId: "999",//lobby.idLobby.toString(),
-                  ));
+              if (controller.jwtToken.value == null) {
+                await controller.loadToken();
+              }
+
+              if (controller.jwtToken.value != null) {
+                Get.to(() => LobbySocketPanel(
+                      //jwtToken:
+                      //    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",
+                      jwtToken: controller.jwtToken.value!,
+                      lobbyId: "999",
+                    ));
+              } else {
+                Get.snackbar(
+                    "Błąd", "Token JWT jest pusty! Nie można utworzyć lobby.",
+                    snackPosition: SnackPosition.BOTTOM);
+              }
             } catch (e) {
               Get.snackbar(
                 "Błąd",
@@ -174,9 +186,7 @@ class LobbyTab extends StatelessWidget {
         ),
       ],
     );
-    
   }
-  
 }
 
 class GameTitle extends StatelessWidget {
@@ -313,7 +323,6 @@ class _DecisionTabState extends State<DecisionTab> {
     );
   }
 
-
   Widget _buildDecisionSuccessMessage(BuildContext context) {
     return Center(
       child: Column(
@@ -347,7 +356,8 @@ class _DecisionTabState extends State<DecisionTab> {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
+            onPressed: () =>
+                DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
           ),
         ],
       ),
@@ -430,7 +440,8 @@ class _DecisionTabState extends State<DecisionTab> {
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
-              onPressed: () => DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
+              onPressed: () =>
+                  DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
             ),
           ],
         ),
@@ -592,7 +603,8 @@ class _DecisionTabState extends State<DecisionTab> {
                       layoutStyle: buttonLayout,
                       onDecisionMade: (decision) {
                         // setState(() => _showButtons = True);
-                        controller.hasArrivedAtLocation.value = false; //important part
+                        controller.hasArrivedAtLocation.value =
+                            false; //important part
                         controller.makeDecision(decision);
                       },
                     ),
@@ -899,8 +911,7 @@ class _OSMFlutterMapState extends State<MapWidget>
     if (distanceToWaypoint <= 20 &&
         !arrived &&
         !gamePlayController.hasArrivedAtLocation.value &&
-        DefaultTabController.of(context).index == (isMulti ? 3 : 2)
-        ) {
+        DefaultTabController.of(context).index == (isMulti ? 3 : 2)) {
       arrived = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
@@ -927,7 +938,8 @@ class _OSMFlutterMapState extends State<MapWidget>
                         gamePlayController.hasArrivedAtLocation.value = true;
                         Navigator.of(context, rootNavigator: true).pop();
                         // Użycie DefaultTabController do zmiany tabów
-                        DefaultTabController.of(savedTabContext!).animateTo(isMulti ? 1 : 0);
+                        DefaultTabController.of(savedTabContext!)
+                            .animateTo(isMulti ? 1 : 0);
                       },
                       style: TextButton.styleFrom(
                           backgroundColor: theme.colorScheme.secondary),
