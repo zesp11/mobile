@@ -24,7 +24,7 @@
   "new_password": "New password",
   "confirm_new_password": "New password confirmation",
   "email": "Email Address",
-  "login_failed": "Login Failed",
+  "login_failed": "Incorrect username or password. Please check your credentials and try again.",
   "not_logged_in": "Not Logged In",
   "login": "Log In",
   "no_account_question": "Don't have an account?",

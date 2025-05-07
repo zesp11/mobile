@@ -91,7 +91,7 @@ class AuthController extends GetxController with StateMixin<User> {
       Get.rootDelegate.toNamed(AppRoutes.home);
     } catch (e) {
       logger.e("Login failed: $e");
-      loginStatus.value = RxStatus.error("Login failed: ${e.toString()}");
+      loginStatus.value = RxStatus.error('login_failed'.tr);
     }
   }
 
