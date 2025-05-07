@@ -72,8 +72,7 @@ class AuthController extends GetxController with StateMixin<User> {
 
   Future<void> login(String username, String password) async {
     try {
-      loginStatus.value =
-          RxStatus.loading(); // Update loginStatus instead of main state
+      loginStatus.value = RxStatus.loading();
       final response = await authService.login(username, password);
 
       await _storeAuthData(
@@ -82,13 +81,17 @@ class AuthController extends GetxController with StateMixin<User> {
         response.userId.toString(),
       );
 
-      loginStatus.value = RxStatus.success(); // Update loginStatus on success
+      loginStatus.value = RxStatus.success();
       await _fetchUserProfile(response.userId.toString());
+
+      // Fetch games before navigation
+      final gameController = Get.find<GameSelectionController>();
+      await gameController.fetchGamesInProgress();
+
       Get.rootDelegate.toNamed(AppRoutes.home);
     } catch (e) {
       logger.e("Login failed: $e");
-      loginStatus.value = RxStatus.error(
-          "Login failed: ${e.toString()}"); // Update loginStatus on error
+      loginStatus.value = RxStatus.error("Login failed: ${e.toString()}");
     }
   }
 
