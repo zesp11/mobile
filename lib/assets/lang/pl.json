@@ -24,7 +24,7 @@
   "new_password": "Nowe hasło",
   "confirm_new_password": "Potwierdzenie nowego hasła",
   "email": "Adres e-mail",
-  "login_failed": "Logowanie nie powiodło się",
+  "login_failed": "Nieprawidłowa nazwa użytkownika lub hasło. Sprawdź dane logowania i spróbuj ponownie.",
   "not_logged_in": "Nie zalogowano",
   "login": "Zaloguj się",
   "no_account_question": "Nie masz konta?",
