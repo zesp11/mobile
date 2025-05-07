@@ -17,7 +17,7 @@ class GamePlayController extends GetxController with StateMixin {
   final Rx<String?> jwtToken = Rx<String?>(null);
 
   void setToken(String token) {
-    jwtToken.value = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes";//token;
+    jwtToken.value = token;
   }
   
   final GameService gameService;

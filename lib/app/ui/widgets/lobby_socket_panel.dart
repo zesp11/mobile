@@ -54,9 +54,11 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () {
-            socketService.sendMessage(widget.lobbyId, "testtttt\n");
-          },
+          onPressed: socketService.isConnected
+            ? () {
+                socketService.sendMessage(widget.lobbyId, "testtttt\n");
+              }
+            : null, // przycisk nieaktywny, jak nie połączono
           child: Text("Wyślij wiadomość"),
         ),
         const SizedBox(height: 12),
