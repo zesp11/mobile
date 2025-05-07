@@ -3,9 +3,8 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class SocketService {
   late StompClient _client;
-  late String _sessionId;
+  final String _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
   bool _isConnected = false;
-
   bool get isConnected => _isConnected;
 
   void connect({
@@ -13,28 +12,70 @@ class SocketService {
     required String lobbyId,
     required Function(String message) onLog,
     required Function(String error) onError,
+    
   }) {
     _client = StompClient(
       config: StompConfig(
         //url: "ws://localhost:8080/websocket/websocket",
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // ✅ czysty WebSocket
-        useSockJS: false, // ❌ bez SockJS
+        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
+        useSockJS: false, // 
         stompConnectHeaders: {
+          'session-id': _sessionId,
           'Authorization': 'Bearer $jwtToken',
           'lobby-id': lobbyId,
         },
         webSocketConnectHeaders: {
           'Authorization': 'Bearer $jwtToken',
+          'session-id': _sessionId,
         },
         onConnect: (StompFrame frame) {
           _isConnected = true;
+          //final url = frame.headers['sockjs-url'];
 
-          // ✅ Generujemy własne sessionId
-          _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+          /*if (url != null) {
+            _sessionId = _extractSessionId(url);
+            onLog("Połączono, sessionId: $_sessionId");
+          }*/
+          //_sessionId = "kjsgsgsglslgds";
+
+          /*final url = frame.headers['sessionId'];
+          if (url != null) {
+            print("sessionId: $url");
+          } else {
+            print("Brak sessionId w headerach...");
+          }
+          print("hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+          _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';*/
+
+          print("🔍 -------------------------------Wszystkie headery:");
+          frame.headers.forEach((key, value) {
+            print("  $key: $value");
+          });
+          print(frame.body);
+          print("tyle kurwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+/*
+          final url = frame.headers['sockjs-url'];
+          if (url != null) {
+
+            _sessionId = _extractSessionId(url);
+            onLog("Połączono, sessionId: $_sessionId");
+          }
+          else {
+            //_sessionId = "chuj";
+            //print("kurwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+          }*/
+
+          //_sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+
           onLog("✅ Połączono, sessionId: $_sessionId");
+          print("✅ Połączono, sessionId: $_sessionId");
+
+          //_subscribeToErrors(onError, onLog);
+          _subscribeToLobby(lobbyId, onLog);
 
           _subscribeToErrors(onError, onLog);
-          _subscribeToLobby(lobbyId, onLog);
+
         },
         onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
         onStompError: (frame) => onError("❌ STOMP error: ${frame.body}"),
@@ -53,9 +94,30 @@ class SocketService {
       destination: '/topic/lobby.$lobbyId',
       headers: {'lobby-id': lobbyId},
       callback: (StompFrame frame) {
-        onLog("📥 Otrzymano: ${frame.body}");
+        //final body = frame.body ?? "";
+        var body = frame.body ?? "";
+        print("📥 Otrzymano: ${frame.body}");
+
+        /*body = body.replaceAll('\n', '\\n');
+
+        try {
+          final data = jsonDecode(body);
+          if (data is Map<String, dynamic>) {
+            final message = data['sessionId'];
+            print("🔑 Wiadomość: $message");
+          } else {
+            print("❌");
+          }
+        } catch (e) {
+          print("💥 Error parsowania JSONa: $e");
+        }*/
+        //print(${frame.body});
       },
     );
+
+
+  
+
   }
 
   void _subscribeToErrors(void Function(String) onError, void Function(String) onLog) {
@@ -64,6 +126,7 @@ class SocketService {
     _client?.subscribe(
       destination: "/queue/errors/$_sessionId",
       callback: (frame) {
+        print("-----------------w error sessionid: ${_sessionId}");
         try {
           final Map<String, dynamic> error = frame.body != null ? Map<String, dynamic>.from(jsonDecode(frame.body!)) : {};
           final type = error['type'];
@@ -103,6 +166,10 @@ class SocketService {
       _client.send(
         destination: '/app/lobby/send/$lobbyId',
         body: message,
+        headers: {
+        'session-id': _sessionId,
+        'lobby-id': lobbyId, 
+      },
       );
     }
   }
@@ -117,7 +184,12 @@ class SocketService {
 
   void disconnectSilently() {
   disconnect(() {});
-}
+  }
+
+  String _extractSessionId(String url) {
+    final parts = url.split('/');
+    return parts[parts.length - 2];
+  }
 }
 
 
