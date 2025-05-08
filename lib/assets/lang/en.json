@@ -24,7 +24,7 @@
   "new_password": "New password",
   "confirm_new_password": "New password confirmation",
   "email": "Email Address",
-  "login_failed": "Login Failed",
+  "login_failed": "Incorrect username or password. Please check your credentials and try again.",
   "not_logged_in": "Not Logged In",
   "login": "Log In",
   "no_account_question": "Don't have an account?",
@@ -67,7 +67,6 @@
   "confirm_logout": "Confirm logout",
   "logout_confirmation_message": "Please please that you want to logout from this device",
   "settings_title": "Settings",
-
   "forge_legend": "Forge Your Legend",
   "forge_legend_desc": "Embark on quests where every choice etches your story in the annals of this realm",
   "explore_realms": "Explore Boundless Realms",
@@ -84,5 +83,13 @@
   "start_adventure": "Rozpocznij przygodę",
   "username": "Nazwa użytkownika",
   "password": "Hasło",
-  "resume_last_game": "Last game"
+  "resume_last_game": "Last game",
+  "map_tutorial_move": "Move the map by dragging with one finger.",
+  "map_tutorial_zoom": "Zoom in/out using pinch gestures or double-tap.",
+  "map_tutorial_gps": "Tap the GPS button to follow your location.",
+  "map_tutorial_arrow": "A navigation arrow appears if the destination is off-screen.",
+  "map_tutorial_pin": "A pin or circle marks your current destination.",
+  "map_tutorial_label": "The destination name appears when zoomed in and visible.",
+  "map_tutorial_compass": "Tap the compass to reset map rotation.",
+  "map_tutorial_distance": "Tap the meters/distance label to focus the map on the destination."
 }
