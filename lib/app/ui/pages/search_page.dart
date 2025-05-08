@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
+import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
@@ -14,6 +15,7 @@ class SearchScreen extends GetView<goTaleSearch.SearchController> {
     return Scaffold(
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SearchBar(controller: controller),
             const SizedBox(height: 12),
@@ -55,6 +57,9 @@ class FilterButtons extends StatelessWidget {
           const SizedBox(width: 12),
           _buildFilterButton(
               goTaleSearch.SearchController.scenarioFilter, context),
+          const SizedBox(width: 12),
+          _buildFilterButton(
+              goTaleSearch.SearchController.lobbyFilter, context),
         ],
       ),
     );
@@ -96,7 +101,9 @@ class FilterButtons extends StatelessWidget {
           child: Text(
             filterType == goTaleSearch.SearchController.userFilter
                 ? 'user'.tr
-                : 'scenario'.tr,
+                : filterType == goTaleSearch.SearchController.scenarioFilter
+                    ? 'scenario'.tr
+                    : 'lobby'.tr,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               color: isSelected
@@ -210,6 +217,13 @@ class SearchResults extends StatelessWidget {
               .map((scenario) => buildScenarioCard(theme, scenario)));
         }
 
+        // Lobbies section
+        if (searchResult.lobbies.isNotEmpty) {
+          listItems.add(_buildSectionHeader(theme, 'Lobbies'));
+          listItems.addAll(searchResult.lobbies
+              .map((lobby) => _buildLobbyCard(theme, lobby)));
+        }
+
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: listItems.length,
@@ -277,6 +291,46 @@ class SearchResults extends StatelessWidget {
           color: theme.colorScheme.tertiary,
         ),
         onTap: () => _handleUserTap(user),
+      ),
+    );
+  }
+
+  Widget _buildLobbyCard(ThemeData theme, Lobby lobby) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        leading: CircleAvatar(
+          radius: 18, // Total diameter will be 64
+          backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
+          /*backgroundImage: lobby.photoUrl != null ? NetworkImage(lobby.photoUrl!) : null,
+          child: lobby.photoUrl == null
+              ? Icon(
+                  Icons.groups,
+                  color: theme.colorScheme.secondary,
+                  size: 36,
+                )
+              : null,*/
+        ),
+        title: Text(
+          lobby.idLobby.toString(),
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(
+          lobby.status,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: theme.colorScheme.tertiary,
+        ),
+        //onTap: () => _handleUserTap(user),
       ),
     );
   }

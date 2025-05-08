@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/api_service/api_service.dart';
@@ -24,6 +25,15 @@ class SearchService extends GetxService {
       return apiService.searchScenarios(query);
     } catch (error) {
       logger.e("Scenario search error: $error");
+      return [];
+    }
+  }
+
+  Future<List<Lobby>> searchLobbies(String query) async {
+    try {
+      return apiService.searchLobbies(query);
+    } catch (error) {
+      logger.e("Lobby search error: $error");
       return [];
     }
   }

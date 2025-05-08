@@ -15,6 +15,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:logger/logger.dart';
 
+import 'package:gotale/app/models/lobby.dart';
+
 class ProductionApiService extends ApiService {
   final logger = Get.find<Logger>();
 
@@ -48,6 +50,10 @@ class ProductionApiService extends ApiService {
   static const String makeStepRoute = '/api/games/:id/step';
   static const String playGameRoute = '/api/games/:id/play';
   static const String getUserGamesRoute = '/api/games/user';
+
+  // Lobby endpoints
+  static const String createLobbyRoute = '/api/lobby/:id';
+  static const String searchLobbiesRoute = '/api/lobby';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -109,6 +115,48 @@ class ProductionApiService extends ApiService {
   //     throw Exception('Failed to fetch gamebooks: ${e.toString()}');
   //   }
   // }
+
+  @override
+  Future<Lobby> createLobby(int scenarioId) async {
+    try {
+      final logger = Get.find<Logger>();
+
+      final endpoint =
+          '$name${createLobbyRoute.replaceFirst(':id', scenarioId.toString())}';
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      logger.d('Creating lobby at endpoint: $endpoint');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Create lobby response status: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedResponse);
+        return Lobby.fromJson(data);
+      } else {
+        throw Exception('Failed to create lobby: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error creating lobby: $e');
+      throw Exception('Exception while creating lobby: $e');
+    }
+  }
 
   @override
   Future<List<Scenario>> getAvailableGamebooks() async {
@@ -436,6 +484,27 @@ class ProductionApiService extends ApiService {
       }
     } catch (e) {
       throw Exception('Scenario search failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<Lobby>> searchLobbies(String query) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$name$searchLobbiesRoute?search=$query'),
+      );
+
+      if (response.statusCode == 200) {
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final List<dynamic> responseBody = jsonDecode(decodedResponse);
+        //final List<dynamic> lobbies = responseBody['data'] ?? [];
+        return responseBody.map((x) => Lobby.fromJson(x)).toList();
+      } else {
+        throw Exception(
+            'Lobby search failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Lobby search failed: ${e.toString()}');
     }
   }
 

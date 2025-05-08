@@ -6,8 +6,10 @@ import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
+import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
+import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/web.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
@@ -17,6 +19,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/location_service.dart';
+
+bool isMulti = false;
 
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
@@ -28,9 +32,11 @@ class GamePlayScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final gamebookId = Get.parameters['id']!;
     controller.fetchGameWithId(int.parse(gamebookId));
+    isMulti = controller.gameType == GameType.multi;
+    final tabCount = isMulti ? 4 : 3;
 
     final TabController tabController =
-        TabController(length: 3, vsync: Navigator.of(context));
+        TabController(length: tabCount, vsync: Navigator.of(context));
 
     Get.put(tabController);
 
@@ -39,7 +45,7 @@ class GamePlayScreen extends StatelessWidget {
     logger.d("Current step: ${controller.currentStep.value}");
 
     return DefaultTabController(
-      length: 3,
+      length: tabCount,
       child: Scaffold(
         appBar: AppBar(
           title: controller.obx(
@@ -55,6 +61,13 @@ class GamePlayScreen extends StatelessWidget {
             unselectedLabelColor:
                 Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             tabs: [
+              if (isMulti)
+                Tab(
+                  //TODO: add translations here
+                  text: 'lobby',
+                  icon: Icon(Icons.groups,
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
               Obx(
                 () => Tab(
                   text: 'decision'.tr,
@@ -90,6 +103,7 @@ class GamePlayScreen extends StatelessWidget {
           child: controller.obx(
             (state) => TabBarView(
               children: [
+                if (isMulti) LobbyTab(),
                 DecisionTab(),
                 StoryTab(),
                 MapWidget(),
@@ -115,6 +129,67 @@ class GamePlayScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class LobbyTab extends StatelessWidget {
+  const LobbyTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final GamePlayController controller = Get.find<GamePlayController>();
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+          onPressed: () async {
+            try {
+              /*Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
+              Get.snackbar(
+                "Lobby stworzone!",
+                "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
+                snackPosition: SnackPosition.BOTTOM,
+              );*/
+              if (controller.jwtToken.value == null) {
+                await controller.loadToken();
+              }
+
+              if (controller.jwtToken.value != null) {
+                Get.to(() => LobbySocketPanel(
+                      //jwtToken:
+                      //    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",
+                      jwtToken: controller.jwtToken.value!,
+                      lobbyId: "999",
+                    ));
+              } else {
+                Get.snackbar(
+                    "Błąd", "Token JWT jest pusty! Nie można utworzyć lobby.",
+                    snackPosition: SnackPosition.BOTTOM);
+              }
+            } catch (e) {
+              Get.snackbar(
+                "Błąd",
+                "Nie udało się stworzyć lobby: $e",
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            }
+          },
+          child: const Text("Stwórz Lobby"),
+        ),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            // Inny kod tutaj
+          },
+          child: Text('Another Button'),
+        ),
+      ],
     );
   }
 }
@@ -284,7 +359,8 @@ class _DecisionTabState extends State<DecisionTab> {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () => DefaultTabController.of(context).animateTo(2),
+            onPressed: () =>
+                DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
           ),
         ],
       ),
@@ -377,8 +453,8 @@ class _DecisionTabState extends State<DecisionTab> {
                         color: Theme.of(context).colorScheme.onSecondary,
                       ),
                     ),
-                    onPressed: () =>
-                        DefaultTabController.of(context).animateTo(2),
+                    onPressed: () => DefaultTabController.of(context)
+                        .animateTo(isMulti ? 3 : 2),
                   ),
                   const SizedBox(height: 15),
                   Text(
@@ -554,6 +630,8 @@ class _DecisionTabState extends State<DecisionTab> {
                       layoutStyle: buttonLayout,
                       onDecisionMade: (decision) {
                         // setState(() => _showButtons = True);
+                        controller.hasArrivedAtLocation.value =
+                            false; //important part
                         controller.makeDecision(decision);
                       },
                     ),
@@ -763,7 +841,8 @@ class _OSMFlutterMapState extends State<MapWidget>
     if (distance > _arrivalRadiusMeters ||
         !mounted ||
         arrived ||
-        gamePlayController.hasArrivedAtLocation.value) {
+        gamePlayController.hasArrivedAtLocation.value ||
+        DefaultTabController.of(context).index != (isMulti ? 3 : 2)) {
       return;
     }
 

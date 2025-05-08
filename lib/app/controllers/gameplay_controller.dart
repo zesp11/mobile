@@ -1,17 +1,50 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/models/choice.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
+import 'package:gotale/app/models/lobby.dart' as lobbyModel;
+import 'package:gotale/app/services/lobby_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
 import 'package:geolocator/geolocator.dart';
 
+enum GameType { single, multi }
+
 class GamePlayController extends GetxController with StateMixin {
+  final Rx<String?> jwtToken = Rx<String?>(null);
+
+  final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadToken();
+  }
+
+  Future<void> loadToken() async {
+    final token = await secureStorage.read(key: 'accessToken');
+    if (token != null) {
+      jwtToken.value = 'Bearer $token';
+      print(jwtToken.value); //delete this later ofc
+    } else {
+      jwtToken.value = null;
+    }
+  }
+
+  /*void setToken(String token) {
+    jwtToken.value = "Bearer token";
+  }*/
+
+  //eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes
+
   final GameService gameService;
   final logger = Get.find<Logger>();
   final _devBypassLocation = false.obs;
+
+  GameType gameType = GameType.single;
 
   void toggleDevBypassLocation(bool value) {
     _devBypassLocation.value = value;
@@ -177,10 +210,11 @@ class GamePlayController extends GetxController with StateMixin {
       showPostDecisionMessage.value = true;
       hasArrivedAtLocation.value = false;
     }
-    _processDecision(decision);
+
+    await _processDecision(decision);
   }
 
-  void _processDecision(Choice decision) async {
+  Future<void> _processDecision(Choice decision) async {
     if (currentStep.value != null && currentGame.value != null) {
       try {
         // Make the decision through the API
@@ -194,6 +228,22 @@ class GamePlayController extends GetxController with StateMixin {
           fetchGameHistory(currentGame.value!.idGame),
           fetchCurrentStep(currentGame.value!.idGame),
         ]);
+
+        if (!isDevelopmentMode) {
+          /*if (currentStep.value != null &&
+            currentStep.value!.latitude != null &&
+            currentStep.value!.longitude != null &&
+            (currentStep.value!.latitude != 0.0 ||
+                currentStep.value!.longitude != 0.0)) {
+          // When new step requires localisation
+          showPostDecisionMessage.value = false;
+          hasArrivedAtLocation.value = false;
+        } else {
+          showPostDecisionMessage.value = false;
+          hasArrivedAtLocation.value = true;
+        }*/
+          hasArrivedAtLocation.value = false;
+        }
       } catch (e) {
         logger.e("[DEV_DEBUG] Error processing decision: $e");
         throw Exception("Failed to process decision: $e");
@@ -245,6 +295,22 @@ class GamePlayController extends GetxController with StateMixin {
   void addWaypoint(double latitude, double longitude) {
     waypoints.clear();
     waypoints.add(LatLng(latitude, longitude));
+  }
+
+  final LobbyService lobbyService = Get.find();
+  final Rxn<lobbyModel.Lobby> createdLobby = Rxn<lobbyModel.Lobby>();
+
+  Future<lobbyModel.Lobby> createLobby(int id) async {
+    try {
+      final lobby = await lobbyService.createLobby(id);
+      //print("Lobby utworzone: ${lobby.name}");
+      logger.d("[DEV_DEBUG] Decision response: $lobby");
+      createdLobby.value = lobby;
+      return lobby;
+    } catch (e) {
+      logger.e("[DEV_DEBUG] Error processing decision: $e");
+      throw Exception("Failed to process decision: $e");
+    }
   }
 
   @override
