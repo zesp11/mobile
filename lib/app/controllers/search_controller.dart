@@ -61,11 +61,18 @@ class SearchController extends GetxController with StateMixin<SearchResult> {
 
       await Future.wait(futures);
       if (selectedFilters.isEmpty || selectedFilters.contains(lobbyFilter)) {
-        lobbyResults = await searchService.searchLobbies(query);
+        futures.add(searchService
+            .searchLobbies(query)
+            .then((lobbies) => lobbyResults = lobbies));
       }
 
+      await Future.wait(futures);
+
       change(
-        SearchResult(users: userResults, scenarios: scenarioResults, lobbies: lobbyResults),
+        SearchResult(
+            users: userResults,
+            scenarios: scenarioResults,
+            lobbies: lobbyResults),
         status: RxStatus.success(),
       );
     } catch (e) {

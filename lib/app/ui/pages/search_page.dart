@@ -58,7 +58,8 @@ class FilterButtons extends StatelessWidget {
           _buildFilterButton(
               goTaleSearch.SearchController.scenarioFilter, context),
           const SizedBox(width: 12),
-          _buildFilterButton(goTaleSearch.SearchController.lobbyFilter, context),
+          _buildFilterButton(
+              goTaleSearch.SearchController.lobbyFilter, context),
         ],
       ),
     );
@@ -100,7 +101,9 @@ class FilterButtons extends StatelessWidget {
           child: Text(
             filterType == goTaleSearch.SearchController.userFilter
                 ? 'user'.tr
-                : filterType == goTaleSearch.SearchController.scenarioFilter ? 'scenario'.tr : 'lobby'.tr,
+                : filterType == goTaleSearch.SearchController.scenarioFilter
+                    ? 'scenario'.tr
+                    : 'lobby'.tr,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               color: isSelected

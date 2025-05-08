@@ -43,6 +43,7 @@ void initServices() async {
   Get.put(SettingsService());
   Get.put(LocationService());
   Get.put(SocketService());
+  Get.put(LocationService());
 
   logger.i("All services started");
 }
