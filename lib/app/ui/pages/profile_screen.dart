@@ -15,77 +15,103 @@ class ProfileScreen extends GetView<AuthController> {
       body: controller.obx(
         // Success state
         (userProfile) => SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
-                vertical: 24.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Profile Header
-                  Center(
-                    child: Column(
-                      children: [
-                        Hero(
-                          tag: 'profile_avatar',
-                          child: userProfile?.photoUrl == null
-                              ? CircleAvatar(
-                                  radius: isSmallScreen ? 50 : 60,
-                                  backgroundColor: theme.colorScheme.secondary
-                                      .withOpacity(0.1),
-                                  child: Text(
-                                    (userProfile?.login.substring(0, 1) ?? '?')
-                                        .toUpperCase(),
-                                    style: theme.textTheme.headlineMedium
-                                        ?.copyWith(
-                                      color: theme.colorScheme.secondary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isSmallScreen ? 32 : 40,
+          child: RefreshIndicator(
+            color: theme.colorScheme.secondary,
+            backgroundColor: theme.colorScheme.primary,
+            onRefresh: () async => await controller.checkAuthStatus(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmallScreen ? 16.0 : size.width * 0.1,
+                  vertical: 24.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Profile Header
+                    Center(
+                      child: Column(
+                        children: [
+                          Hero(
+                            tag: 'profile_avatar',
+                            child: userProfile?.photoUrl == null
+                                ? CircleAvatar(
+                                    radius: isSmallScreen ? 50 : 60,
+                                    backgroundColor: theme.colorScheme.secondary
+                                        .withOpacity(0.1),
+                                    child: Text(
+                                      (userProfile?.login.substring(0, 1) ??
+                                              '?')
+                                          .toUpperCase(),
+                                      style: theme.textTheme.headlineMedium
+                                          ?.copyWith(
+                                        color: theme.colorScheme.secondary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: isSmallScreen ? 32 : 40,
+                                      ),
                                     ),
+                                  )
+                                : CircleAvatar(
+                                    radius: isSmallScreen ? 50 : 60,
+                                    backgroundImage:
+                                        NetworkImage(userProfile!.photoUrl!),
+                                    backgroundColor: Colors.transparent,
                                   ),
-                                )
-                              : CircleAvatar(
-                                  radius: isSmallScreen ? 50 : 60,
-                                  backgroundImage:
-                                      NetworkImage(userProfile!.photoUrl!),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          userProfile?.email ?? '',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userProfile?.email ?? '',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          const SizedBox(height: 16),
+                          Text(
+                            userProfile?.email ?? '',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Bio Section
-                  if (userProfile?.bio?.isNotEmpty ?? false) ...[
-                    Text(
-                      'bio'.tr,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                          const SizedBox(height: 4),
+                          Text(
+                            userProfile?.email ?? '',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 32),
+
+                    // Bio Section
+                    if (userProfile?.bio?.isNotEmpty ?? false) ...[
+                      Text(
+                        'bio'.tr,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: theme.cardTheme.color,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withOpacity(0.1),
+                          ),
+                        ),
+                        child: Text(
+                          userProfile?.bio ?? '',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                    ],
+
+                    // Stats Section
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
                       decoration: BoxDecoration(
                         color: theme.cardTheme.color,
                         borderRadius: BorderRadius.circular(16),
@@ -93,140 +119,123 @@ class ProfileScreen extends GetView<AuthController> {
                           color: theme.colorScheme.outline.withOpacity(0.1),
                         ),
                       ),
-                      child: Text(
-                        userProfile?.bio ?? '',
-                        style: theme.textTheme.bodyLarge,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Wrap(
+                            alignment: WrapAlignment.spaceAround,
+                            spacing: constraints.maxWidth * 0.05,
+                            runSpacing: 24,
+                            children: [
+                              _buildStatItem(
+                                context,
+                                'games_played'.tr,
+                                '${0}',
+                                Icons.sports_esports,
+                                isSmallScreen,
+                              ),
+                              _buildStatItem(
+                                context,
+                                'scenarios_created'.tr,
+                                '3',
+                                Icons.create,
+                                isSmallScreen,
+                              ),
+                              _buildStatItem(
+                                context,
+                                'achievements'.tr,
+                                '5',
+                                Icons.emoji_events,
+                                isSmallScreen,
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 32),
-                  ],
 
-                  // Stats Section
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
-                    decoration: BoxDecoration(
-                      color: theme.cardTheme.color,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: theme.colorScheme.outline.withOpacity(0.1),
-                      ),
-                    ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Wrap(
-                          alignment: WrapAlignment.spaceAround,
-                          spacing: constraints.maxWidth * 0.05,
-                          runSpacing: 24,
-                          children: [
-                            _buildStatItem(
-                              context,
-                              'games_played'.tr,
-                              '${0}',
-                              Icons.sports_esports,
-                              isSmallScreen,
-                            ),
-                            _buildStatItem(
-                              context,
-                              'scenarios_created'.tr,
-                              '3',
-                              Icons.create,
-                              isSmallScreen,
-                            ),
-                            _buildStatItem(
-                              context,
-                              'achievements'.tr,
-                              '5',
-                              Icons.emoji_events,
-                              isSmallScreen,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Action Buttons
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () => Get.toNamed('/profile/edit'),
-                        icon: Icon(
-                          Icons.edit,
-                          size: 20,
-                          color: theme.colorScheme.onSecondary,
-                        ),
-                        label: Text('edit_profile'.tr),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                    // Action Buttons
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => Get.toNamed('/profile/edit'),
+                          icon: Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: theme.colorScheme.onSecondary,
                           ),
-                          backgroundColor: isDark
-                              ? theme.colorScheme.secondary
-                              : theme.colorScheme.primary,
-                          foregroundColor: isDark
-                              ? theme.colorScheme.onSecondary
-                              : theme.colorScheme.onPrimary,
+                          label: Text('edit_profile'.tr),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            backgroundColor: isDark
+                                ? theme.colorScheme.secondary
+                                : theme.colorScheme.primary,
+                            foregroundColor: isDark
+                                ? theme.colorScheme.onSecondary
+                                : theme.colorScheme.onPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextButton.icon(
-                        onPressed: () {
-                          Get.dialog(
-                            AlertDialog(
-                              title: Text('confirm_logout'.tr),
-                              content: Text('logout_confirmation_message'.tr),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Get.back(),
-                                  child: Text(
-                                    'cancel'.tr,
-                                    style: TextStyle(
-                                      color: theme.colorScheme.secondary,
+                        const SizedBox(height: 12),
+                        TextButton.icon(
+                          onPressed: () {
+                            Get.dialog(
+                              AlertDialog(
+                                title: Text('confirm_logout'.tr),
+                                content: Text('logout_confirmation_message'.tr),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Get.back(),
+                                    child: Text(
+                                      'cancel'.tr,
+                                      style: TextStyle(
+                                        color: theme.colorScheme.secondary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Get.back();
-                                    controller.logout();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.colorScheme.error,
-                                    foregroundColor: theme.colorScheme.onError,
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Get.back();
+                                      controller.logout();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.colorScheme.error,
+                                      foregroundColor:
+                                          theme.colorScheme.onError,
+                                    ),
+                                    child: Text('logout'.tr),
                                   ),
-                                  child: Text('logout'.tr),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.logout,
-                          size: 20,
-                          color: theme.colorScheme.error,
-                        ),
-                        label: Text(
-                          'logout'.tr,
-                          style: TextStyle(
+                                ],
+                              ),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.logout,
+                            size: 20,
                             color: theme.colorScheme.error,
                           ),
-                        ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                          label: Text(
+                            'logout'.tr,
+                            style: TextStyle(
+                              color: theme.colorScheme.error,
+                            ),
                           ),
-                          backgroundColor:
-                              theme.colorScheme.errorContainer.withOpacity(0.1),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            backgroundColor: theme.colorScheme.errorContainer
+                                .withOpacity(0.1),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
