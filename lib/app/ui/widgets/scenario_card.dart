@@ -25,7 +25,7 @@ Widget buildScenarioCard(ThemeData theme, Scenario scenario) {
                 ),
                 color: theme.colorScheme.primary.withOpacity(0.1),
               ),
-              child: scenario.photoUrl != null
+              child: (scenario.photoUrl != null && scenario.photoUrl!.isNotEmpty && Uri.tryParse(scenario.photoUrl!)?.isAbsolute == true)
                   ? Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ClipRRect(
@@ -35,6 +35,13 @@ Widget buildScenarioCard(ThemeData theme, Scenario scenario) {
                         child: Image.network(
                           scenario.photoUrl!,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: theme.colorScheme.secondary,
+                              size: 36,
+                            ),
+                          ),
                         ),
                       ),
                     )
