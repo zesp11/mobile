@@ -259,8 +259,10 @@ class SearchResults extends StatelessWidget {
         leading: CircleAvatar(
           radius: 18, // Total diameter will be 64
           backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
-          backgroundImage:
-              user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+          backgroundImage: (user.photoUrl != null && Uri.tryParse(user.photoUrl!)?.isAbsolute == true)
+              ? NetworkImage(user.photoUrl!)
+              : null,
+              //user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
           child: user.photoUrl == null
               ? Icon(
                   Icons.person,
