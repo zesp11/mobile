@@ -164,8 +164,6 @@ class LobbyTab extends StatelessWidget {
 
               if (controller.jwtToken.value != null) {
                 Get.to(() => LobbySocketPanel(
-                      //jwtToken:
-                      //    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",
                       jwtToken: controller.jwtToken.value!,
                       lobbyId: "999",
                     ));
