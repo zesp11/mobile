@@ -3,9 +3,13 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class SocketService {
   late StompClient _client;
-  final String _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+  late String _sessionId = "bad";// = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
   bool _isConnected = false;
   bool get isConnected => _isConnected;
+
+  late Function(String) onErrorGlobal;
+  late Function(String) onLogGlobal;
+  bool _receivedSessionId = false; 
 
   void connect({
     required String jwtToken,
@@ -16,9 +20,10 @@ class SocketService {
   }) {
     _client = StompClient(
       config: StompConfig(
-        //url: "ws://localhost:8080/websocket/websocket",
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
-        useSockJS: false, // 
+        url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
+        //url: "ws://localhost:8080/websocket/websocket", // na localu
+        //url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
+        useSockJS: false,// 
         stompConnectHeaders: {
           'session-id': _sessionId,
           'Authorization': 'Bearer $jwtToken',
@@ -30,7 +35,9 @@ class SocketService {
         },
         onConnect: (StompFrame frame) {
           _isConnected = true;
-          //final url = frame.headers['sockjs-url'];
+          final url = frame.headers['sockjs-url'];
+
+          print(url);
 
           /*if (url != null) {
             _sessionId = _extractSessionId(url);
@@ -67,12 +74,16 @@ class SocketService {
           }*/
 
           //_sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+          onErrorGlobal = onError;
+          onLogGlobal = onLog;
 
           onLog("✅ Połączono, sessionId: $_sessionId");
           print("✅ Połączono, sessionId: $_sessionId");
 
           //_subscribeToErrors(onError, onLog);
           _subscribeToLobby(lobbyId, onLog);
+          
+          //sendMessage(lobbyId, "init-session");
 
           _subscribeToErrors(onError, onLog);
 
@@ -98,6 +109,28 @@ class SocketService {
         var body = frame.body ?? "";
         print("📥 Otrzymano: ${frame.body}");
 
+        if (_receivedSessionId) {
+          return;
+        }
+
+        try {
+          final data = jsonDecode(body);
+          if (data is Map<String, dynamic> && data.containsKey('sessionId')) {
+            _sessionId = data['sessionId'];
+            _receivedSessionId = true;
+            onLog("📌 Otrzymano sessionId: $_sessionId");
+
+            // Subskrypcja na błędy dopiero teraz
+            //_subscribeToErrors(onErrorGlobal!, onLogGlobal!); // użyj zapisanych funkcji
+            _subscribeToErrors(onErrorGlobal!, onLogGlobal!);
+          } else {
+            print("💢 Nie zawiera sessionId!");
+          }
+        } catch (e) {
+          print("💥 Error parsowania JSONa: $e");
+        }
+
+        //sendMessage(lobbyId, "init-session");
         /*body = body.replaceAll('\n', '\\n');
 
         try {
@@ -113,9 +146,10 @@ class SocketService {
         }*/
         //print(${frame.body});
       },
+      
     );
 
-
+    sendMessage(lobbyId, "init-session");
   
 
   }
