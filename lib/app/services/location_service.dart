@@ -11,6 +11,7 @@ class LocationService extends GetxService {
   final RxString currentLocationName = ''.obs;
   final RxBool isLoadingLocation = false.obs;
   final _storage = GetStorage();
+  
 
   static const String _cacheKey = 'location_cache';
   static const Duration _cacheDuration =
@@ -24,7 +25,16 @@ class LocationService extends GetxService {
   final Queue<DateTime> _requestTimes = Queue<DateTime>();
 
   Map<String, dynamic> get _locationCache {
-    return Map<String, dynamic>.from(_storage.read(_cacheKey) ?? {});
+    final data = _storage.read(_cacheKey);
+    // Sprawdzenie czy dane odczytane z pamięci są typu Map
+    if (data == null) {
+      return {};
+    } else if (data is Map<String, dynamic>) {
+      return data;
+    } else {
+      logger.e('Cache data has invalid format: $data');
+      return {};
+    }
   }
 
   bool _canMakeRequest() {
@@ -71,13 +81,16 @@ class LocationService extends GetxService {
       if (cachedLocation != null) {
         logger.d('Found cached location: $cachedLocation');
         currentLocationName.value = cachedLocation;
+        isLoadingLocation.value = false; 
         return cachedLocation;
       }
 
       // Check rate limiting
       if (!_canMakeRequest()) {
         logger.w('Rate limit reached or throttled. Using coordinate string.');
-        return formatCoordinates(coordinates);
+        final coordStr = formatCoordinates(coordinates);
+        isLoadingLocation.value = false;
+        return coordStr;
       }
 
       // Make API request
@@ -93,6 +106,7 @@ class LocationService extends GetxService {
         );
       } catch (e) {
         logger.e('Error in placemarkFromCoordinates: $e');
+        isLoadingLocation.value = false;
         return formatCoordinates(coordinates);
       }
 
@@ -104,6 +118,7 @@ class LocationService extends GetxService {
           locationName = _formatAddress(place);
         } catch (e) {
           logger.e('Error formatting address: $e');
+          isLoadingLocation.value = false;
           return formatCoordinates(coordinates);
         }
         logger.d('Formatted address: $locationName');
@@ -111,20 +126,62 @@ class LocationService extends GetxService {
         // Cache the result
         _cacheLocation(cacheKey, locationName);
         currentLocationName.value = locationName;
+        isLoadingLocation.value = false; 
         return locationName;
       }
 
-      return formatCoordinates(coordinates);
+      /*return formatCoordinates(coordinates);
     } catch (e, stackTrace) {
       logger.e('Error getting place name: $e\n$stackTrace');
       return formatCoordinates(coordinates);
     } finally {
       isLoadingLocation.value = false;
+    }*/
+
+    final coordStr = formatCoordinates(coordinates);
+      isLoadingLocation.value = false;
+      return coordStr;
+    } catch (e, stackTrace) {
+      logger.e('Error getting place name: $e\n$stackTrace');
+      isLoadingLocation.value = false;
+      return formatCoordinates(coordinates);
     }
   }
 
   String? _checkCache(String key) {
-    final cache = _locationCache;
+    try {
+      final cache = _locationCache;
+      final cachedData = cache[key];
+
+      if (cachedData != null) {
+        // Sprawdzenie czy cachedData ma właściwy format
+        if (cachedData is Map && 
+            cachedData.containsKey('timestamp') && 
+            cachedData.containsKey('name')) {
+          
+          final timestampStr = cachedData['timestamp'];
+          final locationName = cachedData['name'];
+          
+          if (timestampStr is String && locationName is String) {
+            try {
+              final timestamp = DateTime.parse(timestampStr);
+              
+              // Check if cache is still valid
+              if (DateTime.now().difference(timestamp) < _cacheDuration) {
+                return locationName;
+              }
+            } catch (e) {
+              logger.e('Error parsing timestamp: $e');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      logger.e('Error checking cache: $e');
+    }
+    return null;
+  }
+    /*final cache = _locationCache;
     final cachedData = cache[key];
 
     if (cachedData != null) {
@@ -136,22 +193,51 @@ class LocationService extends GetxService {
         return locationName;
       }
     }
-    return null;
-  }
+    return null;*/
 
   void _cacheLocation(String key, String locationName) {
-    final cache = _locationCache;
+    try {
+      final cache = _locationCache;
+      cache[key] = {
+        'name': locationName,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+      _storage.write(_cacheKey, cache);
+    } catch (e) {
+      logger.e('Error caching location: $e');
+      // Próba zresetowania pamięci podręcznej w przypadku poważnego błędu
+      try {
+        _storage.write(_cacheKey, {});
+      } catch (e2) {
+        logger.e('Error resetting cache: $e2');
+      }
+    }
+    /*final cache = _locationCache;
     cache[key] = {
       'name': locationName,
       'timestamp': DateTime.now().toIso8601String(),
     };
-    _storage.write(_cacheKey, cache);
+    _storage.write(_cacheKey, cache);*/
   }
 
   String _formatAddress(Placemark place) {
     final List<String> addressParts = [];
 
     try {
+      if (place.street != null && place.street!.isNotEmpty) {
+        addressParts.add(place.street!);
+      }
+      if (place.locality != null && place.locality!.isNotEmpty) {
+        addressParts.add(place.locality!);
+      }
+      if (place.country != null && place.country!.isNotEmpty) {
+        addressParts.add(place.country!);
+      }
+    } catch (e) {
+      logger.e('Error building address parts: $e');
+    }
+
+    /*try {
       if (place.street?.isNotEmpty ?? false) {
         addressParts.add(place.street!);
       }
@@ -163,13 +249,17 @@ class LocationService extends GetxService {
       }
     } catch (e) {
       logger.e('Error building address parts: $e');
-    }
+    }*/
 
     return addressParts.isEmpty ? 'Unknown location' : addressParts.join(', ');
   }
 
   Future<void> clearCache() async {
-    await _storage.remove(_cacheKey);
+    try {
+      await _storage.remove(_cacheKey);
+    } catch (e) {
+      logger.e('Error clearing cache: $e');
+    }
   }
 
   Future<List<String>> searchPlaces(String query) async {

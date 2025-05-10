@@ -7,7 +7,9 @@ import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/lobby.dart';
+import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
 import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
 import 'package:intl/intl.dart';
@@ -701,12 +703,43 @@ class _OSMFlutterMapState extends State<MapWidget>
     _startTracking();
     _updateDestinationName();
 
+    displayUserMarkers({
+      '45': LatLng(52.23, 21.01),
+      '69': LatLng(50.06, 19.94),
+    });
+
     mapController.mapEventStream.listen((event) {
       if (!_isMapReady) {
         setState(() => _isMapReady = true);
       }
     });
   }
+
+  List<UserLocation> userLocations = [];
+  final UserService userService = Get.find<UserService>();
+
+  Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
+  List<UserLocation> loaded = [];
+
+  for (final entry in idToCoordinates.entries) {
+    try {
+      final user = await userService.fetchUserProfile(entry.key);
+      loaded.add(
+        UserLocation(
+          userId: entry.key,
+          position: entry.value,
+          photoUrl: user.photoUrl,
+        ),
+      );
+    } catch (e) {
+      print("Failed to load user ${entry.key}: $e");
+    }
+  }
+
+  setState(() {
+    userLocations = loaded;
+  });
+}
 
   void _updateDestinationName() async {
     if (gamePlayController.waypoints.isNotEmpty) {
@@ -975,6 +1008,24 @@ class _OSMFlutterMapState extends State<MapWidget>
                             _calculateArrowPosition(currentPosition!, bearing),
                         child: _buildDirectionArrow(bearing, colorScheme)),
                   ],
+                ),
+                MarkerLayer(
+                  markers: userLocations.map((user) {
+                    return Marker(
+                      point: user.position,
+                      width: 40,
+                      height: 40,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
+                            ? NetworkImage(user.photoUrl!)
+                            : null,
+                        backgroundColor: colorScheme.primary,
+                        child: (user.photoUrl == null || !user.photoUrl!.startsWith('http'))
+                        ? Icon(Icons.person) : null,
+                      ),
+                    );
+                  }).toList(),
                 ),
             ],
           ),
