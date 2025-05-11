@@ -1013,14 +1013,27 @@ class _OSMFlutterMapState extends State<MapWidget>
                       point: user.position,
                       width: 40,
                       height: 40,
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
-                            ? NetworkImage(user.photoUrl!)
-                            : null,
-                        backgroundColor: colorScheme.primary,
-                        child: (user.photoUrl == null || !user.photoUrl!.startsWith('http'))
-                        ? Icon(Icons.person) : null,
+                      rotate: true,
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.secondary,
+                            width: 3,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
+                              ? NetworkImage(user.photoUrl!)
+                              : null,
+                          backgroundColor: colorScheme.primary,
+                          child: (user.photoUrl == null || !user.photoUrl!.startsWith('http'))
+                              ? Icon(Icons.person)
+                              : null,
+                        ),
                       ),
                     );
                   }).toList(),
