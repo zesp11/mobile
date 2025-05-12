@@ -91,5 +91,9 @@
   "map_tutorial_pin": "A pin or circle marks your current destination.",
   "map_tutorial_label": "The destination name appears when zoomed in and visible.",
   "map_tutorial_compass": "Tap the compass to reset map rotation.",
-  "map_tutorial_distance": "Tap the meters/distance label to focus the map on the destination."
+  "map_tutorial_distance": "Tap the meters/distance label to focus the map on the destination.",
+  "create_lobby": "Create Lobby",
+  "waiting_lobby": "Waiting for more players",
+  "gaming_lobby": "In game",
+  "lobby_join_button": "Join"
 }

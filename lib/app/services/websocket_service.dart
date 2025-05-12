@@ -59,7 +59,6 @@ class SocketService {
             print("  $key: $value");
           });
           print(frame.body);
-          print("tyle kurwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 /*
           final url = frame.headers['sockjs-url'];
@@ -160,7 +159,7 @@ class SocketService {
     _client?.subscribe(
       destination: "/queue/errors/$_sessionId",
       callback: (frame) {
-        print("-----------------w error sessionid: ${_sessionId}");
+        //print("-----------------w error sessionid: ${_sessionId}");
         try {
           final Map<String, dynamic> error = frame.body != null ? Map<String, dynamic>.from(jsonDecode(frame.body!)) : {};
           final type = error['type'];
