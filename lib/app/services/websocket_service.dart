@@ -84,7 +84,7 @@ class SocketService {
           
           //sendMessage(lobbyId, "init-session");
 
-          _subscribeToErrors(onError, onLog);
+          //_subscribeToErrors(onError, onLog);
 
         },
         onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
@@ -108,21 +108,44 @@ class SocketService {
         var body = frame.body ?? "";
         print("📥 Otrzymano: ${frame.body}");
 
+        /*
         if (_receivedSessionId) {
           return;
-        }
+        }*/
 
         try {
           final data = jsonDecode(body);
-          if (data is Map<String, dynamic> && data.containsKey('sessionId')) {
+
+          if (data is Map<String, dynamic>) {
+          // 1. Obsługa sessionId (raz)
+          if (!_receivedSessionId && data.containsKey('sessionId')) {
             _sessionId = data['sessionId'];
             _receivedSessionId = true;
             onLog("📌 Otrzymano sessionId: $_sessionId");
 
-            // Subskrypcja na błędy dopiero teraz
-            //_subscribeToErrors(onErrorGlobal!, onLogGlobal!); // użyj zapisanych funkcji
             _subscribeToErrors(onErrorGlobal!, onLogGlobal!);
-          } else {
+            return;
+          }
+
+          final type = data['type'];
+
+          switch (type) {
+            case 'start-game':
+              //a();
+              break;
+            case 'new-positions':
+              //b();
+              break;
+            case 'new-user':
+              //c();
+              break;
+            default:
+              print("❓ Nieznany typ wiadomości: $type");
+            }
+          }
+          
+          
+          else {
             print("💢 Nie zawiera sessionId!");
           }
         } catch (e) {
