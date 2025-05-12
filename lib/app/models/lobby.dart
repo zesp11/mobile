@@ -1,4 +1,4 @@
-/*class Lobby {
+class Lobby {
   final int idLobby;
   final String status;
   final DateTime creationDate;
@@ -39,7 +39,7 @@
           : null,
     );
   }
-}*/
+}
 
 class StepData {
   final int idStep;
@@ -95,6 +95,8 @@ class Choice {
   }
 }
 
+
+/*
 class Lobby {
   final int idLobby;
   final String status;
@@ -116,4 +118,4 @@ class Lobby {
       userId: json['user_id'] ?? -1,
     );
   }
-}
+}*/

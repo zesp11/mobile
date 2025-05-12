@@ -152,12 +152,13 @@ class LobbyTab extends StatelessWidget {
           ),
           onPressed: () async {
             try {
-              /*Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
+              Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
               Get.snackbar(
                 "Lobby stworzone!",
                 "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
                 snackPosition: SnackPosition.BOTTOM,
-              );*/
+              );
+
               if (controller.jwtToken.value == null) {
                 await controller.loadToken();
               }
@@ -165,7 +166,7 @@ class LobbyTab extends StatelessWidget {
               if (controller.jwtToken.value != null) {
                 Get.to(() => LobbySocketPanel(
                       jwtToken: controller.jwtToken.value!,
-                      lobbyId: "999",
+                      lobbyId: lobby.idLobby.toString(),
                     ));
               } else {
                 Get.snackbar(
@@ -1026,9 +1027,9 @@ class _OSMFlutterMapState extends State<MapWidget>
                         ),
                         child: CircleAvatar(
                           radius: 20,
-                          backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
+                          /*backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
                               ? NetworkImage(user.photoUrl!)
-                              : null,
+                              : null,*/
                           backgroundColor: colorScheme.primary,
                           child: (user.photoUrl == null || !user.photoUrl!.startsWith('http'))
                               ? Icon(Icons.person)

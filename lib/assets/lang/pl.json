@@ -85,5 +85,9 @@
   "map_tutorial_pin": "Pinezka lub okrąg oznacza aktualny cel.",
   "map_tutorial_label": "Nazwa celu pojawia się, gdy jest widoczny i odpowiednio powiększony.",
   "map_tutorial_compass": "Dotknij kompasu, aby zresetować obrót mapy.",
-  "map_tutorial_distance": "Stuknij w etykietę z metrami, aby wyśrodkować mapę na celu."
+  "map_tutorial_distance": "Stuknij w etykietę z metrami, aby wyśrodkować mapę na celu.",
+  "create_lobby": "Utwórz Lobby",
+  "waiting_lobby": "Oczekiwanie na graczy",
+  "gaming_lobby": "W trakcie gry",
+  "lobby_join_button": "Dołącz"
 }

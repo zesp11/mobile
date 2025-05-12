@@ -204,7 +204,9 @@ class ScenarioScreen extends StatelessWidget {
                             ? theme.colorScheme.onSecondary
                             : theme.colorScheme.onSurface.withOpacity(0.38),
                       ),
-                      label: Text('play_game'.tr),
+                      label: Text(
+                        gamebook.limitPlayers > 1 ? 'create_lobby'.tr : 'play_game'.tr,
+                      ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
