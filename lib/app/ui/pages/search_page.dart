@@ -107,7 +107,7 @@ class FilterButtons extends StatelessWidget {
                 ? 'user'.tr
                 : filterType == goTaleSearch.SearchController.scenarioFilter
                     ? 'scenario'.tr
-                    : 'Lobby',//we wont be translating this anyways
+                    : 'Lobby', //we wont be translating this anyways
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               color: isSelected
@@ -270,10 +270,11 @@ class SearchResults extends StatelessWidget {
         leading: CircleAvatar(
           radius: 18, // Total diameter will be 64
           backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
-          backgroundImage: (user.photoUrl != null && Uri.tryParse(user.photoUrl!)?.isAbsolute == true)
+          backgroundImage: (user.photoUrl != null &&
+                  Uri.tryParse(user.photoUrl!)?.isAbsolute == true)
               ? NetworkImage(user.photoUrl!)
               : null,
-              //user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+          //user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
           child: user.photoUrl == null
               ? Icon(
                   Icons.person,
@@ -304,15 +305,15 @@ class SearchResults extends StatelessWidget {
   final UserService userService = Get.find<UserService>();
 
   String _mapStatusToText(String status) {
-  switch (status) {
-    case 'Waiting for more players':
-      return ('waiting_lobby'.tr);
-    case 'Gaming':
-      return ('gaming_lobby'.tr);
-    default:
-      return status; // jak nie wiadomo, co to, to pokazuj jak jest
+    switch (status) {
+      case 'Waiting for more players':
+        return ('waiting_lobby'.tr);
+      case 'Gaming':
+        return ('gaming_lobby'.tr);
+      default:
+        return status; // jak nie wiadomo, co to, to pokazuj jak jest
+    }
   }
-}
 
   Widget _buildLobbyCard(ThemeData theme, Lobby lobby) {
     /*return FutureBuilder<User>(
@@ -362,8 +363,7 @@ class SearchResults extends StatelessWidget {
       },
     );*/
 
-
-  final authController = Get.find<AuthController>();
+    final authController = Get.find<AuthController>();
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -397,18 +397,15 @@ class SearchResults extends StatelessWidget {
         ),
         trailing: ElevatedButton(
           onPressed: authController.isAuthenticated
-            ? () async {
-              final gameController =
-                  Get.find<GamePlayController>();
-              await gameController.createGameFromScenario(407);//lobby.idGame);
-              gameController.gameType = GameType.multi;
-              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                ":id",
-                gameController.currentGame.value!.idGame
-                .toString())
-              );
-            } 
-            : null,
+              ? () async {
+                  final gameController = Get.find<GamePlayController>();
+                  //await gameController.createGameFromScenario(407);//lobby.idGame);
+                  gameController.gameType = GameType.multi;
+                  Get.toNamed(AppRoutes.gameDetail
+                          .replaceFirst(":id", "721") //lobby.idGame.toString())
+                      );
+                }
+              : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.secondary,
             shape: RoundedRectangleBorder(
