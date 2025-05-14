@@ -3,22 +3,30 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class SocketService {
   late StompClient _client;
-  final String _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+  late String _sessionId = "bad";// = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
   bool _isConnected = false;
   bool get isConnected => _isConnected;
+
+  late Function(String) onErrorGlobal;
+  late Function(String) onLogGlobal;
+  late Function(List<dynamic> users) onUsersReceived;
+  bool _receivedSessionId = false; 
+  late String token;
 
   void connect({
     required String jwtToken,
     required String lobbyId,
     required Function(String message) onLog,
     required Function(String error) onError,
+    required Function(List<dynamic> users) onUsersReceived,
     
   }) {
     _client = StompClient(
       config: StompConfig(
-        //url: "ws://localhost:8080/websocket/websocket",
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
-        useSockJS: false, // 
+        url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
+        //url: "ws://localhost:8080/websocket/websocket", // na localu
+        //url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
+        useSockJS: false,// 
         stompConnectHeaders: {
           'session-id': _sessionId,
           'Authorization': 'Bearer $jwtToken',
@@ -30,7 +38,11 @@ class SocketService {
         },
         onConnect: (StompFrame frame) {
           _isConnected = true;
-          //final url = frame.headers['sockjs-url'];
+          final url = frame.headers['sockjs-url'];
+          this.onUsersReceived = onUsersReceived;
+
+          //print(url);
+          token = jwtToken;
 
           /*if (url != null) {
             _sessionId = _extractSessionId(url);
@@ -52,29 +64,21 @@ class SocketService {
             print("  $key: $value");
           });
           print(frame.body);
-          print("tyle kurwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-/*
-          final url = frame.headers['sockjs-url'];
-          if (url != null) {
-
-            _sessionId = _extractSessionId(url);
-            onLog("Połączono, sessionId: $_sessionId");
-          }
-          else {
-            //_sessionId = "chuj";
-            //print("kurwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-          }*/
 
           //_sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+          onErrorGlobal = onError;
+          onLogGlobal = onLog;
 
           onLog("✅ Połączono, sessionId: $_sessionId");
           print("✅ Połączono, sessionId: $_sessionId");
 
           //_subscribeToErrors(onError, onLog);
           _subscribeToLobby(lobbyId, onLog);
+          
+          //sendMessage(lobbyId, "init-session");
 
-          _subscribeToErrors(onError, onLog);
+          //_subscribeToErrors(onError, onLog);
 
         },
         onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
@@ -98,6 +102,52 @@ class SocketService {
         var body = frame.body ?? "";
         print("📥 Otrzymano: ${frame.body}");
 
+        /*
+        if (_receivedSessionId) {
+          return;
+        }*/
+
+        try {
+          final data = jsonDecode(body);
+
+          if (data is Map<String, dynamic>) {
+          // 1. Obsługa sessionId (raz)
+          if (!_receivedSessionId && data.containsKey('sessionId')) {
+            _sessionId = data['sessionId'];
+            _receivedSessionId = true;
+            onLog("📌 Otrzymano sessionId: $_sessionId");
+
+            _subscribeToErrors(onErrorGlobal!, onLogGlobal!);
+            _subscribeToUserList(lobbyId);
+            return;
+          }
+
+          final type = data['type'];
+
+          switch (type) {
+            case 'start-game':
+              //a();
+              break;
+            case 'new-positions':
+              //b();
+              break;
+            case 'new-user':
+              //c();
+              break;
+            default:
+              print("❓ Nieznany typ wiadomości: $type");
+            }
+          }
+          
+          
+          else {
+            print("💢 Nie zawiera sessionId!");
+          }
+        } catch (e) {
+          print("💥 Error parsowania JSONa: $e");
+        }
+
+        //sendMessage(lobbyId, "init-session");
         /*body = body.replaceAll('\n', '\\n');
 
         try {
@@ -113,11 +163,29 @@ class SocketService {
         }*/
         //print(${frame.body});
       },
+      
     );
 
-
+    sendMessage(lobbyId, "init-session");
   
 
+  }
+
+  void _subscribeToUserList(String lobbyId) {
+    _client.subscribe(
+      destination: '/topic/lobby/users/$lobbyId',
+      headers: {'lobby-id': lobbyId},
+      callback: (StompFrame frame) {
+        try {
+          final body = frame.body ?? '[]';
+          final List<dynamic> users = jsonDecode(body);
+          onUsersReceived(users);
+          onLogGlobal("📥 Odebrano listę użytkowników.");
+        } catch (e) {
+          print("💥 Błąd parsowania listy użytkowników: $e");
+        }
+      },
+    );
   }
 
   void _subscribeToErrors(void Function(String) onError, void Function(String) onLog) {
@@ -126,7 +194,7 @@ class SocketService {
     _client?.subscribe(
       destination: "/queue/errors/$_sessionId",
       callback: (frame) {
-        print("-----------------w error sessionid: ${_sessionId}");
+        //print("-----------------w error sessionid: ${_sessionId}");
         try {
           final Map<String, dynamic> error = frame.body != null ? Map<String, dynamic>.from(jsonDecode(frame.body!)) : {};
           final type = error['type'];
@@ -174,6 +242,24 @@ class SocketService {
     }
   }
 
+  void requestUserList(String lobbyId) {
+    if (!_isConnected) {
+      onErrorGlobal("❌ Brak połączenia. Nie można pobrać użytkowników.");
+      return;
+    }
+
+    _client.send(
+      destination: '/app/lobby/users/$lobbyId',
+      headers: {
+        'Authorization': 'Bearer $token',
+        'session-id': _sessionId,
+        'lobby-id': lobbyId,
+      },
+      body: '',
+    );
+    onLogGlobal("📨 Wysłano żądanie o listę użytkowników.");
+  }
+
   void disconnect(void Function() onDisconnected) {
     if (_isConnected) {
       _client.deactivate();
@@ -186,128 +272,6 @@ class SocketService {
   disconnect(() {});
   }
 
-  String _extractSessionId(String url) {
-    final parts = url.split('/');
-    return parts[parts.length - 2];
-  }
 }
 
 
-
-/*class SocketService {
-  StompClient? _client;
-  bool _isConnected = false;
-  String? _sessionId;
-
-  void connectToLobby({
-    required String jwtToken,
-    required String lobbyId,
-    required void Function(String) onLog,
-    required void Function(String) onError,
-  }) {
-    if (_isConnected) {
-      disconnect(() => onLog("Poprzednie połączenie rozłączone."));
-    }
-
-    _client = StompClient(
-      config: StompConfig(
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket',
-        useSockJS: false,
-        stompConnectHeaders: {
-          'Authorization': 'Bearer $jwtToken',
-          'lobby-id': lobbyId,
-        },
-        webSocketConnectHeaders: {
-          'Authorization': 'Bearer $jwtToken',
-        },
-        onConnect: (StompFrame frame) {
-          _isConnected = true;
-          final url = frame.headers['sockjs-url'];
-          if (url != null) {
-            _sessionId = _extractSessionId(url);
-            onLog("Połączono, sessionId: $_sessionId");
-          }
-
-          _subscribeToErrors(onError, onLog);
-          _subscribeToLobby(lobbyId, onLog);
-        },
-        onWebSocketError: (err) => onError("WebSocket error: $err"),
-        onStompError: (frame) => onError("STOMP Error: ${frame.body}"),
-        onDisconnect: (_) {
-          _isConnected = false;
-          onLog("Rozłączono");
-        },
-      ),
-    );
-
-    _client!.activate();
-  }
-
-  void sendLobbyMessage(String lobbyId, void Function(String) onLog) {
-    final msg = "wiadomość do lobby $lobbyId";
-    _client?.send(destination: "/app/lobby/send/$lobbyId", body: msg);
-    onLog("Wysłano: $msg");
-  }
-
-  void disconnect(void Function() onDisconnected) {
-    _client?.deactivate();
-    _isConnected = false;
-    onDisconnected();
-  }
-
-  void _subscribeToLobby(String lobbyId, void Function(String) onLog) {
-    _client?.subscribe(
-      destination: "/topic/lobby.$lobbyId",
-      headers: {"lobby-id": lobbyId},
-      callback: (frame) {
-        final body = frame.body ?? "";
-        onLog("Wiadomość z lobby: $body");
-      },
-    );
-  }
-
-  void _subscribeToErrors(void Function(String) onError, void Function(String) onLog) {
-    if (_sessionId == null) return;
-
-    _client?.subscribe(
-      destination: "/queue/errors/$_sessionId",
-      callback: (frame) {
-        try {
-          final Map<String, dynamic> error = frame.body != null ? Map<String, dynamic>.from(jsonDecode(frame.body!)) : {};
-          final type = error['type'];
-
-          switch (type) {
-            case "LOBBY_NOT_FOUND":
-              onError("Lobby nie istnieje.");
-              disconnect(() => onLog("Rozłączono - brak lobby"));
-              break;
-            case "LOBBY_FULL":
-              onError("Lobby pełne.");
-              disconnect(() => onLog("Rozłączono - pełne lobby"));
-              break;
-            case "AUTH_ERROR":
-              onError("JWT error: ${error['message']}");
-              disconnect(() => onLog("JWT problem"));
-              break;
-            case "DUPLICATE_SESSION":
-              onError("Zduplikowana sesja.");
-              disconnect(() => onLog("Starsze połączenie zamknięte"));
-              break;
-            case "NO_LOBBY":
-              onError("Nie podano ID lobby.");
-              break;
-            default:
-              onError("Nieznany błąd: ${error['message'] ?? "brak info"}");
-          }
-        } catch (e) {
-          onError("Błąd (nie JSON): ${frame.body}");
-        }
-      },
-    );
-  }
-
-  String _extractSessionId(String url) {
-    final parts = url.split('/');
-    return parts[parts.length - 2];
-  }
-}*/

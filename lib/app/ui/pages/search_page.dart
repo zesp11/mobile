@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/controllers/gameplay_controller.dart';
 import "package:gotale/app/controllers/search_controller.dart" as goTaleSearch;
 import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
+import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 import 'package:gotale/app/ui/widgets/scenario_card.dart';
 
@@ -103,7 +107,7 @@ class FilterButtons extends StatelessWidget {
                 ? 'user'.tr
                 : filterType == goTaleSearch.SearchController.scenarioFilter
                     ? 'scenario'.tr
-                    : 'lobby'.tr,
+                    : 'Lobby', //we wont be translating this anyways
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               color: isSelected
@@ -266,8 +270,11 @@ class SearchResults extends StatelessWidget {
         leading: CircleAvatar(
           radius: 18, // Total diameter will be 64
           backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
-          backgroundImage:
-              user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+          backgroundImage: (user.photoUrl != null &&
+                  Uri.tryParse(user.photoUrl!)?.isAbsolute == true)
+              ? NetworkImage(user.photoUrl!)
+              : null,
+          //user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
           child: user.photoUrl == null
               ? Icon(
                   Icons.person,
@@ -295,7 +302,69 @@ class SearchResults extends StatelessWidget {
     );
   }
 
+  final UserService userService = Get.find<UserService>();
+
+  String _mapStatusToText(String status) {
+    switch (status) {
+      case 'Waiting for more players':
+        return ('waiting_lobby'.tr);
+      case 'Gaming':
+        return ('gaming_lobby'.tr);
+      default:
+        return status; // jak nie wiadomo, co to, to pokazuj jak jest
+    }
+  }
+
   Widget _buildLobbyCard(ThemeData theme, Lobby lobby) {
+    /*return FutureBuilder<User>(
+      future: userService.fetchUserProfile(lobby.userId.toString()),
+      builder: (context, snapshot) {
+        String userName = '...';
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          userName = 'loading...';
+        } else if (snapshot.hasError) {
+          userName = 'error';
+        } else if (snapshot.hasData) {
+          userName = snapshot.data!.login;
+        }
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            leading: CircleAvatar(
+              radius: 18,
+              backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
+              child: Icon(
+                Icons.groups,
+                color: theme.colorScheme.secondary,
+                size: 36,
+              ),
+            ),
+            title: Text(
+              'Lobby ID: ${lobby.idLobby} Owner: $userName • ${lobby.status}',
+              style: theme.textTheme.titleMedium,
+            ),
+            subtitle: Text(
+              lobby.status,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            trailing: Icon(
+              Icons.chevron_right,
+              color: theme.colorScheme.tertiary,
+            ),
+          ),
+        );
+      },
+    );*/
+
+    final authController = Get.find<AuthController>();
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
@@ -317,18 +386,39 @@ class SearchResults extends StatelessWidget {
               : null,*/
         ),
         title: Text(
-          lobby.idLobby.toString(),
+          'Lobby ID: ${lobby.idLobby} Owner: ${lobby.user.login}\n Scenario: ${lobby.scenario.name}',
           style: theme.textTheme.titleMedium,
         ),
         subtitle: Text(
-          lobby.status,
+          _mapStatusToText(lobby.status),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.6),
           ),
         ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: theme.colorScheme.tertiary,
+        trailing: ElevatedButton(
+          onPressed: authController.isAuthenticated
+              ? () async {
+                  final gameController = Get.find<GamePlayController>();
+                  //await gameController.createGameFromScenario(407);//lobby.idGame);
+                  gameController.gameType = GameType.multi;
+                  Get.toNamed(AppRoutes.gameDetail
+                          .replaceFirst(":id", "721") //lobby.idGame.toString())
+                      );
+                }
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.secondary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+          child: Text(
+            'lobby_join_button'.tr,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.onPrimary,
+            ),
+          ),
         ),
         //onTap: () => _handleUserTap(user),
       ),

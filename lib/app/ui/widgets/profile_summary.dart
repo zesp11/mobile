@@ -8,7 +8,6 @@ import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/ui/widgets/section_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-// TODO: fix that widget is not updated / show loading indicator
 class ProfileSummaryWidget extends GetView<ProfileController> {
   final AuthController auth = Get.find<AuthController>();
 
@@ -62,20 +61,20 @@ class ProfileSummaryWidget extends GetView<ProfileController> {
                   backgroundImage: NetworkImage(profile.photoUrl!),
                 ),
           title: Text(
-            profile?.login ?? "Guest",
+            profile.login,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Achievements: ${'N/A'}",
+                "Achievements: ${0}",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              Text(
-                "Last Game Completed: ${'N/A'}",
+              Obx(() => Text(
+                "Location: ${controller.currentLocation.value}",
                 style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              )),
             ],
           ),
         ),

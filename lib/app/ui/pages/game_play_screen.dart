@@ -7,7 +7,9 @@ import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/lobby.dart';
+import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/ui/widgets/decision_buttons.dart';
 import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
 import 'package:intl/intl.dart';
@@ -150,22 +152,21 @@ class LobbyTab extends StatelessWidget {
           ),
           onPressed: () async {
             try {
-              /*Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
+              Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
               Get.snackbar(
                 "Lobby stworzone!",
                 "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
                 snackPosition: SnackPosition.BOTTOM,
-              );*/
+              );
+
               if (controller.jwtToken.value == null) {
                 await controller.loadToken();
               }
 
               if (controller.jwtToken.value != null) {
                 Get.to(() => LobbySocketPanel(
-                      //jwtToken:
-                      //    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjQ5LCJzdWIiOiJmcmFuZWsiLCJpYXQiOjE3NDYxMjU0NjQsImV4cCI6MzYxNzQ2MTI1NDY0fQ.GvyUqT9c1M11RmYwFE6IQ5TAty7fCR6UEe-pncq1xes",
                       jwtToken: controller.jwtToken.value!,
-                      lobbyId: "999",
+                      lobbyId: lobby.idLobby.toString(),
                     ));
               } else {
                 Get.snackbar(
@@ -701,12 +702,43 @@ class _OSMFlutterMapState extends State<MapWidget>
     _startTracking();
     _updateDestinationName();
 
+    displayUserMarkers({
+      '45': LatLng(52.23, 21.01),
+      '69': LatLng(50.06, 19.94),
+    });
+
     mapController.mapEventStream.listen((event) {
       if (!_isMapReady) {
         setState(() => _isMapReady = true);
       }
     });
   }
+
+  List<UserLocation> userLocations = [];
+  final UserService userService = Get.find<UserService>();
+
+  Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
+  List<UserLocation> loaded = [];
+
+  for (final entry in idToCoordinates.entries) {
+    try {
+      final user = await userService.fetchUserProfile(entry.key);
+      loaded.add(
+        UserLocation(
+          userId: entry.key,
+          position: entry.value,
+          photoUrl: user.photoUrl,
+        ),
+      );
+    } catch (e) {
+      print("Failed to load user ${entry.key}: $e");
+    }
+  }
+
+  setState(() {
+    userLocations = loaded;
+  });
+}
 
   void _updateDestinationName() async {
     if (gamePlayController.waypoints.isNotEmpty) {
@@ -975,6 +1007,37 @@ class _OSMFlutterMapState extends State<MapWidget>
                             _calculateArrowPosition(currentPosition!, bearing),
                         child: _buildDirectionArrow(bearing, colorScheme)),
                   ],
+                ),
+                MarkerLayer(
+                  markers: userLocations.map((user) {
+                    return Marker(
+                      point: user.position,
+                      width: 40,
+                      height: 40,
+                      rotate: true,
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.secondary,
+                            width: 3,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 20,
+                          /*backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
+                              ? NetworkImage(user.photoUrl!)
+                              : null,*/
+                          backgroundColor: colorScheme.primary,
+                          child: (user.photoUrl == null || !user.photoUrl!.startsWith('http'))
+                              ? Icon(Icons.person)
+                              : null,
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
             ],
           ),

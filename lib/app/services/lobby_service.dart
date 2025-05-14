@@ -9,9 +9,9 @@ class LobbyService extends GetxService {
 
   LobbyService({required this.apiService});
 
-  Future<Lobby> createLobby(int scenarioId) async {
+  Future<Lobby> createLobby(int scenarioId, String token) async {
     try {
-      return await apiService.createLobby(scenarioId);
+      return await apiService.createLobby(scenarioId, token);
     } catch (e) {
       logger.e("Error creating lobby: $e");
       rethrow;

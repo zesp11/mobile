@@ -1,9 +1,12 @@
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:gotale/app/ui/pages/login_screen.dart';
 
 class ProfileScreen extends GetView<AuthController> {
+  final gameController = Get.find<GameSelectionController>();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -129,21 +132,21 @@ class ProfileScreen extends GetView<AuthController> {
                               _buildStatItem(
                                 context,
                                 'games_played'.tr,
-                                '${0}',
+                                '${gameController.state == null ? 0 : gameController.state!.length}',
                                 Icons.sports_esports,
                                 isSmallScreen,
                               ),
                               _buildStatItem(
                                 context,
                                 'scenarios_created'.tr,
-                                '3',
+                                '0',
                                 Icons.create,
                                 isSmallScreen,
                               ),
                               _buildStatItem(
                                 context,
                                 'achievements'.tr,
-                                '5',
+                                '0',
                                 Icons.emoji_events,
                                 isSmallScreen,
                               ),

@@ -101,5 +101,9 @@
   "location_permission_required": "Location access is required to play GoTale. Please grant permission to continue.",
   "permission_denied_forever": "Location Permission Required",
   "open_settings_enable_location": "Please open settings and enable location access to continue your adventure.",
-  "loading_location": "Finding your location..."
+  "loading_location": "Finding your location...",
+  "create_lobby": "Create Lobby",
+  "waiting_lobby": "Waiting for more players",
+  "gaming_lobby": "In game",
+  "lobby_join_button": "Join"
 }

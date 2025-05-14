@@ -95,5 +95,9 @@
   "location_permission_required": "Dostęp do lokalizacji jest wymagany do gry w GoTale. Udziel pozwolenia, aby kontynuować.",
   "permission_denied_forever": "Wymagany Dostęp do Lokalizacji",
   "open_settings_enable_location": "Otwórz ustawienia i włącz dostęp do lokalizacji, aby kontynuować przygodę.",
-  "loading_location": "Określanie lokalizacji..."
+  "loading_location": "Określanie lokalizacji...",
+  "create_lobby": "Utwórz Lobby",
+  "waiting_lobby": "Oczekiwanie na graczy",
+  "gaming_lobby": "W trakcie gry",
+  "lobby_join_button": "Dołącz"
 }
