@@ -23,7 +23,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
   final LobbyController controller = Get.put(LobbyController());
 
   @override
-  Future<void> initState() async {
+  void initState(){
     super.initState();
     controller.init(scenario: widget.gamebook, token: widget.jwtToken);
 
