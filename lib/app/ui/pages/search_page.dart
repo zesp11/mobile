@@ -379,7 +379,7 @@ class SearchResults extends StatelessWidget {
               : null,*/
         ),
         title: Text(
-          'Lobby ID: ${lobby.idLobby} Owner: ${lobby.idAuthor}, ${lobby.idGame}',
+          'Lobby ID: ${lobby.idLobby} Owner: ${lobby.user.login}\n Scenario: ${lobby.scenario.name}',
           style: theme.textTheme.titleMedium,
         ),
         subtitle: Text(
