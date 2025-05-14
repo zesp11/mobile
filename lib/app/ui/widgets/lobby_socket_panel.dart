@@ -32,6 +32,13 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
     Get.snackbar("Błąd", err, snackPosition: SnackPosition.BOTTOM);
   }
 
+  void _handleUsersReceived(List<dynamic> users) {
+  _log("📋 Otrzymano użytkowników:");
+  for (var user in users) {
+    _log("👤 ${user.toString()}");
+  }
+}
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +47,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
       lobbyId: widget.lobbyId,
       onLog: _log,
       onError: _error,
+      onUsersReceived: _handleUsersReceived,
     );
   }
 

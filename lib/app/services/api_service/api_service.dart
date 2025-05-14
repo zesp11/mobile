@@ -93,6 +93,6 @@ abstract class ApiService {
   // Search functionality for players, gamebooks, and cities
   Future<List<dynamic>> search(String query, String category);
 
-  Future<Lobby> createLobby(int scenarioId);
+  Future<Lobby> createLobby(int scenarioId, String token);
   Future<List<Lobby>> searchLobbies(String query);
 }
