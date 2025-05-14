@@ -28,6 +28,8 @@ class LobbyController extends GetxController {
     print(token);
 
     _createAndOpenLobby();
+
+    _connectToLobby();
   }
 
   Future<Lobby> createLobby(int scenarioId) async {
