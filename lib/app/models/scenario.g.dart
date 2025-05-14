@@ -9,7 +9,16 @@ part of 'scenario.dart';
 Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String?,
-      author: Author.fromJson(json['author'] as Map<String, dynamic>),
+       author: json['author'] == null
+          ? Author(
+              id: -1,
+              login: 'Unknown',
+              email: 'unknown@example.com',
+              bio: null,
+              creationDate: DateTime.now(),
+              photoUrl: null,
+            )
+          : Author.fromJson(json['author'] as Map<String, dynamic>),
       description: json['description'] as String?,
       limitPlayers: (json['limit_players'] as num).toInt(),
       creationDate: DateTime.parse(json['creation_date'] as String),
