@@ -6,6 +6,8 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:logger/logger.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 // TODO: add logger library for logging
 
@@ -36,6 +38,7 @@ import 'package:logger/logger.dart';
 class ProfileController extends GetxController with StateMixin<User> {
   final UserService userService; // Declare the UserService dependency
   final logger = Get.find<Logger>();
+  final Rx<String> currentLocation = Rx<String>('Loading location...');
 
   ProfileController({required this.userService});
 
@@ -46,6 +49,7 @@ class ProfileController extends GetxController with StateMixin<User> {
     super.onInit();
     // Initialize the state with loading
     change(null, status: RxStatus.loading());
+    getCurrentLocation();
   }
 
   // Fetch the current user's profile
@@ -102,6 +106,28 @@ class ProfileController extends GetxController with StateMixin<User> {
     } catch (e) {
       logger.e('Error updating profile: $e');
       change(null, status: RxStatus.error('Failed to update profile: $e'));
+    }
+  }
+
+  Future<void> getCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium
+      );
+      final List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        currentLocation.value = '${place.locality ?? ''}, ${place.country ?? ''}';
+      } else {
+        currentLocation.value = '${position.latitude.toStringAsFixed(2)}, ${position.longitude.toStringAsFixed(2)}';
+      }
+    } catch (e) {
+      currentLocation.value = 'Location unavailable';
+      logger.w('Error getting location: $e');
     }
   }
 }
