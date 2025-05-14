@@ -299,9 +299,9 @@ class GamePlayController extends GetxController with StateMixin {
   final LobbyService lobbyService = Get.find();
   final Rxn<lobbyModel.Lobby> createdLobby = Rxn<lobbyModel.Lobby>();
 
-  Future<lobbyModel.Lobby> createLobby(int id) async {
+  Future<lobbyModel.Lobby> createLobby(int id) async {//do usunięcia potem
     try {
-      final lobby = await lobbyService.createLobby(id);
+      final lobby = await lobbyService.createLobby(id, "test");
       //print("Lobby utworzone: ${lobby.name}");
       logger.d("[DEV_DEBUG] Decision response: $lobby");
       createdLobby.value = lobby;

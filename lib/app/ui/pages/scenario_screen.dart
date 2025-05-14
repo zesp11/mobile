@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
@@ -8,6 +9,7 @@ import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:gotale/app/services/location_service.dart';
+import 'package:gotale/app/ui/pages/lobby_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
@@ -16,6 +18,17 @@ class ScenarioScreen extends StatelessWidget {
   final GameService service = Get.find<GameService>();
   final authController = Get.find<AuthController>();
   final LocationService locationService = Get.find<LocationService>();
+  final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+  late String jwtToken;
+
+  Future<void> loadToken() async {
+    final token = await secureStorage.read(key: 'accessToken');
+    if (token != null) {
+      jwtToken = 'Bearer $token';
+    } else {
+      jwtToken = "null";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +36,7 @@ class ScenarioScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 600;
+    loadToken();
 
     return Scaffold(
       body: FutureBuilder<Scenario>(
@@ -183,18 +197,24 @@ class ScenarioScreen extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: authController.isAuthenticated
                           ? () async {
-                              final gameController =
+
+                            /*final gameController =
                                   Get.find<GamePlayController>();
                               await gameController
                                   .createGameFromScenario(gamebook.id);
                               final bool isMulti = gamebook.limitPlayers > 1;
                               gameController.gameType = 
-                              isMulti ? GameType.multi : GameType.single;
+                              isMulti ? GameType.multi : GameType.single;*/
 
+                            Get.to(() => LobbyScreen(gamebook: gamebook,
+                            jwtToken: jwtToken));
+                            
+                            
+                              /*
                               Get.toNamed(AppRoutes.gameDetail.replaceFirst(
                                   ":id",
                                   gameController.currentGame.value!.idGame
-                                      .toString()));
+                                      .toString()));*/
                             }
                           : null,
                       icon: Icon(
