@@ -161,7 +161,7 @@ class ProductionApiService extends ApiService {
         final decodedResponse = utf8.decode(response.bodyBytes);
         final data = json.decode(decodedResponse);
 
-        //logger.d('Response body: "${response.body}"');
+        logger.d('Response body: "${response.body}"');
         return Lobby.fromJson(data);
       } else {
         throw Exception('Failed to create lobby: ${response.statusCode}');
