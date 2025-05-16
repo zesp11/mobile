@@ -106,6 +106,8 @@ class SocketService {
         if (_receivedSessionId) {
           return;
         }*/
+        print("lobby id hereeeeeeeeeeeeeeeeeeeee:");
+            print(lobbyId);
 
         try {
           final data = jsonDecode(body);

@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/lobby.dart';
@@ -15,6 +16,7 @@ class LobbyController extends GetxController {
 
   late Scenario gamebook;
   late String jwtToken ="";
+  late int setLobbyId;
 
   var isConnected = false.obs;
   var users = <dynamic>[].obs;
@@ -24,18 +26,22 @@ class LobbyController extends GetxController {
     gamebook = scenario;
     jwtToken = token;
 
-    print("token:");
-    print(token);
+    //print("token:");
+    //print(token);
 
     _createAndOpenLobby();
 
-    _connectToLobby();
   }
 
   Future<Lobby> createLobby(int scenarioId) async {
     try {
       final lobby = await lobbyService.createLobby(scenarioId, jwtToken);
       createdLobby.value = lobby;
+      /*print(lobby);
+      print("powyzej lobby?");
+      print(createdLobby.value?.idLobby);
+      print(createdLobby.value);
+      print("powyżej jest lobbyyy^");*/
       return lobby;
     } catch (e) {
       rethrow;
@@ -56,9 +62,10 @@ class LobbyController extends GetxController {
       //final gameController = Get.find<GamePlayController>();
       //final game = gameController.currentGame.value;
       //if (game == null) throw Exception("Brak aktywnej gry!");
-      print("tworzy lobby---------------");
-      print(gamebook.id);
+      //print("tworzy lobby---------------");
+      //print(createdLobby.value?.idLobby);
       final lobby = await createLobby(gamebook.id);
+      setLobbyId = lobby.idLobby;
       print("utworzono");
 
       Get.snackbar(
@@ -81,6 +88,9 @@ class LobbyController extends GetxController {
         Get.snackbar("Błąd", "Token JWT jest pusty! Nie można utworzyć lobby.",
             snackPosition: SnackPosition.BOTTOM);
       }*/
+
+      _connectToLobby();
+
     } catch (e) {
       print(
         "Błąd - Nie udało się stworzyć lobby: $e"
@@ -91,7 +101,7 @@ class LobbyController extends GetxController {
   void _connectToLobby() {
     socketService.connect(
       jwtToken: jwtToken,
-      lobbyId: gamebook.id.toString(),
+      lobbyId: setLobbyId.toString(),
       onLog: (msg) => print("🧾 $msg"),
       onError: (err) => Get.snackbar("Błąd", err, backgroundColor: Get.theme.colorScheme.error),
       onUsersReceived: (userList) {
@@ -108,11 +118,11 @@ class LobbyController extends GetxController {
   }
 
   void requestUserList() {
-    socketService.requestUserList(gamebook.id.toString());
+    socketService.requestUserList(setLobbyId.toString());
   }
 
   void sendMessage(String msg) {
-    socketService.sendMessage(gamebook.id.toString(), msg);
+    socketService.sendMessage(setLobbyId.toString(), msg);
   }
 
   @override
