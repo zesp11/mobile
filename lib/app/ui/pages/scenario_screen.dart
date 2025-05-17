@@ -197,7 +197,22 @@ class ScenarioScreen extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: authController.isAuthenticated
                           ? () async {
+                            if(gamebook.limitPlayers > 1) {
+                                
+                              Get.to(() => LobbyScreen(gamebook: gamebook,
+                              jwtToken: jwtToken, type: "create", id: -1));
 
+                            } else {
+                              final gameController =
+                                  Get.find<GamePlayController>();
+                              await gameController
+                                  .createGameFromScenario(gamebook.id);
+                              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                                  ":id",
+                                  gameController.currentGame.value!.idGame
+                                      .toString()));
+                            }
+                            
                             /*final gameController =
                                   Get.find<GamePlayController>();
                               await gameController
@@ -206,8 +221,6 @@ class ScenarioScreen extends StatelessWidget {
                               gameController.gameType = 
                               isMulti ? GameType.multi : GameType.single;*/
 
-                            Get.to(() => LobbyScreen(gamebook: gamebook,
-                            jwtToken: jwtToken, type: "create", id: -1));
                             
                             
                               /*
