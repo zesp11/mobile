@@ -133,7 +133,7 @@ class SocketService {
             return;
           }
 
-          final type = data['type'];
+          /*final type = data['type'];
 
           switch (type) {
             case 'start-game':
@@ -150,9 +150,25 @@ class SocketService {
             default:
               print("❓ Nieznany typ wiadomości: $type");
             }
+          }*/
+
+          final contentRaw = data['content'];
+          if (contentRaw is String) {
+            final content = jsonDecode(contentRaw);
+            final type = content['type'];
+            switch (type) {
+              case 'start-game':
+                print(content['gameId']);
+                final LobbyController controller = Get.find<LobbyController>();
+                controller.setGameId = content['gameId'];
+                controller.joinGame();
+                break;
+              default:
+                print("❓ Nieznany typ wiadomości: $type");
+            }
           }
-          
-          
+        
+          }
           else {
             print("💢 Nie zawiera sessionId!");
           }

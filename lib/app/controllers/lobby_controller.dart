@@ -8,6 +8,7 @@ import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
 import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
@@ -199,6 +200,20 @@ class LobbyController extends GetxController {
   void joinGame() {
     print("Otrzymane gameId do rozpoczęcia gry:");
     print(setGameId);
+
+    final gameController = Get.find<GamePlayController>();
+
+    //Lobby lobby = await controller.startGame();
+    //print("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
+    //lobby.idGame;
+
+    gameController.gameType = GameType.multi;
+
+    Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+      ":id",
+      setGameId.toString(),
+      //gameController.currentGame.value!.idGame.toString(),
+    ));
   }
 
   @override
