@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
+import 'package:gotale/app/controllers/lobby_controller.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
@@ -27,6 +28,7 @@ bool isMulti = false;
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
+  
 
   GamePlayScreen({super.key});
 
@@ -136,13 +138,23 @@ class GamePlayScreen extends StatelessWidget {
 }
 
 class LobbyTab extends StatelessWidget {
-  const LobbyTab({super.key});
-
+  //const LobbyTab({super.key});
+  final LobbyController lobbyController = Get.find<LobbyController>();
+  
   @override
   Widget build(BuildContext context) {
-    final GamePlayController controller = Get.find<GamePlayController>();
+    //final GamePlayController controller = Get.find<GamePlayController>();
+    return Obx(() => Column(
+      children: [
+        Text("Użytkownicy w grze:"),
+        for (var user in lobbyController.users)
+          Text(user.toString()),
+        // Dodaj więcej logiki, co chcesz wyświetlać
+      ],
+    ));
 
-    return Column(
+
+    /*return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
@@ -191,7 +203,7 @@ class LobbyTab extends StatelessWidget {
           child: Text('Another Button'),
         ),
       ],
-    );
+    );*/
   }
 }
 

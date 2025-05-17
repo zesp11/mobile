@@ -26,7 +26,7 @@ class LobbyScreen extends StatefulWidget {
 }
 
 class _LobbyScreenState extends State<LobbyScreen> {
-  final LobbyController controller = Get.put(LobbyController());
+  final LobbyController controller = Get.put(LobbyController(), permanent: true);
 
   @override
   void initState(){
