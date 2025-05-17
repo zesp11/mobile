@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -17,6 +19,8 @@ class LobbyController extends GetxController {
   late Scenario gamebook;
   late String jwtToken ="";
   late int setLobbyId;
+
+  Function(String) onErrorGlobal = (msg) => print("ERROR: $msg");
 
   var isConnected = false.obs;
   var users = <dynamic>[].obs;
@@ -95,8 +99,8 @@ class LobbyController extends GetxController {
         Get.snackbar("Błąd", "Token JWT jest pusty! Nie można utworzyć lobby.",
             snackPosition: SnackPosition.BOTTOM);
       }*/
-
-      _connectToLobby();
+      _connectToLobby(onConnected: () {});
+      //_connectToLobby();
 
     } catch (e) {
       print(
@@ -125,9 +129,9 @@ class LobbyController extends GetxController {
 
       print("connect się wykona");
 
-      _connectToLobby();
-
-      sendJoin();
+      _connectToLobby(onConnected: () {
+        sendJoin();
+      });
 
     } catch (e) {
       print(
@@ -136,7 +140,7 @@ class LobbyController extends GetxController {
     }
   }
 
-  void _connectToLobby() {
+  void _connectToLobby({required VoidCallback onConnected}) {
     print("inside connect");
     socketService.connect(
       jwtToken: jwtToken,
@@ -146,8 +150,13 @@ class LobbyController extends GetxController {
       onUsersReceived: (userList) {
         users.assignAll(userList);
       },
+      onConnected: () {
+        isConnected.value = socketService.isConnected;
+        onConnected();
+      },
     );
     print("after connect");
+    sendJoin();
     isConnected.value = socketService.isConnected;
   }
 
