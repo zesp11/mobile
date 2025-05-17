@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:geolocator/geolocator.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'dart:async';
@@ -22,6 +23,7 @@ class SocketService {
     required Function(String message) onLog,
     required Function(String error) onError,
     required Function(List<dynamic> users) onUsersReceived,
+    required VoidCallback onConnected,
     
   }) {
     _client = StompClient(
@@ -83,6 +85,7 @@ class SocketService {
           //sendMessage(lobbyId, "init-session");
 
           //_subscribeToErrors(onError, onLog);
+          onConnected();
 
         },
         onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
@@ -252,7 +255,8 @@ class SocketService {
 
   void sendJoinMessage(String lobbyId) {
     if (!_isConnected) {
-      onErrorGlobal("❌ Brak połączenia. Nie można dołączyć.");
+      //onErrorGlobal("❌ Brak połączenia. Nie można dołączyć.");
+      print("❌ Brak połączenia. Nie można dołączyć.");
       return;
     }
 
@@ -264,7 +268,8 @@ class SocketService {
       },
       body: jsonEncode({'lobbyId': lobbyId}),
     );
-    onLogGlobal("📨 Wysłano żądanie o listę użytkowników.");
+    print("📨 Wysłano prośbę o dołączenie do lobby.");
+    onLogGlobal("📨 Wysłano prośbę o dołączenie do lobby.");
   }
 
   void requestUserList(String lobbyId) {
@@ -323,9 +328,10 @@ class SocketService {
         headers: {
           'Authorization': 'Bearer $token',
           'session-id': _sessionId,
+          'lobby-id': lobbyId,
         },
         body: jsonEncode({
-          'lobbyId': int.parse(lobbyId),
+          'lobbyId': lobbyId,
           'lat': position.latitude,
           'lon': position.longitude,
         }),

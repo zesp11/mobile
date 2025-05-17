@@ -48,6 +48,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
       onLog: _log,
       onError: _error,
       onUsersReceived: _handleUsersReceived,
+      onConnected: () {},
     );
   }
 
