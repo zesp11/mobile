@@ -245,9 +245,26 @@ class SocketService {
         headers: {
         'session-id': _sessionId,
         'lobby-id': lobbyId, 
-      },
+        },
       );
     }
+  }
+
+  void sendJoinMessage(String lobbyId) {
+    if (!_isConnected) {
+      onErrorGlobal("❌ Brak połączenia. Nie można dołączyć.");
+      return;
+    }
+
+    _client.send(
+      destination: '/app/lobby/join',
+      headers: {
+        'Authorization': 'Bearer $token',
+        'session-id': _sessionId,
+      },
+      body: jsonEncode({'lobbyId': lobbyId}),
+    );
+    onLogGlobal("📨 Wysłano żądanie o listę użytkowników.");
   }
 
   void requestUserList(String lobbyId) {
