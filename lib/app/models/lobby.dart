@@ -11,6 +11,8 @@ class Lobby {
   final DateTime creationDate;
   final User user;
   final Scenario scenario;
+  final int idSession;
+  final int idGame;
 
   Lobby({
     required this.idLobby,
@@ -18,6 +20,8 @@ class Lobby {
     required this.creationDate,
     required this.user,
     required this.scenario,
+    required this.idGame,
+    required this.idSession,
   });
 
   factory Lobby.fromJson(Map<String, dynamic> json) {
@@ -27,6 +31,8 @@ class Lobby {
       creationDate: DateTime.parse(json['creation_date']),
       user: User.fromJson(json['user']),
       scenario: Scenario.fromJson(json['scenario']),
+      idGame: json['id_game'] ?? 0,
+      idSession: json['id_ses'] ?? 0,
     );
   }
 

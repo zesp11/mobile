@@ -114,6 +114,8 @@ class GameService extends GetxService {
     }
   }
 
+  
+
   Future<void> fetchGamebookData(int gameId) async {
     // try {
     throw UnimplementedError("fetchGamebookData");

@@ -187,11 +187,20 @@ class SocketService {
       headers: {'lobby-id': lobbyId},
       callback: (StompFrame frame) {
         try {
-          final body = frame.body ?? '[]';
-          final List<dynamic> users = jsonDecode(body);
-          onUsersReceived(users);
-          print(users);
-          onLogGlobal("📥 Odebrano listę użytkowników.");
+          final body = frame.body ?? '';
+           if (body.trim().startsWith('[')) {
+            // Zakładamy, że to JSON lista
+            final List<dynamic> users = jsonDecode(body);
+            onUsersReceived(users);
+            print(users);
+            onLogGlobal("📥 Odebrano listę użytkowników.");
+          } else {
+            print("ℹ️ Odebrano wiadomość tekstową: $body");
+
+            if (body.contains("Lobby created with status: gaming")) {
+              onLogGlobal("📥 Odebrano wiadomość: $body");
+            }
+          }
         } catch (e) {
           print("💥 Błąd parsowania listy użytkowników: $e");
         }

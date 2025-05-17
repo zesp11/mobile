@@ -20,7 +20,6 @@ import 'package:gotale/app/services/home_service.dart';
 import 'package:gotale/app/services/search_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
-import 'app/services/websocket_service.dart';
 
 // top-level constant for production flag
 // TODO: maybe move that comments to README.md file

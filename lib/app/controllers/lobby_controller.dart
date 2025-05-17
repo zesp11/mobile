@@ -156,7 +156,7 @@ class LobbyController extends GetxController {
       },
     );
     print("after connect");
-    sendJoin();
+    //sendJoin();
     isConnected.value = socketService.isConnected;
   }
 
@@ -176,6 +176,16 @@ class LobbyController extends GetxController {
 
   void sendMessage(String msg) {
     socketService.sendMessage(setLobbyId.toString(), msg);
+  }
+
+  Future<Lobby> startGame() async {
+    try {
+      final lobby = await lobbyService.startGameFromLobby(setLobbyId);
+      createdLobby.value = lobby;
+      return lobby;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
