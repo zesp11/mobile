@@ -28,9 +28,11 @@ class LobbyController extends GetxController {
     
     switch (type) {
       case 'create':
+        print("wybrano utworzenie lobby");
         _createAndOpenLobby();
         break;
       case 'join':
+        print("wybrano dołączenie do lobby");
         _joinLobby(lobbyId);
         break;
     }
@@ -79,7 +81,7 @@ class LobbyController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      if (jwtToken == null) {
+      if (jwtToken == "") {
         await loadToken();
       }
 
@@ -113,12 +115,19 @@ class LobbyController extends GetxController {
         "ID Lobby: ${setLobbyId}",
         snackPosition: SnackPosition.BOTTOM,
       );
+      print("aftersnackbar");
 
-      if (jwtToken == null) {
+      //print("token in join: ${jwtToken}");
+      if (jwtToken == "") {
+        print("pusty");
         await loadToken();
       }
 
+      print("connect się wykona");
+
       _connectToLobby();
+
+      sendJoin();
 
     } catch (e) {
       print(
@@ -128,6 +137,7 @@ class LobbyController extends GetxController {
   }
 
   void _connectToLobby() {
+    print("inside connect");
     socketService.connect(
       jwtToken: jwtToken,
       lobbyId: setLobbyId.toString(),
@@ -137,6 +147,7 @@ class LobbyController extends GetxController {
         users.assignAll(userList);
       },
     );
+    print("after connect");
     isConnected.value = socketService.isConnected;
   }
 
@@ -148,6 +159,10 @@ class LobbyController extends GetxController {
 
   void requestUserList() {
     socketService.requestUserList(setLobbyId.toString());
+  }
+
+  void sendJoin() {
+    socketService.sendJoinMessage(setLobbyId.toString());
   }
 
   void sendMessage(String msg) {
