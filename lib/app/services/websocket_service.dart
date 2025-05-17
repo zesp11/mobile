@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:geolocator/geolocator.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'dart:async';
 
 class SocketService {
+  Timer? _positionTimer;
   late StompClient _client;
   late String _sessionId = "bad";// = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
   bool _isConnected = false;
@@ -37,6 +40,7 @@ class SocketService {
           'session-id': _sessionId,
         },
         onConnect: (StompFrame frame) {
+          _startSendingPositionLoop(lobbyId);
           _isConnected = true;
           final url = frame.headers['sockjs-url'];
           this.onUsersReceived = onUsersReceived;
@@ -169,6 +173,7 @@ class SocketService {
     );
 
     sendMessage(lobbyId, "init-session");
+    sendPosition(lobbyId);
   
 
   }
@@ -182,6 +187,7 @@ class SocketService {
           final body = frame.body ?? '[]';
           final List<dynamic> users = jsonDecode(body);
           onUsersReceived(users);
+          print(users);
           onLogGlobal("📥 Odebrano listę użytkowników.");
         } catch (e) {
           print("💥 Błąd parsowania listy użytkowników: $e");
@@ -264,11 +270,65 @@ class SocketService {
 
   void disconnect(void Function() onDisconnected) {
     if (_isConnected) {
+      _positionTimer?.cancel();
       _client.deactivate();
       _isConnected = false;
       onDisconnected();
     }
   }
+
+  Future<void> sendPosition(String lobbyId) async {
+
+      if (!_isConnected) {
+      onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
+      return;
+    }
+
+    // 🔒 Sprawdzenie uprawnień
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        onErrorGlobal("❌ Odmówiono uprawnień do lokalizacji.");
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      onErrorGlobal("❌ Uprawnienia do lokalizacji na stałe zablokowane.");
+      return;
+    }
+
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      _client.send(
+        destination: '/app/lobby/location',
+        headers: {
+          'Authorization': 'Bearer $token',
+          'session-id': _sessionId,
+        },
+        body: jsonEncode({
+          'lobbyId': int.parse(lobbyId),
+          'lat': position.latitude,
+          'lon': position.longitude,
+        }),
+      );
+      onLogGlobal("📨 Wysłano obecną pozycję.");
+    } catch (e) {
+      onErrorGlobal("💥 Błąd pobierania lokalizacji: $e");
+    }
+  }
+
+  void _startSendingPositionLoop(String lobbyId) {
+  _positionTimer?.cancel(); 
+  _positionTimer = Timer.periodic(Duration(seconds: 5), (_) {
+    if (_isConnected) {
+      sendPosition(lobbyId);
+    } else {
+      _positionTimer?.cancel();
+    }
+  });
+}
 
   void disconnectSilently() {
   disconnect(() {});
