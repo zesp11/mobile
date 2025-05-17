@@ -54,6 +54,7 @@ class ProductionApiService extends ApiService {
   // Lobby endpoints
   static const String createLobbyRoute = '/api/lobby/create/:id';
   static const String searchLobbiesRoute = '/api/lobby';
+  static const String startGameFromLobbyRoute = '/api/lobby/start_game/:id';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -165,6 +166,60 @@ class ProductionApiService extends ApiService {
         return Lobby.fromJson(data);
       } else {
         throw Exception('Failed to create lobby: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error creating lobby: $e');
+      throw Exception('Exception while creating lobby: $e');
+    }
+  }
+
+  @override
+  Future<Lobby> startGameFromLobby(int lobbyId) async {
+    try {
+      final logger = Get.find<Logger>();
+
+      final endpoint =
+          '$name${startGameFromLobbyRoute.replaceFirst(':id', lobbyId.toString())}';
+
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      print("after token");
+      print(token);
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      logger.d('Starting game in lobby at endpoint: $endpoint');
+
+      //print(token);
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      print("after headers");
+
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      print("after response");
+
+      logger.d('Start game from lobby response status: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedResponse);
+
+        logger.d('Response body: "${response.body}"');
+        return Lobby.fromJson(data);
+      } else {
+        throw Exception('Failed to start game in lobby: ${response.statusCode}');
       }
     } catch (e) {
       Get.find<Logger>().e('Error creating lobby: $e');

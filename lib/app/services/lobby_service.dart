@@ -17,4 +17,13 @@ class LobbyService extends GetxService {
       rethrow;
     }
   }
+
+  Future<Lobby> startGameFromLobby(int lobbyId) async {
+    try {
+      return await apiService.startGameFromLobby(lobbyId);
+    } catch (e) {
+      logger.e("Error start game from lobby: $e");
+      throw Exception("Failed to start game from lobby: $e");
+    }
+  }
 }

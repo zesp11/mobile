@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
@@ -101,15 +103,20 @@ class _LobbyScreenState extends State<LobbyScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
                   final gameController = Get.find<GamePlayController>();
+
+                  Lobby lobby = await controller.startGame();
+                  print("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
+                  lobby.idGame;
 
                   final bool isMulti = widget.gamebook.limitPlayers > 1;
                   gameController.gameType = isMulti ? GameType.multi : GameType.single;
 
                   Get.toNamed(AppRoutes.gameDetail.replaceFirst(
                     ":id",
-                    gameController.currentGame.value!.idGame.toString(),
+                    lobby.idGame.toString(),
+                    //gameController.currentGame.value!.idGame.toString(),
                   ));
                 },
                 icon: const Icon(Icons.play_arrow_rounded),
