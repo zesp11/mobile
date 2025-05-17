@@ -8,11 +8,15 @@ import 'package:gotale/app/controllers/lobby_controller.dart';
 class LobbyScreen extends StatefulWidget {
   final Scenario gamebook;
   final String jwtToken;
+  final String type;
+  final int id;
 
   const LobbyScreen({
     Key? key,
     required this.gamebook,
     required this.jwtToken,
+    required this.type,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -25,7 +29,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   void initState(){
     super.initState();
-    controller.init(scenario: widget.gamebook, token: widget.jwtToken);
+    controller.init(scenario: widget.gamebook, token: widget.jwtToken, type: widget.type, lobbyId: widget.id);
 
     /*final gameController = Get.find<GamePlayController>();
     await gameController.createGameFromScenario(widget.gamebook.id);

@@ -207,7 +207,7 @@ class ScenarioScreen extends StatelessWidget {
                               isMulti ? GameType.multi : GameType.single;*/
 
                             Get.to(() => LobbyScreen(gamebook: gamebook,
-                            jwtToken: jwtToken));
+                            jwtToken: jwtToken, type: "create", id: -1));
                             
                             
                               /*
