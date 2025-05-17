@@ -108,7 +108,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
                   Lobby lobby = await controller.startGame();
                   print("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
-                  lobby.idGame;
+                  //lobby.idGame;
 
                   final bool isMulti = widget.gamebook.limitPlayers > 1;
                   gameController.gameType = isMulti ? GameType.multi : GameType.single;
