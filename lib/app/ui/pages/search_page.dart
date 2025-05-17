@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
@@ -9,6 +10,7 @@ import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
+import 'package:gotale/app/ui/pages/lobby_screen.dart';
 import 'package:gotale/app/ui/widgets/scenario_card.dart';
 
 class SearchScreen extends GetView<goTaleSearch.SearchController> {
@@ -185,6 +187,18 @@ class _SearchBarState extends State<SearchBar> {
 }
 
 class SearchResults extends StatelessWidget {
+  final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+  late String jwtToken;
+
+  Future<void> loadToken() async {
+    final token = await secureStorage.read(key: 'accessToken');
+    if (token != null) {
+      jwtToken = 'Bearer $token';
+    } else {
+      jwtToken = "null";
+    }
+  }
+
   final goTaleSearch.SearchController controller;
 
   SearchResults({required this.controller});
@@ -397,15 +411,36 @@ class SearchResults extends StatelessWidget {
         ),
         trailing: ElevatedButton(
           onPressed: authController.isAuthenticated
-              ? () async {
-                  final gameController = Get.find<GamePlayController>();
+            ? () async {
+              Get.to(() => LobbyScreen(gamebook: lobby.scenario,
+                jwtToken: jwtToken, type: "create", id: lobby.idLobby));
+              }
+              : null,
+
+                            /*final gameController =
+                                  Get.find<GamePlayController>();
+                              await gameController
+                                  .createGameFromScenario(gamebook.id);
+                              final bool isMulti = gamebook.limitPlayers > 1;
+                              gameController.gameType = 
+                              isMulti ? GameType.multi : GameType.single;*/
+
+                            
+                            
+                            
+                              /*
+
+                              final gameController = Get.find<GamePlayController>();
                   //await gameController.createGameFromScenario(407);//lobby.idGame);
                   gameController.gameType = GameType.multi;
                   Get.toNamed(AppRoutes.gameDetail
                           .replaceFirst(":id", "721") //lobby.idGame.toString())
                       );
-                }
-              : null,
+                              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                                  ":id",
+                                  gameController.currentGame.value!.idGame
+                                      .toString()));*/
+                            
           style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.secondary,
             shape: RoundedRectangleBorder(

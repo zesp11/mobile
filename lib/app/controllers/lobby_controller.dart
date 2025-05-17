@@ -22,14 +22,19 @@ class LobbyController extends GetxController {
   var users = <dynamic>[].obs;
   var createdLobby = Rxn<Lobby>();
 
-  void init({required Scenario scenario, required String token}) {
+  void init({required Scenario scenario, required String token, required String type, required int lobbyId}) {
     gamebook = scenario;
     jwtToken = token;
+    
+    switch (type) {
+      case 'create':
+        _createAndOpenLobby();
+        break;
+      case 'join':
+        _joinLobby(lobbyId);
+        break;
+    }
 
-    //print("token:");
-    //print(token);
-
-    _createAndOpenLobby();
 
   }
 
@@ -94,6 +99,30 @@ class LobbyController extends GetxController {
     } catch (e) {
       print(
         "Błąd - Nie udało się stworzyć lobby: $e"
+      );
+    }
+  }
+
+  Future<void> _joinLobby(int lobbyId) async {
+    try {
+      setLobbyId = lobbyId;
+      print("utworzono");
+
+      Get.snackbar(
+        "Dołączono do lobby!",
+        "ID Lobby: ${setLobbyId}",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      if (jwtToken == null) {
+        await loadToken();
+      }
+
+      _connectToLobby();
+
+    } catch (e) {
+      print(
+        "Błąd - Nie udało się dołączyć do lobby: $e"
       );
     }
   }
