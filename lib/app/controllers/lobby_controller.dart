@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,6 +26,8 @@ class LobbyController extends GetxController {
   var isConnected = false.obs;
   var users = <dynamic>[].obs;
   var createdLobby = Rxn<Lobby>();
+
+  late int setGameId;
 
   void init({required Scenario scenario, required String token, required String type, required int lobbyId}) {
     gamebook = scenario;
@@ -182,10 +185,20 @@ class LobbyController extends GetxController {
     try {
       final lobby = await lobbyService.startGameFromLobby(setLobbyId);
       createdLobby.value = lobby;
+      sendMessage(jsonEncode({
+        "type": "start-game",
+        "gameId": lobby.idGame,
+      }));
+      print("sending gameId");
       return lobby;
     } catch (e) {
       rethrow;
     }
+  }
+
+  void joinGame() {
+    print("Otrzymane gameId do rozpoczęcia gry:");
+    print(setGameId);
   }
 
   @override

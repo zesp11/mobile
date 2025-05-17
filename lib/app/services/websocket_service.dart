@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
+import 'package:gotale/app/controllers/lobby_controller.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'dart:async';
 
@@ -135,14 +137,16 @@ class SocketService {
 
           switch (type) {
             case 'start-game':
-              //a();
+              print(data['gameId']);
+              final LobbyController controller = Get.find<LobbyController>();
+              controller.setGameId = data['gameId'];
               break;
-            case 'new-positions':
+            /*case 'new-positions':
               //b();
               break;
             case 'new-user':
               //c();
-              break;
+              break;*/
             default:
               print("❓ Nieznany typ wiadomości: $type");
             }
@@ -198,7 +202,8 @@ class SocketService {
             print("ℹ️ Odebrano wiadomość tekstową: $body");
 
             if (body.contains("Lobby created with status: gaming")) {
-              onLogGlobal("📥 Odebrano wiadomość: $body");
+              onLogGlobal("📥 Dołączanie do gry hosta");
+
             }
           }
         } catch (e) {
