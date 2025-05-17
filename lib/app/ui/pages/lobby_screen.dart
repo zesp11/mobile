@@ -29,8 +29,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   void initState(){
     super.initState();
-    controller.init(scenario: widget.gamebook, token: widget.jwtToken, type: widget.type, lobbyId: widget.id);
-
+    //controller.init(scenario: widget.gamebook, token: widget.jwtToken, type: widget.type, lobbyId: widget.id);
+    Future.microtask(() {
+      controller.init(
+        scenario: widget.gamebook,
+        token: widget.jwtToken,
+        type: widget.type,
+        lobbyId: widget.id,
+      );
+    });
     /*final gameController = Get.find<GamePlayController>();
     await gameController.createGameFromScenario(widget.gamebook.id);
     final bool isMulti = widget.gamebook.limitPlayers > 1;
@@ -45,6 +52,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("LobbyScreen build");
+    print(controller.users);
+    print(widget.gamebook.name);
     final theme = Theme.of(context);
 
     return Scaffold(

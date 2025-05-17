@@ -205,6 +205,7 @@ class SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    loadToken();
     final theme = Theme.of(context);
 
     return controller.obx(
@@ -413,7 +414,7 @@ class SearchResults extends StatelessWidget {
           onPressed: authController.isAuthenticated
             ? () async {
               Get.to(() => LobbyScreen(gamebook: lobby.scenario,
-                jwtToken: jwtToken, type: "create", id: lobby.idLobby));
+                jwtToken: jwtToken, type: "join", id: lobby.idLobby));
               }
               : null,
 
