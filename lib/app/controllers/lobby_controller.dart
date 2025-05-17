@@ -17,6 +17,8 @@ class LobbyController extends GetxController {
   final SocketService socketService = Get.find<SocketService>();
   final lobbyService = Get.find<LobbyService>();
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+  SocketService get socket => socketService;
+
 
   late Scenario gamebook;
   late String jwtToken ="";
