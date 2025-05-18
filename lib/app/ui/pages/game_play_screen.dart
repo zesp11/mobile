@@ -42,7 +42,11 @@ class GamePlayScreen extends StatelessWidget {
     final tabCount = isMulti ? 4 : 3;
 
     final TabController tabController =
-        TabController(length: tabCount, vsync: Navigator.of(context));
+        TabController(
+          length: tabCount, 
+          vsync: Navigator.of(context),
+          initialIndex: isMulti ? 1 : 0,
+        );
 
     Get.put(tabController);
 
@@ -67,13 +71,6 @@ class GamePlayScreen extends StatelessWidget {
             unselectedLabelColor:
                 Theme.of(context).colorScheme.secondary.withOpacity(0.6),
             tabs: [
-              if (isMulti)
-                Tab(
-                  //TODO: add translations here
-                  text: 'lobby',
-                  icon: Icon(Icons.groups,
-                      color: Theme.of(context).colorScheme.secondary),
-                ),
               Obx(
                 () => Tab(
                   text: 'decision'.tr,
@@ -102,6 +99,13 @@ class GamePlayScreen extends StatelessWidget {
                 icon: Icon(Icons.map,
                     color: Theme.of(context).colorScheme.secondary),
               ),
+              if (isMulti)
+                Tab(
+                  //TODO: add translations here
+                  text: 'lobby',
+                  icon: Icon(Icons.groups,
+                      color: Theme.of(context).colorScheme.secondary),
+                ),
             ],
           ),
         ),
@@ -109,10 +113,10 @@ class GamePlayScreen extends StatelessWidget {
           child: controller.obx(
             (state) => TabBarView(
               children: [
-                if (isMulti) LobbyTab(),
                 DecisionTab(),
                 StoryTab(),
                 MapWidget(),
+                if (isMulti) LobbyTab(),
               ],
             ),
             onLoading: Center(
@@ -194,87 +198,107 @@ class _LobbyTabState extends State<LobbyTab> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Obx(() => ListView.builder(
-      itemCount: lobbyController.users.length,
-      itemBuilder: (context, index) {
-        final id = lobbyController.users[index]['id_user'];
-        //final gamePlayController = Get.find<GamePlayController>();
+    return Obx(() => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
+          child: Text(
+            'Gracze w lobby:',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: lobbyController.users.length,
+            itemBuilder: (context, index) {
+              final id = lobbyController.users[index]['id_user'];
+              //final gamePlayController = Get.find<GamePlayController>();
 
-        /*Map<String, LatLng> coords = {};
+              /*Map<String, LatLng> coords = {};
 
-        for (var user in lobbyController.users) {
-          final id = user['id_user'].toString();
-          if (id == userId) continue;
-          final lat = double.tryParse(user['latitude'].toString());
-          final lng = double.tryParse(user['longitude'].toString());
-          if (lat != null && lng != null) {
-            coords[id] = LatLng(lat, lng);
-          }
-        }
+              for (var user in lobbyController.users) {
+                final id = user['id_user'].toString();
+                if (id == userId) continue;
+                final lat = double.tryParse(user['latitude'].toString());
+                final lng = double.tryParse(user['longitude'].toString());
+                if (lat != null && lng != null) {
+                  coords[id] = LatLng(lat, lng);
+                }
+              }
 
-        gamePlayController.displayUserMarkers(coords);*/
+              gamePlayController.displayUserMarkers(coords);*/
 
-        return FutureBuilder<User>(
-          future: userService.fetchUserProfile(id.toString()),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
+              return FutureBuilder<User>(
+                future: userService.fetchUserProfile(id.toString()),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
 
-            final user = snapshot.data!;
-            return Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 4,
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: user.photoUrl != null
-                          ? NetworkImage(user.photoUrl!)
-                          : null,
-                      child: user.photoUrl == null ? const Icon(Icons.person) : null,
+                  final user = snapshot.data!;
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
                         children: [
-                          Text(
-                            user.login,
-                            style: theme.textTheme.titleMedium,
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundImage: user.photoUrl != null
+                                ? NetworkImage(user.photoUrl!)
+                                : null,
+                            child: user.photoUrl == null ? const Icon(Icons.person) : null,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.login,
+                                  style: theme.textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "ID: ${user.id}",
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 25),
                           Text(
-                            "ID: ${user.id}",
-                            style: theme.textTheme.bodySmall,
+                            lobbyController.users[index]['id_player'].toString(),
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: theme.secondaryHeaderColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 25),
-                    Text(
-                      lobbyController.users[index]['id_player'].toString(),
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                            color: theme.secondaryHeaderColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ));
+                  );
+                },
+              );
+            },
+          ))
+          
+      ],
+      )
+    );
+      
+      
   }
 }
 
@@ -497,7 +521,7 @@ class _DecisionTabState extends State<DecisionTab> {
               ),
             ),
             onPressed: () =>
-                DefaultTabController.of(context).animateTo(isMulti ? 3 : 2),
+                DefaultTabController.of(context).animateTo(2),
           ),
         ],
       ),
@@ -591,7 +615,7 @@ class _DecisionTabState extends State<DecisionTab> {
                       ),
                     ),
                     onPressed: () => DefaultTabController.of(context)
-                        .animateTo(isMulti ? 3 : 2),
+                        .animateTo(2),
                   ),
                   const SizedBox(height: 15),
                   Text(
@@ -988,7 +1012,7 @@ class _OSMFlutterMapState extends State<MapWidget>
         !mounted ||
         arrived ||
         gamePlayController.hasArrivedAtLocation.value ||
-        DefaultTabController.of(context).index != (isMulti ? 3 : 2)) {
+        DefaultTabController.of(context).index != (2)) {
       return;
     }
 
