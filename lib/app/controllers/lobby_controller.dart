@@ -193,6 +193,7 @@ class LobbyController extends GetxController {
         "gameId": lobby.idGame,
       }));
       print("sending gameId");
+      socketService.gameStarted = true;
       return lobby;
     } catch (e) {
       rethrow;
@@ -210,6 +211,7 @@ class LobbyController extends GetxController {
     //lobby.idGame;
 
     gameController.gameType = GameType.multi;
+    socketService.gameStarted = true;
 
     Get.toNamed(AppRoutes.gameDetail.replaceFirst(
       ":id",

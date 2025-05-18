@@ -52,7 +52,7 @@ CurrentStep _$CurrentStepFromJson(Map<String, dynamic> json) => CurrentStep(
       latitude: (json['latitude'] as num).toDouble(),
       id: (json['id'] as num).toInt(),
       text: json['text'] as String,
-      photoUrl: json['photo_url'] as String,
+      photoUrl: json['photo_url'] as String?,
       title: json['title'] as String,
       longitude: (json['longitude'] as num).toDouble(),
     );

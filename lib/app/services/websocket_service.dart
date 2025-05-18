@@ -12,6 +12,7 @@ class SocketService {
   late String _sessionId = "bad";// = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
   bool _isConnected = false;
   bool get isConnected => _isConnected;
+  bool gameStarted = false;
 
   late Function(String) onErrorGlobal;
   late Function(String) onLogGlobal;
@@ -331,8 +332,12 @@ class SocketService {
 
   Future<void> sendPosition(String lobbyId) async {
 
-      if (!_isConnected) {
+    if (!_isConnected) {
       onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
+      return;
+    }
+
+    if (gameStarted!) {
       return;
     }
 
