@@ -44,7 +44,6 @@ void initServices() async {
   Get.put(LocationService());
   Get.put(SocketService());
   Get.put(LocationService());
-  Get.put(SocketService());
 
   logger.i("All services started");
 }
