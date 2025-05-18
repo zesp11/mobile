@@ -337,10 +337,6 @@ class SocketService {
       return;
     }
 
-    if (gameStarted!) {
-      return;
-    }
-
     // 🔒 Sprawdzenie uprawnień
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -391,7 +387,7 @@ class SocketService {
   void disconnectSilently() {
   disconnect(() {});
   }
-
+ 
 }
 
 

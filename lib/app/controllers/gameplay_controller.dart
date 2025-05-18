@@ -5,7 +5,9 @@ import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/lobby.dart' as lobbyModel;
+import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/services/lobby_service.dart';
+import 'package:gotale/app/services/user_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
@@ -17,6 +19,10 @@ class GamePlayController extends GetxController with StateMixin {
   final Rx<String?> jwtToken = Rx<String?>(null);
 
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+
+  Future<String?> getCurrentUserId() async {
+    return await secureStorage.read(key: 'userId');
+  }
 
   @override
   void onInit() {
@@ -310,6 +316,30 @@ class GamePlayController extends GetxController with StateMixin {
       logger.e("[DEV_DEBUG] Error processing decision: $e");
       throw Exception("Failed to process decision: $e");
     }
+  }
+
+  RxList<UserLocation> userLocations = <UserLocation>[].obs;
+  final UserService userService = Get.find<UserService>();
+
+  Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
+    List<UserLocation> loaded = [];
+
+    for (final entry in idToCoordinates.entries) {
+      try {
+        final user = await userService.fetchUserProfile(entry.key);
+        loaded.add(
+          UserLocation(
+            userId: entry.key,
+            position: entry.value,
+            photoUrl: user.photoUrl,
+          ),
+        );
+      } catch (e) {
+        print("Failed to load user ${entry.key}: $e");
+      }
+    }
+
+    userLocations.value = loaded;
   }
 
   @override
