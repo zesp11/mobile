@@ -156,6 +156,27 @@ class _LobbyTabState extends State<LobbyTab> {
   void initState() {
     super.initState();
     getCurrentUserId();
+    ever(lobbyController.users, (_) {
+    updateUserMarkers();
+  });
+  }
+
+  void updateUserMarkers() {
+    final gamePlayController = Get.find<GamePlayController>();
+
+    Map<String, LatLng> coords = {};
+
+    for (var user in lobbyController.users) {
+      final id = user['id_user'].toString();
+      if (id == userId) continue;
+      final lat = double.tryParse(user['latitude'].toString());
+      final lng = double.tryParse(user['longitude'].toString());
+      if (lat != null && lng != null) {
+        coords[id] = LatLng(lat, lng);
+      }
+    }
+
+    gamePlayController.displayUserMarkers(coords);
   }
 
   Future<void> getCurrentUserId() async {
@@ -177,9 +198,9 @@ class _LobbyTabState extends State<LobbyTab> {
       itemCount: lobbyController.users.length,
       itemBuilder: (context, index) {
         final id = lobbyController.users[index]['id_user'];
-        final gamePlayController = Get.find<GamePlayController>();
+        //final gamePlayController = Get.find<GamePlayController>();
 
-        Map<String, LatLng> coords = {};
+        /*Map<String, LatLng> coords = {};
 
         for (var user in lobbyController.users) {
           final id = user['id_user'].toString();
@@ -191,7 +212,7 @@ class _LobbyTabState extends State<LobbyTab> {
           }
         }
 
-        gamePlayController.displayUserMarkers(coords);
+        gamePlayController.displayUserMarkers(coords);*/
 
         return FutureBuilder<User>(
           future: userService.fetchUserProfile(id.toString()),
