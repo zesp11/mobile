@@ -30,6 +30,31 @@ class GamePlayController extends GetxController with StateMixin {
     loadToken();
   }
 
+  RxList<UserLocation> userLocations = <UserLocation>[].obs;
+  //List<UserLocation> userLocations = [];
+  final UserService userService = Get.find<UserService>();
+
+  Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
+    List<UserLocation> loaded = [];
+
+    for (final entry in idToCoordinates.entries) {
+      try {
+        final user = await userService.fetchUserProfile(entry.key);
+        loaded.add(
+          UserLocation(
+            userId: entry.key,
+            position: entry.value,
+            photoUrl: user.photoUrl,
+          ),
+        );
+      } catch (e) {
+        print("Failed to load user ${entry.key}: $e");
+      }
+    }
+
+    userLocations.value = loaded;
+  }
+
   Future<void> loadToken() async {
     final token = await secureStorage.read(key: 'accessToken');
     if (token != null) {
@@ -317,7 +342,7 @@ class GamePlayController extends GetxController with StateMixin {
       throw Exception("Failed to process decision: $e");
     }
   }
-
+/*
   RxList<UserLocation> userLocations = <UserLocation>[].obs;
   final UserService userService = Get.find<UserService>();
 
@@ -340,7 +365,7 @@ class GamePlayController extends GetxController with StateMixin {
     }
 
     userLocations.value = loaded;
-  }
+  }*/
 
   @override
   void onClose() {

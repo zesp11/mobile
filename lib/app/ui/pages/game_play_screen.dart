@@ -139,36 +139,51 @@ class GamePlayScreen extends StatelessWidget {
   }
 }
 
-class LobbyTab extends StatelessWidget {
-  //const LobbyTab({super.key});
+
+class LobbyTab extends StatefulWidget {
+  @override
+  _LobbyTabState createState() => _LobbyTabState();
+}
+
+class _LobbyTabState extends State<LobbyTab> {
   final LobbyController lobbyController = Get.find<LobbyController>();
   final UserService userService = Get.find<UserService>();
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
-  Future<String?> getUserIdFromStorage() async {
-    final storage = FlutterSecureStorage();
-    return await storage.read(key: 'userId');
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserId();
   }
-  
+
+  Future<void> getCurrentUserId() async {
+    final id = await secureStorage.read(key: 'userId');
+    setState(() {
+      userId = id;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // bo potem będziemy chcieli mieć kolorki
+    final theme = Theme.of(context);
 
+    if (userId == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return Obx(() => ListView.builder(
       itemCount: lobbyController.users.length,
       itemBuilder: (context, index) {
         final id = lobbyController.users[index]['id_user'];
-        /*displayUserMarkers({
-      '45': LatLng(52.23, 21.01),
-      '69': LatLng(50.06, 19.94),
-    });*/
         final gamePlayController = Get.find<GamePlayController>();
 
         Map<String, LatLng> coords = {};
 
         for (var user in lobbyController.users) {
           final id = user['id_user'].toString();
-          if (id == getUserIdFromStorage()) continue;
+          if (id == userId) continue;
           final lat = double.tryParse(user['latitude'].toString());
           final lng = double.tryParse(user['longitude'].toString());
           if (lat != null && lng != null) {
@@ -189,7 +204,6 @@ class LobbyTab extends StatelessWidget {
             }
 
             final user = snapshot.data!;
-
             return Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -241,7 +255,7 @@ class LobbyTab extends StatelessWidget {
       },
     ));
   }
-
+}
 
     /*return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -294,7 +308,7 @@ class LobbyTab extends StatelessWidget {
       ],
     );*/
   
-}
+
 
 class GameTitle extends StatelessWidget {
   const GameTitle({
@@ -802,8 +816,8 @@ class _OSMFlutterMapState extends State<MapWidget>
     mapController = MapController();
     _startTracking();
     _updateDestinationName();
-/*
-    displayUserMarkers({
+
+    /*displayUserMarkers({
       '45': LatLng(52.23, 21.01),
       '69': LatLng(50.06, 19.94),
     });*/
@@ -815,31 +829,9 @@ class _OSMFlutterMapState extends State<MapWidget>
     });
   }
 
-  /*List<UserLocation> userLocations = [];
-  final UserService userService = Get.find<UserService>();
+  
 
-  Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
-    List<UserLocation> loaded = [];
-
-    for (final entry in idToCoordinates.entries) {
-      try {
-        final user = await userService.fetchUserProfile(entry.key);
-        loaded.add(
-          UserLocation(
-            userId: entry.key,
-            position: entry.value,
-            photoUrl: user.photoUrl,
-          ),
-        );
-      } catch (e) {
-        print("Failed to load user ${entry.key}: $e");
-      }
-    }
-
-    setState(() {
-      userLocations = loaded;
-    });
-  }*/
+  
 
   void _updateDestinationName() async {
     if (gamePlayController.waypoints.isNotEmpty) {
