@@ -326,6 +326,9 @@ class SocketService {
       _positionTimer?.cancel();
       _client.deactivate();
       _isConnected = false;
+      _receivedSessionId = false;
+      _sessionId = "bad";
+      gameStarted = false;
       onDisconnected();
     }
   }

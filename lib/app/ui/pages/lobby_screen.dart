@@ -29,7 +29,7 @@ class LobbyScreen extends StatefulWidget {
 }
 
 class _LobbyScreenState extends State<LobbyScreen> {
-  final LobbyController controller = Get.put(LobbyController(), permanent: true);
+  final LobbyController controller = Get.put(LobbyController());
   
   final UserService userService = Get.find<UserService>();
 
@@ -54,6 +54,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   void dispose() {
     controller.disconnect();
+    Get.delete<LobbyController>();
     super.dispose();
   }
 
