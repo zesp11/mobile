@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -142,15 +143,40 @@ class LobbyTab extends StatelessWidget {
   //const LobbyTab({super.key});
   final LobbyController lobbyController = Get.find<LobbyController>();
   final UserService userService = Get.find<UserService>();
+
+  Future<String?> getUserIdFromStorage() async {
+    final storage = FlutterSecureStorage();
+    return await storage.read(key: 'userId');
+  }
   
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context); // bo potem będziemy chcieli mieć kolorki
 
+
     return Obx(() => ListView.builder(
       itemCount: lobbyController.users.length,
       itemBuilder: (context, index) {
         final id = lobbyController.users[index]['id_user'];
+        /*displayUserMarkers({
+      '45': LatLng(52.23, 21.01),
+      '69': LatLng(50.06, 19.94),
+    });*/
+        final gamePlayController = Get.find<GamePlayController>();
+
+        Map<String, LatLng> coords = {};
+
+        for (var user in lobbyController.users) {
+          final id = user['id_user'].toString();
+          if (id == getUserIdFromStorage()) continue;
+          final lat = double.tryParse(user['latitude'].toString());
+          final lng = double.tryParse(user['longitude'].toString());
+          if (lat != null && lng != null) {
+            coords[id] = LatLng(lat, lng);
+          }
+        }
+
+        gamePlayController.displayUserMarkers(coords);
 
         return FutureBuilder<User>(
           future: userService.fetchUserProfile(id.toString()),
@@ -776,11 +802,11 @@ class _OSMFlutterMapState extends State<MapWidget>
     mapController = MapController();
     _startTracking();
     _updateDestinationName();
-
+/*
     displayUserMarkers({
       '45': LatLng(52.23, 21.01),
       '69': LatLng(50.06, 19.94),
-    });
+    });*/
 
     mapController.mapEventStream.listen((event) {
       if (!_isMapReady) {
@@ -789,7 +815,7 @@ class _OSMFlutterMapState extends State<MapWidget>
     });
   }
 
-  List<UserLocation> userLocations = [];
+  /*List<UserLocation> userLocations = [];
   final UserService userService = Get.find<UserService>();
 
   Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
@@ -813,7 +839,7 @@ class _OSMFlutterMapState extends State<MapWidget>
     setState(() {
       userLocations = loaded;
     });
-  }
+  }*/
 
   void _updateDestinationName() async {
     if (gamePlayController.waypoints.isNotEmpty) {
@@ -1084,7 +1110,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                   ],
                 ),
                 MarkerLayer(
-                  markers: userLocations.map((user) {
+                  markers: gamePlayController.userLocations.map((user) {
                     return Marker(
                       point: user.position,
                       width: 40,

@@ -41,9 +41,8 @@ void initServices() async {
   Get.put(LobbyService(apiService: Get.find()));
   Get.put(FlutterSecureStorage());
   Get.put(SettingsService());
-  Get.put(SocketService());
+  Get.put(SocketService(), permanent: true);
   Get.put(LocationService());
-  Get.put(SocketService());
 
   logger.i("All services started");
 }
