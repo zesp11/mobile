@@ -730,27 +730,27 @@ class _OSMFlutterMapState extends State<MapWidget>
   final UserService userService = Get.find<UserService>();
 
   Future<void> displayUserMarkers(Map<String, LatLng> idToCoordinates) async {
-  List<UserLocation> loaded = [];
+    List<UserLocation> loaded = [];
 
-  for (final entry in idToCoordinates.entries) {
-    try {
-      final user = await userService.fetchUserProfile(entry.key);
-      loaded.add(
-        UserLocation(
-          userId: entry.key,
-          position: entry.value,
-          photoUrl: user.photoUrl,
-        ),
-      );
-    } catch (e) {
-      print("Failed to load user ${entry.key}: $e");
+    for (final entry in idToCoordinates.entries) {
+      try {
+        final user = await userService.fetchUserProfile(entry.key);
+        loaded.add(
+          UserLocation(
+            userId: entry.key,
+            position: entry.value,
+            photoUrl: user.photoUrl,
+          ),
+        );
+      } catch (e) {
+        print("Failed to load user ${entry.key}: $e");
+      }
     }
-  }
 
-  setState(() {
-    userLocations = loaded;
-  });
-}
+    setState(() {
+      userLocations = loaded;
+    });
+  }
 
   void _updateDestinationName() async {
     if (gamePlayController.waypoints.isNotEmpty) {

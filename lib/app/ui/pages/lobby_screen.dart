@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/models/user.dart';
+import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/lobby_controller.dart';
+import 'package:gotale/app/services/user_service.dart';
 
 class LobbyScreen extends StatefulWidget {
   final Scenario gamebook;
@@ -27,6 +30,8 @@ class LobbyScreen extends StatefulWidget {
 
 class _LobbyScreenState extends State<LobbyScreen> {
   final LobbyController controller = Get.put(LobbyController(), permanent: true);
+  
+  final UserService userService = Get.find<UserService>();
 
   @override
   void initState(){
@@ -52,12 +57,28 @@ class _LobbyScreenState extends State<LobbyScreen> {
     super.dispose();
   }
 
+/*
+  User getUser(String userId) async {
+    try {
+      
+      return user;
+    } catch (e) {
+      print("❌ Failed to load user $userId: $e");
+      return null;
+    }
+  }*/
+
+  //final RxList<User> users = <User>[].obs;
+
+  
+
   @override
   Widget build(BuildContext context) {
     print("LobbyScreen build");
     print(controller.users);
     print(widget.gamebook.name);
     final theme = Theme.of(context);
+    //final RxList<User> users = <User>[].obs;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -81,25 +102,101 @@ class _LobbyScreenState extends State<LobbyScreen> {
             ),
             const SizedBox(height: 12),
             if (controller.users.isEmpty)
-              Text(
-                "🔎 Brak graczy... jeszcze.",
-                style: theme.textTheme.bodyMedium,
+              const Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 12),
+                      Text(
+                        "Ładowanie...",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
               )
             else
               Expanded(
                 child: ListView.builder(
                   itemCount: controller.users.length,
                   itemBuilder: (context, index) {
-                    final user = controller.users[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(user.toString()),
-                      ),
+                    final id = controller.users[index]['id_user']; 
+
+                    return FutureBuilder<User>(
+                      future: userService.fetchUserProfile(id.toString()),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        final user = snapshot.data!;
+
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage: user.photoUrl != null
+                                      ? NetworkImage(user.photoUrl!)
+                                      : null,
+                                  child: user.photoUrl == null ? const Icon(Icons.person) : null,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        user.login,
+                                        style: Theme.of(context).textTheme.titleMedium,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "ID: ${user.id}",
+                                        style: Theme.of(context).textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 25),
+                                Text(
+                                  controller.users[index]['id_player'].toString(),
+                                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                        color: theme.secondaryHeaderColor,//Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          /*child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: user.photoUrl != null
+                                ? NetworkImage(user.photoUrl!)
+                                : null,
+                              child: user.photoUrl == null ? const Icon(Icons.person) : null,
+                            ),
+                            title: Text(user.login),
+                            subtitle: Text("ID: ${user.id}"),
+                          ),*/
+                        );
+                      },
                     );
                   },
                 ),
               ),
-            const SizedBox(height: 24),
+            const Spacer(),
+            //const SizedBox(height: 10),
+            if (widget.type == "create")
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -120,7 +217,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   ));
                 },
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(widget.gamebook.limitPlayers > 1 ? "Rozpocznij grę" : "Zagraj"),
+                label: Text("Rozpocznij grę"),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
