@@ -73,7 +73,7 @@ class CurrentStep {
   @JsonKey(name: "text")
   String text;
   @JsonKey(name: "photo_url")
-  String photoUrl;
+  String? photoUrl;
   @JsonKey(name: "title")
   String title;
   @JsonKey(name: "longitude")

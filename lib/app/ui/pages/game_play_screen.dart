@@ -8,6 +8,7 @@ import 'package:gotale/app/controllers/settings_controller.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/lobby.dart';
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/user_service.dart';
@@ -140,18 +141,80 @@ class GamePlayScreen extends StatelessWidget {
 class LobbyTab extends StatelessWidget {
   //const LobbyTab({super.key});
   final LobbyController lobbyController = Get.find<LobbyController>();
+  final UserService userService = Get.find<UserService>();
   
   @override
   Widget build(BuildContext context) {
-    //final GamePlayController controller = Get.find<GamePlayController>();
-    return Obx(() => Column(
-      children: [
-        Text("Użytkownicy w grze:"),
-        for (var user in lobbyController.users)
-          Text(user.toString()),
-        // Dodaj więcej logiki, co chcesz wyświetlać
-      ],
+    final theme = Theme.of(context); // bo potem będziemy chcieli mieć kolorki
+
+    return Obx(() => ListView.builder(
+      itemCount: lobbyController.users.length,
+      itemBuilder: (context, index) {
+        final id = lobbyController.users[index]['id_user'];
+
+        return FutureBuilder<User>(
+          future: userService.fetchUserProfile(id.toString()),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            final user = snapshot.data!;
+
+            return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 4,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundImage: user.photoUrl != null
+                          ? NetworkImage(user.photoUrl!)
+                          : null,
+                      child: user.photoUrl == null ? const Icon(Icons.person) : null,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.login,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "ID: ${user.id}",
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 25),
+                    Text(
+                      lobbyController.users[index]['id_player'].toString(),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                            color: theme.secondaryHeaderColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     ));
+  }
 
 
     /*return Column(
@@ -204,7 +267,7 @@ class LobbyTab extends StatelessWidget {
         ),
       ],
     );*/
-  }
+  
 }
 
 class GameTitle extends StatelessWidget {
