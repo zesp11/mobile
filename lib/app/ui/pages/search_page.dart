@@ -324,132 +324,126 @@ class SearchResults extends StatelessWidget {
   }
 
   Widget _buildLobbyCard(ThemeData theme, Lobby lobby) {
-    /*return FutureBuilder<User>(
-      future: userService.fetchUserProfile(lobby.userId.toString()),
-      builder: (context, snapshot) {
-        String userName = '...';
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          userName = 'loading...';
-        } else if (snapshot.hasError) {
-          userName = 'error';
-        } else if (snapshot.hasData) {
-          userName = snapshot.data!.login;
-        }
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            leading: CircleAvatar(
-              radius: 18,
-              backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
-              child: Icon(
-                Icons.groups,
-                color: theme.colorScheme.secondary,
-                size: 36,
-              ),
-            ),
-            title: Text(
-              'Lobby ID: ${lobby.idLobby} Owner: $userName • ${lobby.status}',
-              style: theme.textTheme.titleMedium,
-            ),
-            subtitle: Text(
-              lobby.status,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
-              ),
-            ),
-            trailing: Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.tertiary,
-            ),
-          ),
-        );
-      },
-    );*/
 
     final authController = Get.find<AuthController>();
 
+    String _shortenText(String text, int maxLength) {
+      if (text.length <= maxLength) return text;
+      return '${text.substring(0, maxLength)}...';
+    }
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        leading: CircleAvatar(
-          radius: 18, // Total diameter will be 64
-          backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
-          /*backgroundImage: lobby.photoUrl != null ? NetworkImage(lobby.photoUrl!) : null,
-          child: lobby.photoUrl == null
-              ? Icon(
-                  Icons.groups,
-                  color: theme.colorScheme.secondary,
-                  size: 36,
-                )
-              : null,*/
-        ),
-        title: Text(
-          'Lobby ID: ${lobby.idLobby} Owner: ${lobby.user.login}\n Scenario: ${lobby.scenario.name}',
-          style: theme.textTheme.titleMedium,
-        ),
-        subtitle: Text(
-          _mapStatusToText(lobby.status),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
-          ),
-        ),
-        trailing: ElevatedButton(
-          onPressed: authController.isAuthenticated
-            ? () async {
-              Get.to(() => LobbyScreen(gamebook: lobby.scenario,
-                jwtToken: jwtToken, type: "join", id: lobby.idLobby));
-              }
-              : null,
-
-                            /*final gameController =
-                                  Get.find<GamePlayController>();
-                              await gameController
-                                  .createGameFromScenario(gamebook.id);
-                              final bool isMulti = gamebook.limitPlayers > 1;
-                              gameController.gameType = 
-                              isMulti ? GameType.multi : GameType.single;*/
-
-                            
-                            
-                            
-                              /*
-
-                              final gameController = Get.find<GamePlayController>();
-                  //await gameController.createGameFromScenario(407);//lobby.idGame);
-                  gameController.gameType = GameType.multi;
-                  Get.toNamed(AppRoutes.gameDetail
-                          .replaceFirst(":id", "721") //lobby.idGame.toString())
-                      );
-                              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                  ":id",
-                                  gameController.currentGame.value!.idGame
-                                      .toString()));*/
-                            
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.secondary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: SizedBox(
+        height: 100, // albo więcej jak chcesz
+        child: Row(
+          children: [
+            // Lewa część – tło scenariusza + avatar
+            Stack(
+              children: [
+                Container(
+                  width: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                    image: DecorationImage(
+                      image: NetworkImage(lobby.scenario.photoUrl ?? ''),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 8,
+                  bottom: 8,
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundImage: (lobby.user.photoUrl != null &&
+                            lobby.user.photoUrl!.isNotEmpty)
+                        ? NetworkImage(lobby.user.photoUrl!)
+                        : null,
+                    backgroundColor:
+                        theme.colorScheme.secondary.withOpacity(0.8),
+                    child: (lobby.user.photoUrl == null ||
+                            lobby.user.photoUrl!.isEmpty)
+                        ? Icon(
+                            Icons.person,
+                            color: theme.colorScheme.onSecondary,
+                            size: 24,
+                          )
+                        : null,
+                  ),
+                ),
+              ],
             ),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
-          child: Text(
-            'lobby_join_button'.tr,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.onPrimary,
+            // Prawa część – teksty i przycisk
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Lobby ID: ${lobby.idLobby}',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Text(
+                      'Owner: ${lobby.user.login}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    Text(
+                      'Scenario: ${_shortenText(lobby.scenario.name ?? '', 10)}',
+                      style: theme.textTheme.bodyMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      _mapStatusToText(lobby.status),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(right: 30),
+              child: ElevatedButton(
+                onPressed: authController.isAuthenticated
+                    ? () {
+                        Get.to(() => LobbyScreen(
+                              gamebook: lobby.scenario,
+                              jwtToken: jwtToken,
+                              type: "join",
+                              id: lobby.idLobby,
+                            ));
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                child: Text(
+                  'lobby_join_button'.tr,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            )
+          ],
         ),
-        //onTap: () => _handleUserTap(user),
       ),
     );
   }
