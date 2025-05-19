@@ -224,7 +224,7 @@ class ScenarioCard extends StatelessWidget {
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 120),
-      child: ElevatedButton.icon(
+      /*child: ElevatedButton.icon(
         icon: Icon(
           canPlay ? Icons.play_arrow_rounded : Icons.error_outline,
           size: 20,
@@ -251,7 +251,7 @@ class ScenarioCard extends StatelessWidget {
                     gameController.currentGame.value!.idGame.toString()));
               }
             : () => _handlePlayRestriction(context, canPlay),
-      ),
+      ),*/
     );
   }
 
