@@ -9,7 +9,8 @@ import 'dart:async';
 class SocketService {
   Timer? _positionTimer;
   late StompClient _client;
-  late String _sessionId = "bad";// = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+  late String _sessionId =
+      "bad"; // = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
   bool _isConnected = false;
   bool get isConnected => _isConnected;
   bool gameStarted = false;
@@ -17,7 +18,7 @@ class SocketService {
   late Function(String) onErrorGlobal;
   late Function(String) onLogGlobal;
   late Function(List<dynamic> users) onUsersReceived;
-  bool _receivedSessionId = false; 
+  bool _receivedSessionId = false;
   late String token;
 
   void connect({
@@ -27,14 +28,13 @@ class SocketService {
     required Function(String error) onError,
     required Function(List<dynamic> users) onUsersReceived,
     required VoidCallback onConnected,
-    
   }) {
     _client = StompClient(
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
         //url: "ws://localhost:8080/websocket/websocket", // na localu
         url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
-        useSockJS: false,// 
+        useSockJS: false, //
         stompConnectHeaders: {
           'session-id': _sessionId,
           'Authorization': 'Bearer $jwtToken',
@@ -74,7 +74,6 @@ class SocketService {
           });
           print(frame.body);
 
-
           //_sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
           onErrorGlobal = onError;
           onLogGlobal = onLog;
@@ -84,12 +83,11 @@ class SocketService {
 
           //_subscribeToErrors(onError, onLog);
           _subscribeToLobby(lobbyId, onLog);
-          
+
           //sendMessage(lobbyId, "init-session");
 
           //_subscribeToErrors(onError, onLog);
           onConnected();
-
         },
         onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
         onStompError: (frame) => onError("❌ STOMP error: ${frame.body}"),
@@ -117,24 +115,24 @@ class SocketService {
           return;
         }*/
         print("lobby id hereeeeeeeeeeeeeeeeeeeee:");
-            print(lobbyId);
+        print(lobbyId);
 
         try {
           final data = jsonDecode(body);
 
           if (data is Map<String, dynamic>) {
-          // 1. Obsługa sessionId (raz)
-          if (!_receivedSessionId && data.containsKey('sessionId')) {
-            _sessionId = data['sessionId'];
-            _receivedSessionId = true;
-            onLog("📌 Otrzymano sessionId: $_sessionId");
+            // 1. Obsługa sessionId (raz)
+            if (!_receivedSessionId && data.containsKey('sessionId')) {
+              _sessionId = data['sessionId'];
+              _receivedSessionId = true;
+              onLog("📌 Otrzymano sessionId: $_sessionId");
 
-            _subscribeToErrors(onErrorGlobal!, onLogGlobal!);
-            _subscribeToUserList(lobbyId);
-            return;
-          }
+              _subscribeToErrors(onErrorGlobal!, onLogGlobal!);
+              _subscribeToUserList(lobbyId);
+              return;
+            }
 
-          /*final type = data['type'];
+            /*final type = data['type'];
 
           switch (type) {
             case 'start-game':
@@ -153,24 +151,23 @@ class SocketService {
             }
           }*/
 
-          final contentRaw = data['content'];
-          if (contentRaw is String) {
-            final content = jsonDecode(contentRaw);
-            final type = content['type'];
-            switch (type) {
-              case 'start-game':
-                print(content['gameId']);
-                final LobbyController controller = Get.find<LobbyController>();
-                controller.setGameId = content['gameId'];
-                controller.joinGame();
-                break;
-              default:
-                print("❓ Nieznany typ wiadomości: $type");
+            final contentRaw = data['content'];
+            if (contentRaw is String) {
+              final content = jsonDecode(contentRaw);
+              final type = content['type'];
+              switch (type) {
+                case 'start-game':
+                  print(content['gameId']);
+                  final LobbyController controller =
+                      Get.find<LobbyController>();
+                  controller.setGameId = content['gameId'];
+                  controller.joinGame();
+                  break;
+                default:
+                  print("❓ Nieznany typ wiadomości: $type");
+              }
             }
-          }
-        
-          }
-          else {
+          } else {
             print("💢 Nie zawiera sessionId!");
           }
         } catch (e) {
@@ -193,13 +190,10 @@ class SocketService {
         }*/
         //print(${frame.body});
       },
-      
     );
 
     sendMessage(lobbyId, "init-session");
     sendPosition(lobbyId);
-  
-
   }
 
   void _subscribeToUserList(String lobbyId) {
@@ -209,7 +203,7 @@ class SocketService {
       callback: (StompFrame frame) {
         try {
           final body = frame.body ?? '';
-           if (body.trim().startsWith('[')) {
+          if (body.trim().startsWith('[')) {
             // Zakładamy, że to JSON lista
             final List<dynamic> users = jsonDecode(body);
             onUsersReceived(users);
@@ -220,7 +214,6 @@ class SocketService {
 
             if (body.contains("Lobby created with status: gaming")) {
               onLogGlobal("📥 Dołączanie do gry hosta");
-
             }
           }
         } catch (e) {
@@ -230,7 +223,8 @@ class SocketService {
     );
   }
 
-  void _subscribeToErrors(void Function(String) onError, void Function(String) onLog) {
+  void _subscribeToErrors(
+      void Function(String) onError, void Function(String) onLog) {
     if (_sessionId == null) return;
 
     _client?.subscribe(
@@ -238,7 +232,9 @@ class SocketService {
       callback: (frame) {
         //print("-----------------w error sessionid: ${_sessionId}");
         try {
-          final Map<String, dynamic> error = frame.body != null ? Map<String, dynamic>.from(jsonDecode(frame.body!)) : {};
+          final Map<String, dynamic> error = frame.body != null
+              ? Map<String, dynamic>.from(jsonDecode(frame.body!))
+              : {};
           final type = error['type'];
 
           switch (type) {
@@ -277,8 +273,8 @@ class SocketService {
         destination: '/app/lobby/send/$lobbyId',
         body: message,
         headers: {
-        'session-id': _sessionId,
-        'lobby-id': lobbyId, 
+          'session-id': _sessionId,
+          'lobby-id': lobbyId,
         },
       );
     }
@@ -333,29 +329,40 @@ class SocketService {
     }
   }
 
+  bool _locationCheckInProgress = false;
+
   Future<void> sendPosition(String lobbyId) async {
-
-    if (!_isConnected) {
-      onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
-      return;
-    }
-
-    // 🔒 Sprawdzenie uprawnień
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        onErrorGlobal("❌ Odmówiono uprawnień do lokalizacji.");
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      onErrorGlobal("❌ Uprawnienia do lokalizacji na stałe zablokowane.");
-      return;
-    }
+    if (_locationCheckInProgress) return;
+    _locationCheckInProgress = true;
 
     try {
+      if (!_isConnected || !_client.connected) {
+        onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
+        return;
+      }
+
+      // 🔒 Sprawdzenie uprawnień
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          onErrorGlobal("❌ Odmówiono uprawnień do lokalizacji.");
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        onErrorGlobal("❌ Uprawnienia do lokalizacji na stałe zablokowane.");
+        return;
+      }
+
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        onErrorGlobal(
+            "📵 Lokalizacja jest wyłączona w ustawieniach systemowych.");
+        return;
+      }
+
       final position = await Geolocator.getCurrentPosition();
       _client.send(
         destination: '/app/lobby/location',
@@ -373,24 +380,23 @@ class SocketService {
       onLogGlobal("📨 Wysłano obecną pozycję.");
     } catch (e) {
       onErrorGlobal("💥 Błąd pobierania lokalizacji: $e");
+    } finally {
+      _locationCheckInProgress = false;
     }
   }
 
   void _startSendingPositionLoop(String lobbyId) {
-  _positionTimer?.cancel(); 
-  _positionTimer = Timer.periodic(Duration(seconds: 5), (_) {
-    if (_isConnected) {
-      sendPosition(lobbyId);
-    } else {
-      _positionTimer?.cancel();
-    }
-  });
-}
+    _positionTimer?.cancel();
+    _positionTimer = Timer.periodic(Duration(seconds: 5), (_) {
+      if (_isConnected) {
+        sendPosition(lobbyId);
+      } else {
+        _positionTimer?.cancel();
+      }
+    });
+  }
 
   void disconnectSilently() {
-  disconnect(() {});
+    disconnect(() {});
   }
- 
 }
-
-
