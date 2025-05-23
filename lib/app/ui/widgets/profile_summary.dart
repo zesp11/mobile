@@ -68,13 +68,13 @@ class ProfileSummaryWidget extends GetView<ProfileController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Achievements: ${0}",
+                "${"achievements".tr}: ${0}",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Obx(() => Text(
-                "Location: ${controller.currentLocation.value}",
-                style: Theme.of(context).textTheme.bodyMedium,
-              )),
+                    controller.currentLocation.value,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  )),
             ],
           ),
         ),

@@ -9,7 +9,7 @@ part of 'scenario.dart';
 Scenario _$ScenarioFromJson(Map<String, dynamic> json) => Scenario(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String?,
-       author: json['author'] == null
+      author: json['author'] == null
           ? Author(
               id: -1,
               login: 'Unknown',

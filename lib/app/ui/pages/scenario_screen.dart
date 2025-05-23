@@ -13,6 +13,8 @@ import 'package:gotale/app/ui/pages/lobby_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class ScenarioScreen extends StatelessWidget {
   final GameService service = Get.find<GameService>();
@@ -197,23 +199,24 @@ class ScenarioScreen extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: authController.isAuthenticated
                           ? () async {
-                            if(gamebook.limitPlayers > 1) {
-                                
-                              Get.to(() => LobbyScreen(gamebook: gamebook,
-                              jwtToken: jwtToken, type: "create", id: -1));
+                              if (gamebook.limitPlayers > 1) {
+                                Get.to(() => LobbyScreen(
+                                    gamebook: gamebook,
+                                    jwtToken: jwtToken,
+                                    type: "create",
+                                    id: -1));
+                              } else {
+                                final gameController =
+                                    Get.find<GamePlayController>();
+                                await gameController
+                                    .createGameFromScenario(gamebook.id);
+                                Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                                    ":id",
+                                    gameController.currentGame.value!.idGame
+                                        .toString()));
+                              }
 
-                            } else {
-                              final gameController =
-                                  Get.find<GamePlayController>();
-                              await gameController
-                                  .createGameFromScenario(gamebook.id);
-                              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                  ":id",
-                                  gameController.currentGame.value!.idGame
-                                      .toString()));
-                            }
-                            
-                            /*final gameController =
+                              /*final gameController =
                                   Get.find<GamePlayController>();
                               await gameController
                                   .createGameFromScenario(gamebook.id);
@@ -221,8 +224,6 @@ class ScenarioScreen extends StatelessWidget {
                               gameController.gameType = 
                               isMulti ? GameType.multi : GameType.single;*/
 
-                            
-                            
                               /*
                               Get.toNamed(AppRoutes.gameDetail.replaceFirst(
                                   ":id",
@@ -238,7 +239,9 @@ class ScenarioScreen extends StatelessWidget {
                             : theme.colorScheme.onSurface.withOpacity(0.38),
                       ),
                       label: Text(
-                        gamebook.limitPlayers > 1 ? 'create_lobby'.tr : 'play_game'.tr,
+                        gamebook.limitPlayers > 1
+                            ? 'create_lobby'.tr
+                            : 'play_game'.tr,
                       ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -273,7 +276,9 @@ class ScenarioScreen extends StatelessWidget {
 
   Widget _buildAuthorInfo(BuildContext context, Author author) {
     final theme = Theme.of(context);
-    final formattedDate = DateFormat.yMMMd().format(author.creationDate);
+
+    initializeDateFormatting('pl');
+    final formattedDate = DateFormat.yMMMd('pl').format(author.creationDate);
 
     return Card(
       elevation: 0,
@@ -431,7 +436,7 @@ class ScenarioScreen extends StatelessWidget {
 
   Widget _buildGameBookInfo(BuildContext context, Scenario gamebook) {
     final theme = Theme.of(context);
-    final dateFormatter = DateFormat.yMMMd(); // Formats to "Jul 12, 2023"
+    final dateFormatter = DateFormat.yMMMd('pl'); // Formats to "Jul 12, 2023"
 
     return Card(
       elevation: 0,

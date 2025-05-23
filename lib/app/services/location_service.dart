@@ -11,7 +11,6 @@ class LocationService extends GetxService {
   final RxString currentLocationName = ''.obs;
   final RxBool isLoadingLocation = false.obs;
   final _storage = GetStorage();
-  
 
   static const String _cacheKey = 'location_cache';
   static const Duration _cacheDuration =
@@ -81,7 +80,7 @@ class LocationService extends GetxService {
       if (cachedLocation != null) {
         logger.d('Found cached location: $cachedLocation');
         currentLocationName.value = cachedLocation;
-        isLoadingLocation.value = false; 
+        isLoadingLocation.value = false;
         return cachedLocation;
       }
 
@@ -126,7 +125,7 @@ class LocationService extends GetxService {
         // Cache the result
         _cacheLocation(cacheKey, locationName);
         currentLocationName.value = locationName;
-        isLoadingLocation.value = false; 
+        isLoadingLocation.value = false;
         return locationName;
       }
 
@@ -138,7 +137,7 @@ class LocationService extends GetxService {
       isLoadingLocation.value = false;
     }*/
 
-    final coordStr = formatCoordinates(coordinates);
+      final coordStr = formatCoordinates(coordinates);
       isLoadingLocation.value = false;
       return coordStr;
     } catch (e, stackTrace) {
@@ -155,17 +154,16 @@ class LocationService extends GetxService {
 
       if (cachedData != null) {
         // Sprawdzenie czy cachedData ma właściwy format
-        if (cachedData is Map && 
-            cachedData.containsKey('timestamp') && 
+        if (cachedData is Map &&
+            cachedData.containsKey('timestamp') &&
             cachedData.containsKey('name')) {
-          
           final timestampStr = cachedData['timestamp'];
           final locationName = cachedData['name'];
-          
+
           if (timestampStr is String && locationName is String) {
             try {
               final timestamp = DateTime.parse(timestampStr);
-              
+
               // Check if cache is still valid
               if (DateTime.now().difference(timestamp) < _cacheDuration) {
                 return locationName;
@@ -181,7 +179,7 @@ class LocationService extends GetxService {
     }
     return null;
   }
-    /*final cache = _locationCache;
+  /*final cache = _locationCache;
     final cachedData = cache[key];
 
     if (cachedData != null) {
