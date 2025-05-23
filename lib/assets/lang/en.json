@@ -138,7 +138,7 @@
   "gps_button": "Tap the GPS button to track your location",
   "navigation_arrow": "Navigation arrow appears when the destination is off screen",
   "pin_or_circle": "A pin marks the current destination",
-  "destination_name": "Destination name appears when visible and zoomed in enough",
+  "destination_name": "Destination name appears when it is visible and zoomed in enough",
   "compass_click": "Tap the compass to reset map rotation",
   "distance_label": "Tap the meters label to center the map on destination",
   "got_it": "Got it!"
