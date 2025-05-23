@@ -20,6 +20,7 @@ import 'package:gotale/app/services/home_service.dart';
 import 'package:gotale/app/services/search_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 // top-level constant for production flag
 // TODO: maybe move that comments to README.md file
@@ -81,6 +82,10 @@ Logger _createLogger(bool isProduction) {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+
+  // Initialize date formatting
+  // await initializeDateFormatting('pl', "EUR");
+  await initializeDateFormatting('pl');
 
   Get.put<Logger>(_createLogger(isProduction));
 

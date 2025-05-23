@@ -31,7 +31,7 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
 
   Widget _buildGameSection(GameInProgress lastGame, BuildContext context) {
     final formattedDate =
-        DateFormat('dd/MM/yyyy HH:mm').format(lastGame.startTime);
+        DateFormat('d MMMM yyyy HH:mm', 'pl').format(lastGame.startTime);
     final location =
         LatLng(lastGame.currentStep.latitude, lastGame.currentStep.longitude);
 
@@ -85,7 +85,7 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'started_on'.trParams({'date': formattedDate}),
+                      '${"started_on".tr} $formattedDate',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context)
                                 .colorScheme

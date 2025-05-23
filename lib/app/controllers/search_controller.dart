@@ -72,8 +72,7 @@ class SearchController extends GetxController with StateMixin<SearchResult> {
         SearchResult(
             users: userResults,
             scenarios: scenarioResults,
-            lobbies: lobbyResults
-            ),
+            lobbies: lobbyResults),
         status: RxStatus.success(),
       );
     } catch (e) {

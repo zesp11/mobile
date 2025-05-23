@@ -181,7 +181,6 @@ class ProductionApiService extends ApiService {
       final endpoint =
           '$name${startGameFromLobbyRoute.replaceFirst(':id', lobbyId.toString())}';
 
-
       final token =
           await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
 
@@ -219,7 +218,8 @@ class ProductionApiService extends ApiService {
         logger.d('Response body: "${response.body}"');
         return Lobby.fromJson(data);
       } else {
-        throw Exception('Failed to start game in lobby: ${response.statusCode}');
+        throw Exception(
+            'Failed to start game in lobby: ${response.statusCode}');
       }
     } catch (e) {
       Get.find<Logger>().e('Error creating lobby: $e');

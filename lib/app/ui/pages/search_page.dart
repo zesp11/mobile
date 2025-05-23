@@ -324,7 +324,6 @@ class SearchResults extends StatelessWidget {
   }
 
   Widget _buildLobbyCard(ThemeData theme, Lobby lobby) {
-
     final authController = Get.find<AuthController>();
 
     String _shortenText(String text, int maxLength) {
@@ -383,8 +382,8 @@ class SearchResults extends StatelessWidget {
             // Prawa część – teksty i przycisk
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12.0, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
