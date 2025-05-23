@@ -4,7 +4,6 @@ import 'package:gotale/app/services/websocket_service.dart';
 
 // only for testing sockets for now
 
-
 class LobbySocketPanel extends StatefulWidget {
   final String jwtToken;
   final String lobbyId;
@@ -33,11 +32,11 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
   }
 
   void _handleUsersReceived(List<dynamic> users) {
-  _log("📋 Otrzymano użytkowników:");
-  for (var user in users) {
-    _log("👤 ${user.toString()}");
+    _log("📋 Otrzymano użytkowników:");
+    for (var user in users) {
+      _log("👤 ${user.toString()}");
+    }
   }
-}
 
   @override
   void initState() {
@@ -54,7 +53,9 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
 
   @override
   void dispose() {
-    socketService.disconnect((){print("Socket rozłączony pomyślnie");});
+    socketService.disconnect(() {
+      print("Socket rozłączony pomyślnie");
+    });
     super.dispose();
   }
 
@@ -64,10 +65,10 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
       children: [
         ElevatedButton(
           onPressed: socketService.isConnected
-            ? () {
-                socketService.sendMessage(widget.lobbyId, "testtttt\n");
-              }
-            : null, // przycisk nieaktywny, jak nie połączono
+              ? () {
+                  socketService.sendMessage(widget.lobbyId, "testtttt\n");
+                }
+              : null, // przycisk nieaktywny, jak nie połączono
           child: Text("Wyślij wiadomość"),
         ),
         const SizedBox(height: 12),

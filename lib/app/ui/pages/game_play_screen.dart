@@ -30,7 +30,6 @@ bool isMulti = false;
 class GamePlayScreen extends StatelessWidget {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
-  
 
   GamePlayScreen({super.key});
 
@@ -41,12 +40,11 @@ class GamePlayScreen extends StatelessWidget {
     isMulti = controller.gameType == GameType.multi;
     final tabCount = isMulti ? 4 : 3;
 
-    final TabController tabController =
-        TabController(
-          length: tabCount, 
-          vsync: Navigator.of(context),
-          initialIndex: isMulti ? 1 : 0,
-        );
+    final TabController tabController = TabController(
+      length: tabCount,
+      vsync: Navigator.of(context),
+      initialIndex: isMulti ? 1 : 0,
+    );
 
     Get.put(tabController);
 
@@ -143,7 +141,6 @@ class GamePlayScreen extends StatelessWidget {
   }
 }
 
-
 class LobbyTab extends StatefulWidget {
   @override
   _LobbyTabState createState() => _LobbyTabState();
@@ -161,8 +158,8 @@ class _LobbyTabState extends State<LobbyTab> {
     super.initState();
     getCurrentUserId();
     ever(lobbyController.users, (_) {
-    updateUserMarkers();
-  });
+      updateUserMarkers();
+    });
   }
 
   void updateUserMarkers() {
@@ -199,26 +196,26 @@ class _LobbyTabState extends State<LobbyTab> {
     }
 
     return Obx(() => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
-          child: Text(
-            'Gracze w lobby:',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Text(
+                'Gracze w lobby:',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: lobbyController.users.length,
-            itemBuilder: (context, index) {
-              final id = lobbyController.users[index]['id_user'];
-              //final gamePlayController = Get.find<GamePlayController>();
+            Expanded(
+                child: ListView.builder(
+              itemCount: lobbyController.users.length,
+              itemBuilder: (context, index) {
+                final id = lobbyController.users[index]['id_user'];
+                //final gamePlayController = Get.find<GamePlayController>();
 
-              /*Map<String, LatLng> coords = {};
+                /*Map<String, LatLng> coords = {};
 
               for (var user in lobbyController.users) {
                 final id = user['id_user'].toString();
@@ -232,77 +229,77 @@ class _LobbyTabState extends State<LobbyTab> {
 
               gamePlayController.displayUserMarkers(coords);*/
 
-              return FutureBuilder<User>(
-                future: userService.fetchUserProfile(id.toString()),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
+                return FutureBuilder<User>(
+                  future: userService.fetchUserProfile(id.toString()),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-                  final user = snapshot.data!;
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundImage: user.photoUrl != null
-                                ? NetworkImage(user.photoUrl!)
-                                : null,
-                            child: user.photoUrl == null ? const Icon(Icons.person) : null,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user.login,
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "ID: ${user.id}",
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 25),
-                          Text(
-                            lobbyController.users[index]['id_player'].toString(),
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: theme.secondaryHeaderColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
+                    final user = snapshot.data!;
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-          ))
-          
-      ],
-      )
-    );
-      
-      
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundImage: user.photoUrl != null
+                                  ? NetworkImage(user.photoUrl!)
+                                  : null,
+                              child: user.photoUrl == null
+                                  ? const Icon(Icons.person)
+                                  : null,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    user.login,
+                                    style: theme.textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "ID: ${user.id}",
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 25),
+                            Text(
+                              lobbyController.users[index]['id_player']
+                                  .toString(),
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                color: theme.secondaryHeaderColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ))
+          ],
+        ));
   }
 }
 
-    /*return Column(
+/*return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
@@ -352,8 +349,6 @@ class _LobbyTabState extends State<LobbyTab> {
         ),
       ],
     );*/
-  
-
 
 class GameTitle extends StatelessWidget {
   const GameTitle({
@@ -455,7 +450,7 @@ class _DecisionTabState extends State<DecisionTab> {
             color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
           ),
           Text(
-            "Swipe up for choices",
+            "swipe_up_to_show_buttons".tr,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                   fontWeight: FontWeight.w500,
@@ -476,7 +471,7 @@ class _DecisionTabState extends State<DecisionTab> {
           color: Theme.of(context).colorScheme.secondary.withOpacity(0.6),
         ),
         Text(
-          "Swipe down to close",
+          "swipe_down_to_hide_buttons".tr,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.secondary,
                 fontStyle: FontStyle.italic,
@@ -520,8 +515,7 @@ class _DecisionTabState extends State<DecisionTab> {
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-            onPressed: () =>
-                DefaultTabController.of(context).animateTo(2),
+            onPressed: () => DefaultTabController.of(context).animateTo(2),
           ),
         ],
       ),
@@ -593,14 +587,14 @@ class _DecisionTabState extends State<DecisionTab> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "Location Required",
+                    "location_required".tr,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Confirm your arrival at the current location\nin the Map tab to continue",
+                    "location_required_description".tr,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
@@ -609,17 +603,17 @@ class _DecisionTabState extends State<DecisionTab> {
                     icon: Icon(Icons.map,
                         color: Theme.of(context).colorScheme.onSecondary),
                     label: Text(
-                      "Go to Map",
+                      "go_to_map".tr,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSecondary,
                       ),
                     ),
-                    onPressed: () => DefaultTabController.of(context)
-                        .animateTo(2),
+                    onPressed: () =>
+                        DefaultTabController.of(context).animateTo(2),
                   ),
                   const SizedBox(height: 15),
                   Text(
-                    "Pull down to refresh location status",
+                    "refresh_message".tr,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
@@ -874,10 +868,6 @@ class _OSMFlutterMapState extends State<MapWidget>
     });
   }
 
-  
-
-  
-
   void _updateDestinationName() async {
     if (gamePlayController.waypoints.isNotEmpty) {
       final name =
@@ -1033,11 +1023,11 @@ class _OSMFlutterMapState extends State<MapWidget>
     return AlertDialog(
       backgroundColor: theme.colorScheme.primary,
       title: Text(
-        "You've arrived!",
+        "arrived_message".tr,
         style: TextStyle(color: theme.colorScheme.onSurface),
       ),
       content: Text(
-        "Proceed with your adventure.",
+        "arrived_message_description".tr,
         style: TextStyle(color: theme.colorScheme.onSurface),
       ),
       actions: [
@@ -1050,7 +1040,7 @@ class _OSMFlutterMapState extends State<MapWidget>
             }
           },
           child: Text(
-            "Continue",
+            "continue_playing".tr,
             style: TextStyle(color: theme.colorScheme.secondary),
           ),
         ),
@@ -1146,37 +1136,38 @@ class _OSMFlutterMapState extends State<MapWidget>
                         child: _buildDirectionArrow(bearing, colorScheme)),
                   ],
                 ),
-                MarkerLayer(
-                  markers: gamePlayController.userLocations.map((user) {
-                    return Marker(
-                      point: user.position,
+              MarkerLayer(
+                markers: gamePlayController.userLocations.map((user) {
+                  return Marker(
+                    point: user.position,
+                    width: 40,
+                    height: 40,
+                    rotate: true,
+                    child: Container(
                       width: 40,
                       height: 40,
-                      rotate: true,
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: colorScheme.secondary,
-                            width: 3,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 20,
-                          /*backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
-                              ? NetworkImage(user.photoUrl!)
-                              : null,*/
-                          backgroundColor: colorScheme.primary,
-                          child: (user.photoUrl == null || !user.photoUrl!.startsWith('http'))
-                              ? Icon(Icons.person)
-                              : null,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colorScheme.secondary,
+                          width: 3,
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
+                      child: CircleAvatar(
+                        radius: 20,
+                        /*backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
+                              ? NetworkImage(user.photoUrl!)
+                              : null,*/
+                        backgroundColor: colorScheme.primary,
+                        child: (user.photoUrl == null ||
+                                !user.photoUrl!.startsWith('http'))
+                            ? Icon(Icons.person)
+                            : null,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             ],
           ),
           // Show destination name at the top only if the destination is visible and the detailed circle is shown (zoomed in)
@@ -1365,7 +1356,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                     Icon(Icons.help_outline,
                         color: colorScheme.secondary, size: 28),
                     const SizedBox(width: 12),
-                    Text('Map Tutorial',
+                    Text('map_tutorial'.tr,
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge
@@ -1373,22 +1364,14 @@ class _OSMFlutterMapState extends State<MapWidget>
                   ],
                 ),
                 const SizedBox(height: 20),
-                _tutorialItem(Icons.touch_app,
-                    'Move the map by dragging with one finger.'),
-                _tutorialItem(Icons.zoom_in,
-                    'Zoom in/out using pinch gestures or double-tap.'),
-                _tutorialItem(Icons.gps_fixed,
-                    'Tap the GPS button to follow your location.'),
-                _tutorialItem(Icons.navigation,
-                    'A navigation arrow appears if the destination is off-screen.'),
-                _tutorialItem(Icons.location_pin,
-                    'A pin or circle marks your current destination.'),
-                _tutorialItem(Icons.label,
-                    'The destination name appears when zoomed in and visible.'),
-                _tutorialItem(
-                    Icons.explore, 'Tap the compass to reset map rotation.'),
-                _tutorialItem(Icons.location_on,
-                    'Tap the meters/distance label to focus the map on the destination.'),
+                _tutorialItem(Icons.touch_app, 'one_finger_drag'.tr),
+                _tutorialItem(Icons.zoom_in, 'zoom_in_out'.tr),
+                _tutorialItem(Icons.gps_fixed, 'gps_button'.tr),
+                _tutorialItem(Icons.navigation, 'navigation_arrow'.tr),
+                _tutorialItem(Icons.location_pin, 'pin_or_circle'.tr),
+                _tutorialItem(Icons.label, 'destination_name'.tr),
+                _tutorialItem(Icons.explore, 'compass_click'.tr),
+                _tutorialItem(Icons.location_on, 'distance_label'.tr),
                 const SizedBox(height: 16),
                 Padding(
                   padding: EdgeInsets.only(
@@ -1398,7 +1381,7 @@ class _OSMFlutterMapState extends State<MapWidget>
                   child: Center(
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Got it!'),
+                      child: Text('got_it'.tr),
                     ),
                   ),
                 ),

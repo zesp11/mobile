@@ -69,7 +69,6 @@ class GamePlayController extends GetxController with StateMixin {
     jwtToken.value = "Bearer token";
   }*/
 
-
   final GameService gameService;
   final logger = Get.find<Logger>();
   final _devBypassLocation = false.obs;
@@ -330,7 +329,8 @@ class GamePlayController extends GetxController with StateMixin {
   final LobbyService lobbyService = Get.find();
   final Rxn<lobbyModel.Lobby> createdLobby = Rxn<lobbyModel.Lobby>();
 
-  Future<lobbyModel.Lobby> createLobby(int id) async {//do usunięcia potem
+  Future<lobbyModel.Lobby> createLobby(int id) async {
+    //do usunięcia potem
     try {
       final lobby = await lobbyService.createLobby(id, "test");
       //print("Lobby utworzone: ${lobby.name}");

@@ -19,9 +19,8 @@ class LobbyController extends GetxController {
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
   SocketService get socket => socketService;
 
-
   late Scenario gamebook;
-  late String jwtToken ="";
+  late String jwtToken = "";
   late int setLobbyId;
 
   Function(String) onErrorGlobal = (msg) => print("ERROR: $msg");
@@ -32,10 +31,14 @@ class LobbyController extends GetxController {
 
   late int setGameId;
 
-  void init({required Scenario scenario, required String token, required String type, required int lobbyId}) {
+  void init(
+      {required Scenario scenario,
+      required String token,
+      required String type,
+      required int lobbyId}) {
     gamebook = scenario;
     jwtToken = token;
-    
+
     switch (type) {
       case 'create':
         print("wybrano utworzenie lobby");
@@ -46,8 +49,6 @@ class LobbyController extends GetxController {
         _joinLobby(lobbyId);
         break;
     }
-
-
   }
 
   Future<Lobby> createLobby(int scenarioId) async {
@@ -107,11 +108,8 @@ class LobbyController extends GetxController {
       }*/
       _connectToLobby(onConnected: () {});
       //_connectToLobby();
-
     } catch (e) {
-      print(
-        "Błąd - Nie udało się stworzyć lobby: $e"
-      );
+      print("Błąd - Nie udało się stworzyć lobby: $e");
     }
   }
 
@@ -138,11 +136,8 @@ class LobbyController extends GetxController {
       _connectToLobby(onConnected: () {
         sendJoin();
       });
-
     } catch (e) {
-      print(
-        "Błąd - Nie udało się dołączyć do lobby: $e"
-      );
+      print("Błąd - Nie udało się dołączyć do lobby: $e");
     }
   }
 
@@ -152,7 +147,8 @@ class LobbyController extends GetxController {
       jwtToken: jwtToken,
       lobbyId: setLobbyId.toString(),
       onLog: (msg) => print("🧾 $msg"),
-      onError: (err) => Get.snackbar("Błąd", err, backgroundColor: Get.theme.colorScheme.error),
+      onError: (err) => Get.snackbar("Błąd", err,
+          backgroundColor: Get.theme.colorScheme.error),
       onUsersReceived: (userList) {
         users.assignAll(userList);
       },
