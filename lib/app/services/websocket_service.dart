@@ -337,7 +337,8 @@ class SocketService {
 
     try {
       if (!_isConnected || !_client.connected) {
-        onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
+        onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");//do usunięcia 
+        reconnect(lobbyId);
         return;
       }
 
@@ -383,6 +384,21 @@ class SocketService {
     } finally {
       _locationCheckInProgress = false;
     }
+  }
+
+  void reconnect(String lobbyId) {
+    if (_isConnected) return;
+    onLogGlobal("🔁 Próba ponownego połączenia...");
+    connect(
+      jwtToken: token,
+      lobbyId: lobbyId,
+      onLog: onLogGlobal,
+      onError: onErrorGlobal,
+      onUsersReceived: onUsersReceived,
+      onConnected: () {
+        onLogGlobal("✅ Połączono ponownie.");
+      },
+    );
   }
 
   void _startSendingPositionLoop(String lobbyId) {
