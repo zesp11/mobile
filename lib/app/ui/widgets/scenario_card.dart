@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Widget buildScenarioCard(ThemeData theme, Scenario scenario) {
-  final timeago = DateFormat('MMM dd, yyyy').format(scenario.creationDate);
+  // Initialize date formatting for Polish locale
+  final timeago = DateFormat.yMMMMd('pl').format(scenario.creationDate);
 
   return Card(
     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -25,7 +27,9 @@ Widget buildScenarioCard(ThemeData theme, Scenario scenario) {
                 ),
                 color: theme.colorScheme.primary.withOpacity(0.1),
               ),
-              child: (scenario.photoUrl != null && scenario.photoUrl!.isNotEmpty && Uri.tryParse(scenario.photoUrl!)?.isAbsolute == true)
+              child: (scenario.photoUrl != null &&
+                      scenario.photoUrl!.isNotEmpty &&
+                      Uri.tryParse(scenario.photoUrl!)?.isAbsolute == true)
                   ? Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ClipRRect(

@@ -141,7 +141,7 @@ class SettingsScreen extends StatelessWidget {
                     _buildSettingItem(
                       context,
                       title: 'notifications'.tr,
-                      subtitle: 'notifications_description'.tr,
+                      // subtitle: 'notifications_description'.tr,
                       icon: Icons.notifications_outlined,
                       trailing: Obx(
                         () => Switch(

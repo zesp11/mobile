@@ -204,7 +204,7 @@ class ScenarioCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      DateFormat.yMMMd().format(author.creationDate),
+                      DateFormat.yMMMd('pl').format(author.creationDate),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.tertiary.withOpacity(0.8),
                       ),
@@ -263,12 +263,12 @@ class ScenarioCard extends StatelessWidget {
         _buildInfoChip(
           context,
           icon: Icons.people_outline,
-          label: '${gamebook.limitPlayers} players',
+          label: '${gamebook.limitPlayers} ${"players".tr}',
         ),
         _buildInfoChip(
           context,
           icon: Icons.calendar_today_outlined,
-          label: DateFormat('MMM dd, yyyy').format(gamebook.creationDate),
+          label: DateFormat.yMMMMd('pl').format(gamebook.creationDate),
         ),
       ],
     );

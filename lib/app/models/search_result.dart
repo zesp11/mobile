@@ -7,7 +7,8 @@ class SearchResult {
   List<Scenario> scenarios;
   List<Lobby> lobbies;
 
-  SearchResult({required this.users, required this.scenarios, required this.lobbies});
+  SearchResult(
+      {required this.users, required this.scenarios, required this.lobbies});
 
   int get length {
     return users.length + scenarios.length + lobbies.length;

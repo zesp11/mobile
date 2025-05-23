@@ -112,18 +112,19 @@ class ProfileController extends GetxController with StateMixin<User> {
   Future<void> getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium
-      );
+          desiredAccuracy: LocationAccuracy.medium);
       final List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
-      
+
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
-        currentLocation.value = '${place.locality ?? ''}, ${place.country ?? ''}';
+        currentLocation.value =
+            '${place.locality ?? ''}, ${place.country ?? ''}';
       } else {
-        currentLocation.value = '${position.latitude.toStringAsFixed(2)}, ${position.longitude.toStringAsFixed(2)}';
+        currentLocation.value =
+            '${position.latitude.toStringAsFixed(2)}, ${position.longitude.toStringAsFixed(2)}';
       }
     } catch (e) {
       currentLocation.value = 'Location unavailable';

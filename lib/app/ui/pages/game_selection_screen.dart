@@ -330,7 +330,7 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
 
   Widget _buildGameSection(GameInProgress lastGame, BuildContext context) {
     final theme = Theme.of(context);
-    final dateFormat = DateFormat('MMM dd, yyyy - HH:mm');
+    final dateFormat = DateFormat('d MMMM yyyy - HH:mm', 'pl');
     final startTime = lastGame.startTime.toLocal();
     final location =
         LatLng(lastGame.currentStep.latitude, lastGame.currentStep.longitude);
@@ -378,12 +378,12 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
               _buildGameInfoRow(
                 context,
                 icon: Icons.timelapse_outlined,
-                label: 'Started ${dateFormat.format(startTime)}',
+                label: '${"started".tr} ${dateFormat.format(startTime)}',
               ),
               _buildGameInfoRow(
                 context,
                 icon: Icons.article_outlined,
-                label: 'Current Step: ${lastGame.currentStep.title}',
+                label: lastGame.currentStep.title,
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8),
