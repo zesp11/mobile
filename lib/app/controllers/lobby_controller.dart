@@ -216,6 +216,22 @@ class LobbyController extends GetxController {
     ));
   }
 
+  void deleteUser(int id) async {
+    try {
+      sendMessage(jsonEncode({
+        "type": "delete",
+        "deleted-user": id,
+      }));
+      print("deleting user");
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  void reactToBeingDeleted() {
+    
+  }
+
   @override
   void onClose() {
     disconnect();
