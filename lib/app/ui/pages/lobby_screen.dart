@@ -33,6 +33,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   final UserService userService = Get.find<UserService>();
   bool isAlreadyStarted = false;
+  String? currentUserId;
 
   @override
   void initState() {
@@ -45,6 +46,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
         type: widget.type,
         lobbyId: widget.id,
       );
+    });
+    Future(() async {
+      final currentUser = await userService.fetchCurrentUserProfile();
+      setState(() {
+        currentUserId = currentUser.id.toString();
+      });
     });
     /*final gameController = Get.find<GamePlayController>();
     await gameController.createGameFromScenario(widget.gamebook.id);
@@ -192,6 +199,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                         ),
+                                        if (widget.type == "create" && user.id.toString() != currentUserId)
+                                          IconButton(
+                                            icon: const Icon(Icons.close, color: Colors.red),
+                                            onPressed: () {
+                                              controller.deleteUser(user.id);
+                                            },
+                                          ),
                                       ],
                                     ),
                                   ),
