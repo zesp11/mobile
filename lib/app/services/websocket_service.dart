@@ -163,6 +163,12 @@ class SocketService {
                   controller.setGameId = content['gameId'];
                   controller.joinGame();
                   break;
+                case 'delete':
+                  print(content['deleted-user']);
+                  final LobbyController controller =
+                      Get.find<LobbyController>();
+                  controller.reactToBeingDeleted();
+                  break;
                 default:
                   print("❓ Nieznany typ wiadomości: $type");
               }
@@ -214,7 +220,7 @@ class SocketService {
 
             if (body.contains("Lobby created with status: gaming")) {
               onLogGlobal("📥 Dołączanie do gry hosta");
-            }
+            } 
           }
         } catch (e) {
           print("💥 Błąd parsowania listy użytkowników: $e");
