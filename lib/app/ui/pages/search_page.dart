@@ -284,10 +284,12 @@ class SearchResults extends StatelessWidget {
               : null,
           //user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
           child: user.photoUrl == null
-              ? Icon(
-                  Icons.person,
-                  color: theme.colorScheme.secondary,
-                  size: 36,
+              ? Text(
+                  user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    
+                    fontWeight: FontWeight.bold,
+                  ),
                 )
               : null,
         ),
@@ -319,7 +321,7 @@ class SearchResults extends StatelessWidget {
       case 'Gaming':
         return ('gaming_lobby'.tr);
       default:
-        return status; // jak nie wiadomo, co to, to pokazuj jak jest
+        return status;
     }
   }
 
@@ -337,7 +339,7 @@ class SearchResults extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: SizedBox(
-        height: 100, // albo więcej jak chcesz
+        height: 100,
         child: Row(
           children: [
             // Lewa część – tło scenariusza + avatar
@@ -350,11 +352,25 @@ class SearchResults extends StatelessWidget {
                       topLeft: Radius.circular(12),
                       bottomLeft: Radius.circular(12),
                     ),
-                    image: DecorationImage(
-                      image: NetworkImage(lobby.scenario.photoUrl ?? ''),
-                      fit: BoxFit.cover,
-                    ),
+                    color: theme.cardColor,
+                    image: (lobby.scenario.photoUrl != null &&
+                            lobby.scenario.photoUrl!.isNotEmpty)
+                        ? DecorationImage(
+                            image: NetworkImage(lobby.scenario.photoUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
+                  child: (lobby.scenario.photoUrl == null ||
+                          lobby.scenario.photoUrl!.isEmpty)
+                      ? Center(
+                          child: Icon(
+                            Icons.auto_stories,
+                            size: 40,
+                            color: theme.colorScheme.tertiary.withOpacity(0.3),
+                          ),
+                        )
+                      : null,
                 ),
                 Positioned(
                   left: 8,
@@ -369,11 +385,13 @@ class SearchResults extends StatelessWidget {
                         theme.colorScheme.secondary.withOpacity(0.8),
                     child: (lobby.user.photoUrl == null ||
                             lobby.user.photoUrl!.isEmpty)
-                        ? Icon(
-                            Icons.person,
-                            color: theme.colorScheme.onSecondary,
-                            size: 24,
-                          )
+                        ? Text(
+                          lobby.user.login.isNotEmpty ? lobby.user.login[0].toUpperCase() : '?',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
                         : null,
                   ),
                 ),
@@ -393,21 +411,23 @@ class SearchResults extends StatelessWidget {
                       style: theme.textTheme.titleMedium,
                     ),
                     Text(
-                      'Owner: ${lobby.user.login}',
+                      lobby.user.login,
                       style: theme.textTheme.bodyMedium,
                     ),
                     Text(
-                      'Scenario: ${_shortenText(lobby.scenario.name ?? '', 10)}',
-                      style: theme.textTheme.bodyMedium,
-                      maxLines: 1,
+                      _shortenText(lobby.scenario.name ?? '', 25),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
+                    /*Text(
                       _mapStatusToText(lobby.status),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ),
