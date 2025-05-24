@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
@@ -8,7 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'dart:async';
 
-class SocketService {
+class SocketService with WidgetsBindingObserver{
   Timer? _positionTimer;
   late StompClient _client;
   late String _sessionId =
@@ -16,6 +17,11 @@ class SocketService {
   bool _isConnected = false;
   bool get isConnected => _isConnected;
   bool gameStarted = false;
+
+  bool _wasConnectedBeforeBackground = false;
+  String? _currentLobbyId;
+  bool _isReconnecting = false;
+  bool _isInitialConnection = true;
 
   late Function(String) onErrorGlobal;
   late Function(String) onLogGlobal;
@@ -25,6 +31,75 @@ class SocketService {
   bool shouldReconnect = true;
   final logger = Get.find<Logger>();
 
+  SocketService() {
+    // Rejestrujemy observer do śledzenia cyklu życia aplikacji
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        logger.d("📱 Aplikacja przeszła w tło");
+        _wasConnectedBeforeBackground = _isConnected;
+        break;
+        
+      case AppLifecycleState.resumed:
+        logger.d("📱 Aplikacja wróciła na pierwszy plan");
+        if (_wasConnectedBeforeBackground && !_isConnected && _currentLobbyId != null) {
+          logger.d("🔄 Wykryto potrzebę reconnect po powrocie z tła");
+          _handleAppResumeReconnect();
+        }
+        break;
+        
+      case AppLifecycleState.inactive:
+        // Stan przejściowy, nie robimy nic
+        break;
+        
+      case AppLifecycleState.hidden:
+        // Nowy stan w nowszych wersjach Fluttera
+        break;
+    }
+  }
+
+  void _handleAppResumeReconnect() {
+    if (_isReconnecting || _currentLobbyId == null) return;
+    
+    _isReconnecting = true;
+    onLogGlobal("🔄 Wznawianie połączenia po powrocie aplikacji...");
+    
+    // Czekamy chwilę na ustabilizowanie się aplikacji
+    Future.delayed(Duration(milliseconds: 2000), () {
+      if (!_isConnected && shouldReconnect) {
+        onLogGlobal("🔄 MANUAL Reconnect: STOMP nie połączył się automatycznie");
+        reconnect(_currentLobbyId!);
+      } else if (_isConnected) {
+        onLogGlobal("✅ STOMP już się połączył automatycznie");
+        _handlePostReconnectActions(_currentLobbyId!);
+      }
+      _isReconnecting = false;
+    });
+  }
+
+  void _handlePostReconnectActions(String lobbyId) {
+    logger.d("🔄 Wykonywanie akcji po reconnect...");
+    _receivedSessionId = false;
+    
+    // Opóźnienie żeby dać czas na pełne połączenie
+    Future.delayed(Duration(milliseconds: 1500), () {
+      if (_isConnected) {
+        //sendJoinMessage(lobbyId);
+        _subscribeToUserList(lobbyId);
+
+        //requestUserList(lobbyId);
+        onLogGlobal("✅ Wykonano akcje po reconnect");
+      }
+    });
+  }
+
   void connect({
     required String jwtToken,
     required String lobbyId,
@@ -33,6 +108,7 @@ class SocketService {
     required Function(List<dynamic> users) onUsersReceived,
     required VoidCallback onConnected,
   }) {
+    _currentLobbyId = lobbyId;
     _client = StompClient(
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
@@ -40,6 +116,9 @@ class SocketService {
         url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // na http
         //url: 'wss://api.gotale.pl:443/websocket/websocket', // na https
         useSockJS: false, //
+        reconnectDelay: Duration(seconds: 2),
+        heartbeatIncoming: Duration(seconds: 10),
+        heartbeatOutgoing: Duration(seconds: 10),
         stompConnectHeaders: {
           'session-id': _sessionId,
           'Authorization': 'Bearer $jwtToken',
@@ -86,6 +165,15 @@ class SocketService {
           //onLog("✅ Połączono, sessionId: $_sessionId");
           logger.d("✅ Połączono, sessionId: $_sessionId");
 
+          if (_isInitialConnection) {
+            logger.d("✅ INITIAL Connect: Pierwsze połączenie, sessionId: $_sessionId");
+            _isInitialConnection = false;
+          } else {
+            logger.d("✅ AUTO Reconnect (STOMP): Automatyczne połączenie po rozłączeniu, sessionId: $_sessionId");
+            // To jest auto-reconnect od STOMP, więc musimy wykonać akcje jak po reconnect
+            _handlePostReconnectActions(lobbyId);
+          }
+
           //_subscribeToErrors(onError, onLog);
           _subscribeToLobby(lobbyId, onLog);
 
@@ -94,12 +182,32 @@ class SocketService {
           //_subscribeToErrors(onError, onLog);
           onConnected();
         },
-        onWebSocketError: (err) => logger.e("❌ WebSocket error: $err"),
+        onWebSocketError: (err) {
+          logger.e("❌ WebSocket error: $err");
+          if (shouldReconnect && _currentLobbyId != null) {
+            Future.delayed(Duration(seconds: 2), () {
+              if (!_isConnected) {
+                reconnect(_currentLobbyId!);
+              }
+            });
+          }
+        },
         onStompError: (frame) => logger.e("❌ STOMP error: ${frame.body}"),
         onDisconnect: (_) {
           _isConnected = false;
           _stopPositionTimer();
           onLog("🔌 Rozłączono");
+
+          // Sprawdzamy czy to nie jest planowane rozłączenie
+          if (shouldReconnect && _currentLobbyId != null) {
+            // Opóźniamy reconnect żeby uniknąć zbyt częstych prób
+            Future.delayed(Duration(seconds: 3), () {
+              if (!_isConnected && shouldReconnect && _currentLobbyId != null) {
+                logger.d("🔄 Auto-reconnect po rozłączeniu");
+                reconnect(_currentLobbyId!);
+              }
+            });
+          }
         },
       ),
     );
@@ -114,13 +222,13 @@ class SocketService {
       callback: (StompFrame frame) {
         //final body = frame.body ?? "";
         var body = frame.body ?? "";
-        print("📥 Otrzymano: ${frame.body}");
+        logger.d("📥 Otrzymano: ${frame.body}");
 
         /*
         if (_receivedSessionId) {
           return;
         }*/
-        print("lobby id hereeeeeeeeeeeeeeeeeeeee:");
+        print("lobby id here:");
         print(lobbyId);
 
         try {
@@ -333,6 +441,7 @@ class SocketService {
   }
 
   void disconnect(void Function() onDisconnected) {
+    shouldReconnect = false; 
     if (_isConnected) {
       _isConnected = false;
       _stopPositionTimer();
@@ -365,7 +474,7 @@ class SocketService {
         return;
       }
 
-      // 🔒 Sprawdzenie uprawnień
+      // Sprawdzenie uprawnień
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -414,10 +523,12 @@ class SocketService {
   void reconnect(String lobbyId) {
     if (_isConnected) return;
 
+    _isReconnecting = true;
     _receivedSessionId = false;
     _stopPositionTimer();
 
     onLogGlobal("🔁 Próba ponownego połączenia...");
+    _sessionId = "bad";
     connect(
       jwtToken: token,
       lobbyId: lobbyId,
@@ -426,10 +537,11 @@ class SocketService {
       onUsersReceived: onUsersReceived,
       onConnected: () {
         onLogGlobal("✅ Połączono ponownie.");
+        _isReconnecting = false;
         Future.delayed(Duration(milliseconds: 1000), () {
           sendJoinMessage(lobbyId);
         });
-        print("substrykunekfdjkfessfe");
+        logger.d("Reconnect: resubscribing to user list");
         _subscribeToUserList(lobbyId);
       },
     );
@@ -453,5 +565,10 @@ class SocketService {
 
   void disconnectSilently() {
     disconnect(() {});
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    disconnectSilently();
   }
 }
