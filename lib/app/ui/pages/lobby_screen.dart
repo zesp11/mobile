@@ -32,6 +32,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
   final LobbyController controller = Get.put(LobbyController());
 
   final UserService userService = Get.find<UserService>();
+  bool isAlreadyStarted = false;
 
   @override
   void initState() {
@@ -58,26 +59,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
     super.dispose();
   }
 
-/*
-  User getUser(String userId) async {
-    try {
-      
-      return user;
-    } catch (e) {
-      print("❌ Failed to load user $userId: $e");
-      return null;
-    }
-  }*/
-
-  //final RxList<User> users = <User>[].obs;
-
   @override
   Widget build(BuildContext context) {
     print("LobbyScreen build");
     print(controller.users);
     print(widget.gamebook.name);
     final theme = Theme.of(context);
-    //final RxList<User> users = <User>[].obs;
 
     return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -208,60 +195,73 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                       ],
                                     ),
                                   ),
-                                  /*child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: user.photoUrl != null
-                                ? NetworkImage(user.photoUrl!)
-                                : null,
-                              child: user.photoUrl == null ? const Icon(Icons.person) : null,
-                            ),
-                            title: Text(user.login),
-                            subtitle: Text("ID: ${user.id}"),
-                          ),*/
                                 );
                               },
                             );
                           },
                         ),
                       ),
-                    //const SizedBox(height: 10),
                     if (widget.type == "create")
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              final gameController =
-                                  Get.find<GamePlayController>();
+                          child: isAlreadyStarted
+                            ? ElevatedButton.icon(
+                                onPressed: () {
+                                  controller.joinGame();
+                                },
+                                label: const Text("Return to game"),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  backgroundColor: theme.colorScheme.secondary,
+                                  foregroundColor: theme.colorScheme.onSecondary,
+                                ),
+                              )
+                            : ElevatedButton.icon(
+                                onPressed: controller.users.length < widget.gamebook.limitPlayers
+                                  ? null
+                                  : () async {
+                                  final gameController = Get.find<GamePlayController>();
 
-                              Lobby lobby = await controller.startGame();
-                              print(
-                                  "🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
-                              //lobby.idGame;
+                                  Lobby lobby = await controller.startGame();
+                                  print("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
 
-                              final bool isMulti =
-                                  widget.gamebook.limitPlayers > 1;
-                              gameController.gameType =
-                                  isMulti ? GameType.multi : GameType.single;
+                                  final bool isMulti = widget.gamebook.limitPlayers > 1;
+                                  gameController.gameType = isMulti ? GameType.multi : GameType.single;
 
-                              Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                ":id",
-                                lobby.idGame.toString(),
-                                //gameController.currentGame.value!.idGame.toString(),
-                              ));
-                            },
-                            icon: const Icon(Icons.play_arrow_rounded),
-                            label: Text("Rozpocznij grę"),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                                  setState(() {
+                                    isAlreadyStarted = true;
+                                  });
+
+                                  Get.toNamed(AppRoutes.gameDetail.replaceFirst(
+                                    ":id",
+                                    lobby.idGame.toString(),
+                                  ));
+                                },
+                                icon: const Icon(Icons.play_arrow_rounded),
+                                label: Text(
+                                  "Rozpocznij grę",
+                                  style: TextStyle(
+                                    color: controller.users.length < widget.gamebook.limitPlayers
+                                        ? Colors.grey.shade300
+                                        : theme.colorScheme.onSecondary,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  backgroundColor: controller.users.length < widget.gamebook.limitPlayers
+                                    ? theme.disabledColor.withOpacity(0.3)
+                                    : theme.colorScheme.secondary,
+                                  foregroundColor: theme.colorScheme.onSecondary,
+                                ),
                               ),
-                              backgroundColor: theme.colorScheme.secondary,
-                              foregroundColor: theme.colorScheme.onSecondary,
-                            ),
-                          ),
                         ),
                       )
                   ],
