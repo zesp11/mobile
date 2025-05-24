@@ -51,11 +51,15 @@ class ProfileSummaryWidget extends GetView<ProfileController> {
         borderRadius: BorderRadius.circular(4),
         child: ListTile(
           leading: profile!.photoUrl == null
-              ? Icon(
-                  Icons.person,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.secondary,
+              ? CircleAvatar(
+                radius: 20,
+                child: Text(profile.login.isNotEmpty ? profile.login[0].toUpperCase() : '?',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 )
+              )
               : CircleAvatar(
                   radius: 20,
                   backgroundImage: NetworkImage(profile.photoUrl!),
