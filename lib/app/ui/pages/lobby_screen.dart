@@ -98,7 +98,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Obx(() => Column(
+            child: Obx(() {
+              final sortedUsers = [...controller.users];
+              sortedUsers.sort((a, b) => a['id_player'].compareTo(b['id_player']));
+
+              return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -125,9 +129,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     else
                       Expanded(
                         child: ListView.builder(
-                          itemCount: controller.users.length,
+                          itemCount: sortedUsers.length,
                           itemBuilder: (context, index) {
-                            final id = controller.users[index]['id_user'];
+                            final id = sortedUsers[index]['id_user'];
 
                             return FutureBuilder<User>(
                               future:
@@ -152,11 +156,18 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                       children: [
                                         CircleAvatar(
                                           radius: 30,
+                                          backgroundColor: theme.primaryColor,
                                           backgroundImage: user.photoUrl != null
                                               ? NetworkImage(user.photoUrl!)
                                               : null,
                                           child: user.photoUrl == null
-                                              ? const Icon(Icons.person)
+                                              ? Text(
+                                                  user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
+                                                  style: theme.textTheme.titleLarge?.copyWith(
+                                                    
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                )
                                               : null,
                                         ),
                                         const SizedBox(width: 16),
@@ -183,7 +194,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                         ),
                                         const SizedBox(width: 25),
                                         Text(
-                                          controller.users[index]['id_player']
+                                          sortedUsers[index]['id_player']
                                               .toString(),
                                           style: Theme.of(context)
                                               .textTheme
@@ -213,7 +224,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           },
                         ),
                       ),
-                    const Spacer(),
                     //const SizedBox(height: 10),
                     if (widget.type == "create")
                       Padding(
@@ -255,7 +265,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
                         ),
                       )
                   ],
-                )),
+              );
+            })
           ),
         ));
   }
