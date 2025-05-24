@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -10,6 +11,7 @@ import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/lobby_service.dart';
+import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
 import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
 
@@ -18,10 +20,12 @@ class LobbyController extends GetxController {
   final lobbyService = Get.find<LobbyService>();
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
   SocketService get socket => socketService;
+  final userService = Get.find<UserService>();
 
   late Scenario gamebook;
   late String jwtToken = "";
   late int setLobbyId;
+  late int currentUserId;
 
   Function(String) onErrorGlobal = (msg) => print("ERROR: $msg");
 
@@ -49,6 +53,11 @@ class LobbyController extends GetxController {
         _joinLobby(lobbyId);
         break;
     }
+
+    Future(() async {
+      final currentUser = await userService.fetchCurrentUserProfile();
+      currentUserId = currentUser.id;
+    });
   }
 
   Future<Lobby> createLobby(int scenarioId) async {
@@ -228,8 +237,46 @@ class LobbyController extends GetxController {
     }
   }
 
-  void reactToBeingDeleted() {
-    
+  
+
+  Future<void> reactToBeingDeleted(BuildContext context, int deletedUserId) async {
+    print("reacting to kicking sbd------------------");
+    if(deletedUserId == currentUserId)
+    {
+      print("im being kicked-------------------------");
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          final theme = Theme.of(context);
+          return AlertDialog(
+            backgroundColor: theme.colorScheme.primary,
+            title: Text(
+              "Wyrzucono cię z lobby",
+              style: TextStyle(color: theme.colorScheme.onSurface),
+            ),
+            content: Text(
+              "Zostałeś wyrzucony przez hosta.",
+              style: TextStyle(color: theme.colorScheme.onSurface),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  disconnect();
+                  Navigator.of(dialogContext).pop();
+                  Get.back();
+                },
+                child: Text(
+                  "OK",
+                  style: TextStyle(color: theme.colorScheme.secondary),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
+      
   }
 
   @override
