@@ -33,7 +33,8 @@ class SocketService {
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
         //url: "ws://localhost:8080/websocket/websocket", // na localu
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
+        //url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
+        url: 'wss://api.gotale.pl:443/websocket/websocket',
         useSockJS: false, //
         stompConnectHeaders: {
           'session-id': _sessionId,
