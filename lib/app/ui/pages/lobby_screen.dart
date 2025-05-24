@@ -82,7 +82,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             onPressed: () {
               controller.disconnect();
               Navigator.of(context).pop();
-                  Get.back();
+              Get.back();
             },
           ),
           backgroundColor: theme.scaffoldBackgroundColor,
@@ -90,12 +90,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
         ),
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Obx(() {
-              final sortedUsers = [...controller.users];
-              sortedUsers.sort((a, b) => a['id_player'].compareTo(b['id_player']));
+              padding: const EdgeInsets.all(16.0),
+              child: Obx(() {
+                final sortedUsers = [...controller.users];
+                sortedUsers
+                    .sort((a, b) => a['id_player'].compareTo(b['id_player']));
 
-              return Column(
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -155,9 +156,13 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                               : null,
                                           child: user.photoUrl == null
                                               ? Text(
-                                                  user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
-                                                  style: theme.textTheme.titleLarge?.copyWith(
-                                                    
+                                                  user.login.isNotEmpty
+                                                      ? user.login[0]
+                                                          .toUpperCase()
+                                                      : '?',
+                                                  style: theme
+                                                      .textTheme.titleLarge
+                                                      ?.copyWith(
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 )
@@ -201,9 +206,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                         if (widget.type == "create")
                                           user.id.toString() != currentUserId
                                               ? IconButton(
-                                                  icon: const Icon(Icons.close, color: Colors.red),
+                                                  icon: const Icon(Icons.close,
+                                                      color: Colors.red),
                                                   onPressed: () {
-                                                    controller.deleteUser(user.id);
+                                                    controller
+                                                        .deleteUser(user.id);
                                                   },
                                                 )
                                               : const SizedBox(width: 48),
@@ -216,96 +223,108 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           },
                         ),
                       ),
-                    if (widget.type == "create") 
+                    if (widget.type == "create")
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: SizedBox(
                           width: double.infinity,
                           child: isAlreadyStarted
-                            ? ElevatedButton.icon(
-                                onPressed: () {
-                                  controller.joinGame();
-                                },
-                                label: Text('return_to_game_button'.tr),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
+                              ? ElevatedButton.icon(
+                                  onPressed: () {
+                                    controller.joinGame();
+                                  },
+                                  label: Text('return_to_game_button'.tr),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    backgroundColor:
+                                        theme.colorScheme.secondary,
+                                    foregroundColor:
+                                        theme.colorScheme.onSecondary,
                                   ),
-                                  backgroundColor: theme.colorScheme.secondary,
-                                  foregroundColor: theme.colorScheme.onSecondary,
-                                ),
-                              )
-                            : ElevatedButton.icon(
-                                onPressed: controller.users.length < widget.gamebook.limitPlayers
-                                  ? null
-                                  : () async {
-                                  final gameController = Get.find<GamePlayController>();
+                                )
+                              : ElevatedButton.icon(
+                                  onPressed: controller.users.length <
+                                          widget.gamebook.limitPlayers
+                                      ? null
+                                      : () async {
+                                          final gameController =
+                                              Get.find<GamePlayController>();
 
-                                  Lobby lobby = await controller.startGame();
-                                  logger.d("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
+                                          Lobby lobby =
+                                              await controller.startGame();
+                                          logger.d(
+                                              "🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
 
-                                  final bool isMulti = widget.gamebook.limitPlayers > 1;
-                                  gameController.gameType = isMulti ? GameType.multi : GameType.single;
+                                          final bool isMulti =
+                                              widget.gamebook.limitPlayers > 1;
+                                          gameController.gameType = isMulti
+                                              ? GameType.multi
+                                              : GameType.single;
 
-                                  setState(() {
-                                    isAlreadyStarted = true;
-                                  });
+                                          setState(() {
+                                            isAlreadyStarted = true;
+                                          });
 
-                                  Get.toNamed(AppRoutes.gameDetail.replaceFirst(
-                                    ":id",
-                                    lobby.idGame.toString(),
-                                  ));
-                                },
-                                icon: const Icon(Icons.play_arrow_rounded),
-                                label: Text(
-                                  'start_game_button'.tr,
-                                  style: TextStyle(
-                                    color: controller.users.length < widget.gamebook.limitPlayers
-                                        ? Colors.grey.shade300
-                                        : theme.colorScheme.onSecondary,
+                                          Get.toNamed(
+                                              AppRoutes.gameDetail.replaceFirst(
+                                            ":id",
+                                            lobby.idGame.toString(),
+                                          ));
+                                        },
+                                  icon: const Icon(Icons.play_arrow_rounded),
+                                  label: Text(
+                                    'start_game_button'.tr,
+                                    style: TextStyle(
+                                      color: controller.users.length <
+                                              widget.gamebook.limitPlayers
+                                          ? Colors.grey.shade300
+                                          : theme.colorScheme.onSecondary,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    backgroundColor: controller.users.length <
+                                            widget.gamebook.limitPlayers
+                                        ? theme.disabledColor.withOpacity(0.3)
+                                        : theme.colorScheme.secondary,
+                                    foregroundColor:
+                                        theme.colorScheme.onSecondary,
                                   ),
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  backgroundColor: controller.users.length < widget.gamebook.limitPlayers
-                                    ? theme.disabledColor.withOpacity(0.3)
-                                    : theme.colorScheme.secondary,
-                                  foregroundColor: theme.colorScheme.onSecondary,
-                                ),
-                              ),
                         ),
                       )
-                      else if (widget.type == "rejoin")
+                    else if (widget.type == "rejoin")
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              controller.joinGame();
-                            },
-                            label: Text('return_to_game_button'.tr),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                controller.joinGame();
+                              },
+                              label: Text('return_to_game_button'.tr),
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                backgroundColor: theme.colorScheme.secondary,
+                                foregroundColor: theme.colorScheme.onSecondary,
                               ),
-                              backgroundColor: theme.colorScheme.secondary,
-                              foregroundColor: theme.colorScheme.onSecondary,
-                            ),
-                          )
-                            
-                        ),
+                            )),
                       )
-
                   ],
-              );
-            })
-          ),
+                );
+              })),
         ));
   }
 }
