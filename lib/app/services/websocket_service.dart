@@ -98,6 +98,7 @@ class SocketService {
         onStompError: (frame) => logger.e("❌ STOMP error: ${frame.body}"),
         onDisconnect: (_) {
           _isConnected = false;
+          _stopPositionTimer();
           onLog("🔌 Rozłączono");
         },
       ),
@@ -212,6 +213,7 @@ class SocketService {
   }
 
   void _subscribeToUserList(String lobbyId) {
+    print("subscrining rn adjfflhgsngjg");
     _client.subscribe(
       destination: '/topic/lobby/users/$lobbyId',
       headers: {'lobby-id': lobbyId},
@@ -283,7 +285,7 @@ class SocketService {
   }
 
   void sendMessage(String lobbyId, String message) {
-    if (_isConnected) {
+    if (_isConnected && _client.connected) {
       _client.send(
         destination: '/app/lobby/send/$lobbyId',
         body: message,
@@ -296,8 +298,7 @@ class SocketService {
   }
 
   void sendJoinMessage(String lobbyId) {
-    if (!_isConnected) {
-      //onErrorGlobal("❌ Brak połączenia. Nie można dołączyć.");
+    if (!_isConnected || !_client.connected) {
       logger.e("❌ Brak połączenia. Nie można dołączyć.");
       return;
     }
@@ -310,12 +311,11 @@ class SocketService {
       },
       body: jsonEncode({'lobbyId': lobbyId}),
     );
-    print("📨 Wysłano prośbę o dołączenie do lobby.");
-    onLogGlobal("📨 Wysłano prośbę o dołączenie do lobby.");
+    logger.d("📨 Wysłano prośbę o dołączenie do lobby.");
   }
 
   void requestUserList(String lobbyId) {
-    if (!_isConnected) {
+    if (!_isConnected || !_client.connected) {
       logger.e("❌ Brak połączenia. Nie można pobrać użytkowników.");
       return;
     }
@@ -335,7 +335,7 @@ class SocketService {
   void disconnect(void Function() onDisconnected) {
     if (_isConnected) {
       _isConnected = false;
-      _positionTimer?.cancel();
+      _stopPositionTimer();
       _client.deactivate();
       _receivedSessionId = false;
       _sessionId = "bad";
@@ -351,10 +351,10 @@ class SocketService {
     if (_locationCheckInProgress) return;
     _locationCheckInProgress = true;
 
-    if (!_isConnected || !_client.connected) {
+    /*if (!_isConnected || !_client.connected) {
         onLogGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
         return;
-      }
+      }*/
 
     try {
       if (!_isConnected || !_client.connected) {
@@ -388,22 +388,24 @@ class SocketService {
       }
 
       final position = await Geolocator.getCurrentPosition();
-      _client.send(
-        destination: '/app/lobby/location',
-        headers: {
-          'Authorization': 'Bearer $token',
-          'session-id': _sessionId,
-          'lobby-id': lobbyId,
-        },
-        body: jsonEncode({
-          'lobbyId': lobbyId,
-          'lat': position.latitude,
-          'lon': position.longitude,
-        }),
-      );
-      onLogGlobal("📨 Wysłano obecną pozycję.");
+      if (_isConnected && _client.connected) {
+        _client.send(
+          destination: '/app/lobby/location',
+          headers: {
+            'Authorization': 'Bearer $token',
+            'session-id': _sessionId,
+            'lobby-id': lobbyId,
+          },
+          body: jsonEncode({
+            'lobbyId': lobbyId,
+            'lat': position.latitude,
+            'lon': position.longitude,
+          }),
+        );
+        onLogGlobal("📨 Wysłano obecną pozycję.");
+      }
     } catch (e) {
-      onErrorGlobal("💥 Błąd pobierania lokalizacji: $e");
+      logger.e("💥 Błąd pobierania lokalizacji: $e");
     } finally {
       _locationCheckInProgress = false;
     }
@@ -411,6 +413,10 @@ class SocketService {
 
   void reconnect(String lobbyId) {
     if (_isConnected) return;
+
+    _receivedSessionId = false;
+    _stopPositionTimer();
+
     onLogGlobal("🔁 Próba ponownego połączenia...");
     connect(
       jwtToken: token,
@@ -420,19 +426,29 @@ class SocketService {
       onUsersReceived: onUsersReceived,
       onConnected: () {
         onLogGlobal("✅ Połączono ponownie.");
+        Future.delayed(Duration(milliseconds: 1000), () {
+          sendJoinMessage(lobbyId);
+        });
+        print("substrykunekfdjkfessfe");
+        _subscribeToUserList(lobbyId);
       },
     );
   }
 
   void _startSendingPositionLoop(String lobbyId) {
-    _positionTimer?.cancel();
+    _stopPositionTimer();
     _positionTimer = Timer.periodic(Duration(seconds: 5), (_) {
-      if (_isConnected) {
+      if (_isConnected && _client.connected) {
         sendPosition(lobbyId);
       } else {
         _positionTimer?.cancel();
       }
     });
+  }
+
+  void _stopPositionTimer() {
+    _positionTimer?.cancel();
+    _positionTimer = null;
   }
 
   void disconnectSilently() {
