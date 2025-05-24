@@ -9,6 +9,7 @@ import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/user_service.dart';
+import 'package:gotale/app/ui/pages/game_play_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gotale/app/services/game_service.dart';
 import 'package:logger/logger.dart';
@@ -315,7 +316,7 @@ class GamePlayController extends GetxController with StateMixin {
       final distance =
           const Distance().as(LengthUnit.Meter, currentLatLng, waypoints.last);
 
-      if (distance <= 20) {
+      if (distance <= MapWidget.arrivalRadiusMeters) {
         hasArrivedAtLocation.value = true;
         showPostDecisionMessage.value = false;
       }
