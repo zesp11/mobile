@@ -20,7 +20,8 @@ import 'package:gotale/app/models/lobby.dart';
 class ProductionApiService extends ApiService {
   final logger = Get.find<Logger>();
 
-  static const String name = "https://squid-app-p63zw.ondigitalocean.app";
+  //static const String name = "https://squid-app-p63zw.ondigitalocean.app";
+  static const String name = "https://api.gotale.pl";
 
   // Authentication endpoints
   static const String registerRoute = '/api/auth/register';
