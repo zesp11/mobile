@@ -172,6 +172,7 @@ class LobbyController extends GetxController {
   }
 
   void disconnect() {
+    socketService.shouldReconnect = false;
     socketService.disconnect(() {
       isConnected.value = false;
     });
