@@ -195,7 +195,11 @@ class _LobbyTabState extends State<LobbyTab> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Obx(() => Column(
+    return Obx(() { 
+      final sortedUsers = List<Map<String, dynamic>>.from(lobbyController.users);
+        sortedUsers.sort((a, b) =>
+            (a['id_player'] as int).compareTo(b['id_player'] as int));
+      return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
@@ -210,9 +214,9 @@ class _LobbyTabState extends State<LobbyTab> {
             ),
             Expanded(
                 child: ListView.builder(
-              itemCount: lobbyController.users.length,
+              itemCount: sortedUsers.length,
               itemBuilder: (context, index) {
-                final id = lobbyController.users[index]['id_user'];
+                final id = sortedUsers[index]['id_user'];
                 //final gamePlayController = Get.find<GamePlayController>();
 
                 /*Map<String, LatLng> coords = {};
@@ -257,7 +261,13 @@ class _LobbyTabState extends State<LobbyTab> {
                                   ? NetworkImage(user.photoUrl!)
                                   : null,
                               child: user.photoUrl == null
-                                  ? const Icon(Icons.person)
+                                  ? Text(
+                                      user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
+                                      style: theme.textTheme.titleLarge?.copyWith(
+                                        
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
                                   : null,
                             ),
                             const SizedBox(width: 16),
@@ -279,7 +289,7 @@ class _LobbyTabState extends State<LobbyTab> {
                             ),
                             const SizedBox(width: 25),
                             Text(
-                              lobbyController.users[index]['id_player']
+                              sortedUsers[index]['id_player']
                                   .toString(),
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 color: theme.secondaryHeaderColor,
@@ -295,7 +305,8 @@ class _LobbyTabState extends State<LobbyTab> {
               },
             ))
           ],
-        ));
+        );
+  });
   }
 }
 
@@ -1050,6 +1061,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final theme = Theme.of(context);
     savedTabContext = context;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -1154,14 +1166,19 @@ class _OSMFlutterMapState extends State<MapWidget>
                       ),
                       child: CircleAvatar(
                         radius: 20,
-                        /*backgroundImage: (user.photoUrl != null && user.photoUrl!.startsWith('http'))
+                          backgroundColor: theme.primaryColor,
+                          backgroundImage: user.photoUrl != null
                               ? NetworkImage(user.photoUrl!)
-                              : null,*/
-                        backgroundColor: colorScheme.primary,
-                        child: (user.photoUrl == null ||
-                                !user.photoUrl!.startsWith('http'))
-                            ? Icon(Icons.person)
-                            : null,
+                              : null,
+                          child: user.photoUrl == null
+                              ? Text(
+                                  user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
                       ),
                     ),
                   );

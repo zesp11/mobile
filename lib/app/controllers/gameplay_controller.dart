@@ -5,6 +5,7 @@ import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/lobby.dart' as lobbyModel;
+import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/models/user_location.dart';
 import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/user_service.dart';
@@ -17,6 +18,7 @@ enum GameType { single, multi }
 
 class GamePlayController extends GetxController with StateMixin {
   final Rx<String?> jwtToken = Rx<String?>(null);
+  final Map<String, User> _cachedUsers = {};
 
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
 
@@ -39,12 +41,21 @@ class GamePlayController extends GetxController with StateMixin {
 
     for (final entry in idToCoordinates.entries) {
       try {
-        final user = await userService.fetchUserProfile(entry.key);
+        final userId = entry.key;
+
+        User user;
+        if (_cachedUsers.containsKey(userId)) {
+          user = _cachedUsers[userId]!;
+        } else {
+          user = await userService.fetchUserProfile(userId);
+          _cachedUsers[userId] = user;
+        }
         loaded.add(
           UserLocation(
             userId: entry.key,
             position: entry.value,
             photoUrl: user.photoUrl,
+            login: user.login,
           ),
         );
       } catch (e) {
