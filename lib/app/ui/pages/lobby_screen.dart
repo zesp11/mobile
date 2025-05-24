@@ -81,9 +81,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
               controller.disconnect();
-              Future.delayed(Duration(milliseconds: 200), () {
+              /*Future.delayed(Duration(milliseconds: 200), () {
                 Get.back();
-              });
+              });*/
+              Navigator.of(context).pop();
+                  Get.back();
             },
           ),
           backgroundColor: theme.scaffoldBackgroundColor,

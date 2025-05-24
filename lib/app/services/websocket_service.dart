@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/lobby_controller.dart';
+import 'package:logger/logger.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'dart:async';
 
@@ -21,6 +22,8 @@ class SocketService {
   late Function(List<dynamic> users) onUsersReceived;
   bool _receivedSessionId = false;
   late String token;
+  bool shouldReconnect = true;
+  final logger = Get.find<Logger>();
 
   void connect({
     required String jwtToken,
@@ -34,8 +37,8 @@ class SocketService {
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
         //url: "ws://localhost:8080/websocket/websocket", // na localu
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
-        //url: 'wss://api.gotale.pl:443/websocket/websocket',
+        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // na http
+        //url: 'wss://api.gotale.pl:443/websocket/websocket', // na https
         useSockJS: false, //
         stompConnectHeaders: {
           'session-id': _sessionId,
@@ -49,7 +52,7 @@ class SocketService {
         onConnect: (StompFrame frame) {
           _startSendingPositionLoop(lobbyId);
           _isConnected = true;
-          final url = frame.headers['sockjs-url'];
+          //final url = frame.headers['sockjs-url'];
           this.onUsersReceived = onUsersReceived;
 
           //print(url);
@@ -70,18 +73,18 @@ class SocketService {
           print("hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
           _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';*/
 
-          print("🔍 -------------------------------Wszystkie headery:");
+          /*print("🔍 -------------------------------Wszystkie headery:");
           frame.headers.forEach((key, value) {
             print("  $key: $value");
           });
-          print(frame.body);
+          print(frame.body);*/
 
           //_sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
           onErrorGlobal = onError;
           onLogGlobal = onLog;
 
-          onLog("✅ Połączono, sessionId: $_sessionId");
-          print("✅ Połączono, sessionId: $_sessionId");
+          //onLog("✅ Połączono, sessionId: $_sessionId");
+          logger.d("✅ Połączono, sessionId: $_sessionId");
 
           //_subscribeToErrors(onError, onLog);
           _subscribeToLobby(lobbyId, onLog);
@@ -91,8 +94,8 @@ class SocketService {
           //_subscribeToErrors(onError, onLog);
           onConnected();
         },
-        onWebSocketError: (err) => onError("❌ WebSocket error: $err"),
-        onStompError: (frame) => onError("❌ STOMP error: ${frame.body}"),
+        onWebSocketError: (err) => logger.e("❌ WebSocket error: $err"),
+        onStompError: (frame) => logger.e("❌ STOMP error: ${frame.body}"),
         onDisconnect: (_) {
           _isConnected = false;
           onLog("🔌 Rozłączono");
@@ -159,15 +162,16 @@ class SocketService {
               final type = content['type'];
               switch (type) {
                 case 'start-game':
-                  print(content['gameId']);
+                  //print(content['gameId']);
                   final LobbyController controller =
                       Get.find<LobbyController>();
                   controller.setGameId = content['gameId'];
                   controller.joinGame();
                   break;
                 case 'delete':
-                  print(content['deleted-user']);
-                  int deletedUserId = data['deleted-user'];
+                  logger.d("deleted user id:");
+                  logger.d(content['deleted-user']);
+                  int deletedUserId = content['deleted-user'];
                   final lobbyController = Get.find<LobbyController>();
                   final context = Get.context;
                   if (context != null) {
@@ -175,14 +179,14 @@ class SocketService {
                   }
                   break;
                 default:
-                  print("❓ Nieznany typ wiadomości: $type");
+                  logger.d("❓ Nieznany typ wiadomości: $type");
               }
             }
           } else {
-            print("💢 Nie zawiera sessionId!");
+            logger.e("💢 Nie zawiera sessionId!");
           }
         } catch (e) {
-          print("💥 Error parsowania JSONa: $e");
+          logger.e("💥 Error parsowania JSONa: $e");
         }
 
         //sendMessage(lobbyId, "init-session");
@@ -218,17 +222,17 @@ class SocketService {
             // Zakładamy, że to JSON lista
             final List<dynamic> users = jsonDecode(body);
             onUsersReceived(users);
-            print(users);
+            logger.d(users);
             onLogGlobal("📥 Odebrano listę użytkowników.");
           } else {
-            print("ℹ️ Odebrano wiadomość tekstową: $body");
+            logger.d("ℹ️ Odebrano wiadomość tekstową: $body");
 
             if (body.contains("Lobby created with status: gaming")) {
               onLogGlobal("📥 Dołączanie do gry hosta");
             } 
           }
         } catch (e) {
-          print("💥 Błąd parsowania listy użytkowników: $e");
+          logger.e("💥 Błąd parsowania listy użytkowników: $e");
         }
       },
     );
@@ -294,7 +298,7 @@ class SocketService {
   void sendJoinMessage(String lobbyId) {
     if (!_isConnected) {
       //onErrorGlobal("❌ Brak połączenia. Nie można dołączyć.");
-      print("❌ Brak połączenia. Nie można dołączyć.");
+      logger.e("❌ Brak połączenia. Nie można dołączyć.");
       return;
     }
 
@@ -312,7 +316,7 @@ class SocketService {
 
   void requestUserList(String lobbyId) {
     if (!_isConnected) {
-      onErrorGlobal("❌ Brak połączenia. Nie można pobrać użytkowników.");
+      logger.e("❌ Brak połączenia. Nie można pobrać użytkowników.");
       return;
     }
 
@@ -330,9 +334,9 @@ class SocketService {
 
   void disconnect(void Function() onDisconnected) {
     if (_isConnected) {
+      _isConnected = false;
       _positionTimer?.cancel();
       _client.deactivate();
-      _isConnected = false;
       _receivedSessionId = false;
       _sessionId = "bad";
       gameStarted = false;
@@ -343,13 +347,21 @@ class SocketService {
   bool _locationCheckInProgress = false;
 
   Future<void> sendPosition(String lobbyId) async {
+    
     if (_locationCheckInProgress) return;
     _locationCheckInProgress = true;
+
+    if (!_isConnected || !_client.connected) {
+        onLogGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
+        return;
+      }
 
     try {
       if (!_isConnected || !_client.connected) {
         onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");//do usunięcia 
-        reconnect(lobbyId);
+        if (shouldReconnect) {
+          reconnect(lobbyId);
+        }
         return;
       }
 
