@@ -195,106 +195,106 @@ class _LobbyTabState extends State<LobbyTab> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Obx(() { 
-      final sortedUsers = List<Map<String, dynamic>>.from(lobbyController.users);
-        sortedUsers.sort((a, b) =>
-            (a['id_player'] as int).compareTo(b['id_player'] as int));
+    return Obx(() {
+      final sortedUsers =
+          List<Map<String, dynamic>>.from(lobbyController.users);
+      sortedUsers.sort(
+          (a, b) => (a['id_player'] as int).compareTo(b['id_player'] as int));
       return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Text(
-                'players_in_lobby'.tr,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              'players_in_lobby'.tr,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            Expanded(
-                child: ListView.builder(
-              itemCount: sortedUsers.length,
-              itemBuilder: (context, index) {
-                final id = sortedUsers[index]['id_user'];
+          ),
+          Expanded(
+              child: ListView.builder(
+            itemCount: sortedUsers.length,
+            itemBuilder: (context, index) {
+              final id = sortedUsers[index]['id_user'];
 
-                return FutureBuilder<User>(
-                  future: userService.fetchUserProfile(id.toString()),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    final user = snapshot.data!;
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundImage: user.photoUrl != null
-                                  ? NetworkImage(user.photoUrl!)
-                                  : null,
-                              child: user.photoUrl == null
-                                  ? Text(
-                                      user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
-                                      style: theme.textTheme.titleLarge?.copyWith(
-                                        
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.login,
-                                    style: theme.textTheme.titleMedium,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "ID: ${user.id}",
-                                    style: theme.textTheme.bodySmall,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 25),
-                            Text(
-                              sortedUsers[index]['id_player']
-                                  .toString(),
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                color: theme.secondaryHeaderColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+              return FutureBuilder<User>(
+                future: userService.fetchUserProfile(id.toString()),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
                     );
-                  },
-                );
-              },
-            ))
-          ],
-        );
-  });
+                  }
+
+                  final user = snapshot.data!;
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundImage: user.photoUrl != null
+                                ? NetworkImage(user.photoUrl!)
+                                : null,
+                            child: user.photoUrl == null
+                                ? Text(
+                                    user.login.isNotEmpty
+                                        ? user.login[0].toUpperCase()
+                                        : '?',
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.login,
+                                  style: theme.textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "ID: ${user.id}",
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 25),
+                          Text(
+                            sortedUsers[index]['id_player'].toString(),
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: theme.secondaryHeaderColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ))
+        ],
+      );
+    });
   }
 }
-
 
 class GameTitle extends StatelessWidget {
   const GameTitle({
@@ -768,6 +768,7 @@ class _DecisionTabState extends State<DecisionTab> {
 
 class MapWidget extends StatefulWidget {
   //final LatLng initialPosition;
+  static const double arrivalRadiusMeters = 20.0;
 
   const MapWidget({super.key});
 
@@ -792,7 +793,6 @@ class _OSMFlutterMapState extends State<MapWidget>
   double currentZoom = 18.0;
   bool _isTracking = false;
   static const double _waypointZoomThreshold = 16.0;
-  static const double _arrivalRadiusMeters = 20.0;
   static const double _arrowPixelOffset = 30.0;
 
   @override
@@ -919,12 +919,13 @@ class _OSMFlutterMapState extends State<MapWidget>
   double _calculateCircleRadius(LatLng point) {
     try {
       const distance = latlong2.Distance();
-      final eastPoint = distance.offset(point, _arrivalRadiusMeters, 90);
+      final eastPoint =
+          distance.offset(point, MapWidget.arrivalRadiusMeters, 90);
       final p1 = mapController.camera.project(point);
       final p2 = mapController.camera.project(eastPoint);
       return (p2.x - p1.x).abs();
     } catch (e) {
-      return _arrivalRadiusMeters;
+      return MapWidget.arrivalRadiusMeters;
     }
   }
 
@@ -944,7 +945,7 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   void checkDistance(double distance) {
-    if (distance > _arrivalRadiusMeters ||
+    if (distance > MapWidget.arrivalRadiusMeters ||
         !mounted ||
         arrived ||
         gamePlayController.hasArrivedAtLocation.value) {
@@ -978,6 +979,7 @@ class _OSMFlutterMapState extends State<MapWidget>
       actions: [
         TextButton(
           onPressed: () {
+            arrived = false;
             gamePlayController.hasArrivedAtLocation.value = true;
             Navigator.of(context).pop();
             if (savedTabContext?.mounted ?? false) {
@@ -1073,7 +1075,8 @@ class _OSMFlutterMapState extends State<MapWidget>
                 ),
               ),
               _buildWaypointVisualization(),
-              if (distance > _arrivalRadiusMeters && !isDestinationVisible)
+              if (distance > MapWidget.arrivalRadiusMeters &&
+                  !isDestinationVisible)
                 MarkerLayer(
                   markers: [
                     Marker(
@@ -1101,19 +1104,20 @@ class _OSMFlutterMapState extends State<MapWidget>
                       ),
                       child: CircleAvatar(
                         radius: 20,
-                          backgroundColor: theme.primaryColor,
-                          backgroundImage: user.photoUrl != null
-                              ? NetworkImage(user.photoUrl!)
-                              : null,
-                          child: user.photoUrl == null
-                              ? Text(
-                                  user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              : null,
+                        backgroundColor: theme.primaryColor,
+                        backgroundImage: user.photoUrl != null
+                            ? NetworkImage(user.photoUrl!)
+                            : null,
+                        child: user.photoUrl == null
+                            ? Text(
+                                user.login.isNotEmpty
+                                    ? user.login[0].toUpperCase()
+                                    : '?',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
                       ),
                     ),
                   );
@@ -1237,6 +1241,8 @@ class _OSMFlutterMapState extends State<MapWidget>
   }
 
   Widget _buildDistanceIndicator(double distance, ColorScheme colorScheme) {
+    final distancePadded =
+        math.max(0, distance - MapWidget.arrivalRadiusMeters);
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
       bottom: gamePlayController.waypoints.isNotEmpty ? 20 : -100,
@@ -1260,7 +1266,7 @@ class _OSMFlutterMapState extends State<MapWidget>
             child: Row(
               children: [
                 Text(
-                  '${distance.toStringAsFixed(0)} m',
+                  '${distancePadded.toStringAsFixed(0)} m',
                   style: TextStyle(
                     color: colorScheme.secondary,
                     fontSize: 16,
