@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/lobby_controller.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'dart:async';
@@ -33,8 +34,8 @@ class SocketService {
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
         //url: "ws://localhost:8080/websocket/websocket", // na localu
-        //url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
-        url: 'wss://api.gotale.pl:443/websocket/websocket',
+        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket',
+        //url: 'wss://api.gotale.pl:443/websocket/websocket',
         useSockJS: false, //
         stompConnectHeaders: {
           'session-id': _sessionId,
@@ -166,9 +167,12 @@ class SocketService {
                   break;
                 case 'delete':
                   print(content['deleted-user']);
-                  final LobbyController controller =
-                      Get.find<LobbyController>();
-                  controller.reactToBeingDeleted();
+                  int deletedUserId = data['deleted-user'];
+                  final lobbyController = Get.find<LobbyController>();
+                  final context = Get.context;
+                  if (context != null) {
+                    lobbyController.reactToBeingDeleted(context, deletedUserId);
+                  }
                   break;
                 default:
                   print("❓ Nieznany typ wiadomości: $type");
