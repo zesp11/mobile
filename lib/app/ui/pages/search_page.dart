@@ -238,8 +238,8 @@ class SearchResults extends StatelessWidget {
         }
 
         final filteredLobbies = searchResult.lobbies
-          .where((lobby) => lobby.status == 'Waiting for more players')
-          .toList();
+            .where((lobby) => lobby.status == 'Waiting for more players')
+            .toList();
 
         // Lobbies section
         if (filteredLobbies.isNotEmpty) {
@@ -300,7 +300,6 @@ class SearchResults extends StatelessWidget {
               ? Text(
                   user.login.isNotEmpty ? user.login[0].toUpperCase() : '?',
                   style: theme.textTheme.titleLarge?.copyWith(
-                    
                     fontWeight: FontWeight.bold,
                   ),
                 )
@@ -400,12 +399,13 @@ class SearchResults extends StatelessWidget {
                     child: (lobby.user.photoUrl == null ||
                             lobby.user.photoUrl!.isEmpty)
                         ? Text(
-                          lobby.user.login.isNotEmpty ? lobby.user.login[0].toUpperCase() : '?',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
+                            lobby.user.login.isNotEmpty
+                                ? lobby.user.login[0].toUpperCase()
+                                : '?',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
                         : null,
                   ),
                 ),
@@ -447,53 +447,57 @@ class SearchResults extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 30),
-              child: Builder(
-                builder: (BuildContext context) {
+                padding: const EdgeInsets.only(right: 30),
+                child: Builder(builder: (BuildContext context) {
                   return ElevatedButton(
                     onPressed: authController.isAuthenticated
                         ? () async {
-                          final fetchedLobby = await apiService.getLobbyWithId(lobby.idLobby);
+                            final fetchedLobby =
+                                await apiService.getLobbyWithId(lobby.idLobby);
 
-                          if (fetchedLobby.status != "Max players") {
-                            Get.to(() => LobbyScreen(
-                                  gamebook: lobby.scenario,
-                                  jwtToken: jwtToken,
-                                  type: "join",
-                                  id: lobby.idLobby,
-                                  gameId: -1,
-                                ));
-                          } else {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (BuildContext dialogContext) {
-                                final theme = Theme.of(context);
-                                return AlertDialog(
-                                  backgroundColor: theme.colorScheme.primary,
-                                  title: Text(
-                                    'cant_join_lobby'.tr,
-                                    style: TextStyle(color: theme.colorScheme.onSurface),
-                                  ),
-                                  content: Text(
-                                    'lobby_is_full'.tr,
-                                    style: TextStyle(color: theme.colorScheme.onSurface),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(dialogContext).pop();
-                                      },
-                                      child: Text(
-                                        "OK",
-                                        style: TextStyle(color: theme.colorScheme.secondary),
-                                      ),
+                            if (fetchedLobby.status != "Max players") {
+                              Get.to(() => LobbyScreen(
+                                    gamebook: lobby.scenario,
+                                    jwtToken: jwtToken,
+                                    type: "join",
+                                    id: lobby.idLobby,
+                                    gameId: -1,
+                                  ));
+                            } else {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext dialogContext) {
+                                  final theme = Theme.of(context);
+                                  return AlertDialog(
+                                    backgroundColor: theme.colorScheme.primary,
+                                    title: Text(
+                                      'cant_join_lobby'.tr,
+                                      style: TextStyle(
+                                          color: theme.colorScheme.onSurface),
                                     ),
-                                  ],
-                                );
-                              },
-                            );
-                          }
+                                    content: Text(
+                                      'lobby_is_full'.tr,
+                                      style: TextStyle(
+                                          color: theme.colorScheme.onSurface),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(dialogContext).pop();
+                                        },
+                                        child: Text(
+                                          "OK",
+                                          style: TextStyle(
+                                              color:
+                                                  theme.colorScheme.secondary),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
@@ -501,8 +505,8 @@ class SearchResults extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                     ),
                     child: Text(
                       'lobby_join_button'.tr,
@@ -511,9 +515,7 @@ class SearchResults extends StatelessWidget {
                       ),
                     ),
                   );
-                }
-              )
-            )
+                }))
           ],
         ),
       ),
