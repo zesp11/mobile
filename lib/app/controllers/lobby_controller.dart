@@ -39,7 +39,8 @@ class LobbyController extends GetxController {
       {required Scenario scenario,
       required String token,
       required String type,
-      required int lobbyId}) {
+      required int lobbyId,
+      required int gameId}) {
     gamebook = scenario;
     jwtToken = token;
 
@@ -51,6 +52,16 @@ class LobbyController extends GetxController {
       case 'join':
         print("wybrano dołączenie do lobby");
         _joinLobby(lobbyId);
+        break;
+      case 'rejoin':
+        print("wybrano powrót do lobby");
+        _joinLobby(lobbyId);
+        setGameId = gameId;
+        break;
+      case 'rejoin-waiting':
+        print("wybrano powrót do lobby");
+        _joinLobby(lobbyId);
+        setGameId = gameId;
         break;
     }
 
