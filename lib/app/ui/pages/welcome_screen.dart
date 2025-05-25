@@ -120,136 +120,139 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      body: Container(
-        color: theme.scaffoldBackgroundColor,
-        child: Stack(
-          children: [
-            PageView(
-              controller: _pageController,
-              physics: BouncingScrollPhysics(),
-              onPageChanged: (int page) {
-                setState(() => _currentPage = page);
-              },
-              children: _pages,
-            ),
-            // Skip Button (top-right)
-            if (_currentPage < _pages.length - 1)
-              Positioned(
-                top: 40,
-                right: 20,
-                child: TextButton(
-                  onPressed: () async {
-                    if (!_isLocationEnabled) {
-                      final hasPermission = await _handleLocationPermission();
-                      if (!hasPermission) {
-                        return;
+      body: SafeArea(
+        child: Container(
+          color: theme.scaffoldBackgroundColor,
+          child: Stack(
+            children: [
+              PageView(
+                controller: _pageController,
+                physics: BouncingScrollPhysics(),
+                onPageChanged: (int page) {
+                  setState(() => _currentPage = page);
+                },
+                children: _pages,
+              ),
+              // Skip Button (top-right)
+              if (_currentPage < _pages.length - 1)
+                Positioned(
+                  top: 40,
+                  right: 20,
+                  child: TextButton(
+                    onPressed: () async {
+                      if (!_isLocationEnabled) {
+                        final hasPermission = await _handleLocationPermission();
+                        if (!hasPermission) {
+                          return;
+                        }
                       }
-                    }
-                    Get.offAllNamed('/');
-                  },
-                  child: Text(
-                    'skip'.tr,
-                    style: TextStyle(
-                      color: theme.colorScheme.onBackground,
-                      fontSize: 16,
-                      fontFamily: 'Merriweather',
+                      Get.offAllNamed('/');
+                    },
+                    child: Text(
+                      'skip'.tr,
+                      style: TextStyle(
+                        color: theme.colorScheme.onBackground,
+                        fontSize: 16,
+                        fontFamily: 'Merriweather',
+                      ),
                     ),
                   ),
                 ),
-              ),
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: Column(
-                children: [
-                  // Next/Start Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: TweenAnimationBuilder(
-                      duration: Duration(milliseconds: 600),
-                      tween: Tween<double>(begin: 0, end: 1),
-                      builder: (context, double value, child) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: child,
-                        );
-                      },
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (_currentPage < _pages.length - 1) {
-                            _pageController.nextPage(
-                              duration: Duration(milliseconds: 400),
-                              curve: Curves.easeInOut,
-                            );
-                          } else {
-                            if (!_isLocationEnabled) {
-                              final hasPermission =
-                                  await _handleLocationPermission();
-                              if (!hasPermission) {
-                                return;
-                              }
-                            }
-                            Get.offAllNamed('/');
-                          }
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Column(
+                  children: [
+                    // Next/Start Button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: TweenAnimationBuilder(
+                        duration: Duration(milliseconds: 600),
+                        tween: Tween<double>(begin: 0, end: 1),
+                        builder: (context, double value, child) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: child,
+                          );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark
-                              ? theme.colorScheme.secondary
-                              : theme.colorScheme.primary,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            side: BorderSide(
-                              color: theme.colorScheme.secondary,
-                              width: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (_currentPage < _pages.length - 1) {
+                              _pageController.nextPage(
+                                duration: Duration(milliseconds: 400),
+                                curve: Curves.easeInOut,
+                              );
+                            } else {
+                              if (!_isLocationEnabled) {
+                                final hasPermission =
+                                    await _handleLocationPermission();
+                                if (!hasPermission) {
+                                  return;
+                                }
+                              }
+                              Get.offAllNamed('/');
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark
+                                ? theme.colorScheme.secondary
+                                : theme.colorScheme.primary,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              side: BorderSide(
+                                color: theme.colorScheme.secondary,
+                                width: 2,
+                              ),
                             ),
                           ),
-                        ),
-                        child: Text(
-                          _currentPage == _pages.length - 1
-                              ? (_isLocationEnabled
-                                  ? 'begin_adventure'.tr
-                                  : 'enable_location'.tr)
-                              : 'next'.tr,
-                          style: TextStyle(
-                            color: isDark
-                                ? theme.colorScheme.onSecondary
-                                : theme.colorScheme.onPrimary,
-                            fontSize: 18,
-                            fontFamily: 'MedievalSharp',
-                            letterSpacing: 1.1,
+                          child: Text(
+                            _currentPage == _pages.length - 1
+                                ? (_isLocationEnabled
+                                    ? 'begin_adventure'.tr
+                                    : 'enable_location'.tr)
+                                : 'next'.tr,
+                            style: TextStyle(
+                              color: isDark
+                                  ? theme.colorScheme.onSecondary
+                                  : theme.colorScheme.onPrimary,
+                              fontSize: 18,
+                              fontFamily: 'MedievalSharp',
+                              letterSpacing: 1.1,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 30),
-                  // Page Indicators with glow
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_pages.length, (index) {
-                      return AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        margin: EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentPage == index ? 24 : 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index
-                              ? theme.colorScheme.secondary
-                              : theme.colorScheme.onBackground.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      );
-                    }),
-                  ),
-                ],
+                    SizedBox(height: 30),
+                    // Page Indicators with glow
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(_pages.length, (index) {
+                        return AnimatedContainer(
+                          duration: Duration(milliseconds: 200),
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentPage == index ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? theme.colorScheme.secondary
+                                : theme.colorScheme.onBackground
+                                    .withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
