@@ -162,5 +162,15 @@
   "enter_email": "Wprowadź adres e-mail",
   "reenter_password": "Wprowadź ponownie hasło",
   "enter_name": "Wprowadź swój login",
-  "password": "Hasło"
+  "password": "Hasło",
+  "login_error": "Błąd logowania",
+  "credentials_required": "Proszę wprowadzić poprawne dane logowania",
+  "success": "Sukces",
+  "registration_success": "Rejestracja zakończona sukcesem! Możesz teraz zalogować się i rozpocząć swoją przygodę.",
+  "profile_update_success": "Twój profil został zaaktualizowany pomyślnie!",
+  "profile_update_failed": "Nie udało się zaaktualizować twojego profilu",
+  "all_fields_are_required": "Wszystkie pola są wymagane",
+  "password_do_not_match": "Hasła nie pasują do siebie",
+  "error": "Błąd",
+  "setting_reset_success": "Pomyślnie przywrócono ustawienia domyślne"
 }

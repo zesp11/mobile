@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 
 class RegisterScreen extends GetView<AuthController> {
   final nameController = TextEditingController();
@@ -295,30 +296,18 @@ class RegisterScreen extends GetView<AuthController> {
                           email.isEmpty ||
                           password.isEmpty ||
                           confirmPassword.isEmpty) {
-                        Get.snackbar(
-                          'error'.tr,
-                          'all_fields_required'.tr,
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor:
-                              theme.colorScheme.error.withOpacity(0.1),
-                          colorText: theme.colorScheme.error,
-                          margin: const EdgeInsets.all(16),
-                          borderRadius: 12,
-                        );
+                        showAppSnackbar(
+                            title: "error".tr,
+                            message: "all_fields_are_required".tr,
+                            type: SnackbarType.info);
                         return;
                       }
 
                       if (password != confirmPassword) {
-                        Get.snackbar(
-                          'error'.tr,
-                          'passwords_dont_match'.tr,
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor:
-                              theme.colorScheme.error.withOpacity(0.1),
-                          colorText: theme.colorScheme.error,
-                          margin: const EdgeInsets.all(16),
-                          borderRadius: 12,
-                        );
+                        showAppSnackbar(
+                            title: "error".tr,
+                            message: "password_do_not_match".tr,
+                            type: SnackbarType.error);
                         return;
                       }
 

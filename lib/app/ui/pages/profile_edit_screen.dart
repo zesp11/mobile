@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/profile_controller.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -372,26 +373,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             _selectedAvatar,
                           );
                           Get.back();
-                          Get.snackbar(
-                            'success'.tr,
-                            'profile_updated'.tr,
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.green.withOpacity(0.1),
-                            colorText: Colors.green,
-                            margin: const EdgeInsets.all(16),
-                            borderRadius: 12,
-                          );
+                          showAppSnackbar(
+                              title: "success".tr,
+                              message: "profile_update_success".tr,
+                              type: SnackbarType.success);
                         } catch (e) {
-                          Get.snackbar(
-                            'error'.tr,
-                            'profile_update_failed'.tr,
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor:
-                                theme.colorScheme.error.withOpacity(0.1),
-                            colorText: theme.colorScheme.error,
-                            margin: const EdgeInsets.all(16),
-                            borderRadius: 12,
-                          );
+                          showAppSnackbar(
+                              title: "error".tr,
+                              message: "profile_update_failed".tr,
+                              type: SnackbarType.error);
                         }
                       },
                       style: ElevatedButton.styleFrom(
