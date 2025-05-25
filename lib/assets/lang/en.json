@@ -177,5 +177,8 @@
   "all_fields_are_required": "All fields are required",
   "password_do_not_match": "Passwords do not match",
   "error": "Error",
-  "setting_reset_success": "Successfully restored default settings"
+  "setting_reset_success": "Successfully restored default settings",
+  "users": "Users",
+  "sccenarios": "Scenarios",
+  "lobbies": "Lobbies"
 }

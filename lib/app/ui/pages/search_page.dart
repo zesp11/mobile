@@ -225,14 +225,14 @@ class SearchResults extends StatelessWidget {
 
         // Users section
         if (searchResult.users.isNotEmpty) {
-          listItems.add(_buildSectionHeader(theme, 'Users'));
+          listItems.add(_buildSectionHeader(theme, 'users'.tr));
           listItems.addAll(
               searchResult.users.map((user) => _buildUserCard(theme, user)));
         }
 
         // Scenarios section
         if (searchResult.scenarios.isNotEmpty) {
-          listItems.add(_buildSectionHeader(theme, 'Scenarios'));
+          listItems.add(_buildSectionHeader(theme, 'scenarios'.tr));
           listItems.addAll(searchResult.scenarios
               .map((scenario) => buildScenarioCard(theme, scenario)));
         }
@@ -409,7 +409,7 @@ class SearchResults extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Lobby ID: ${lobby.idLobby}',
+                      'ID: ${lobby.idLobby}',
                       style: theme.textTheme.titleMedium,
                     ),
                     Text(
