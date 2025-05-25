@@ -174,5 +174,8 @@
   "error": "Błąd",
   "setting_reset_success": "Pomyślnie przywrócono ustawienia domyślne",
   "your_journey_has_ended": "Twoja podróż dobiegła końca",
-  "check_story_tab": "Sprawdź historię"
+  "check_story_tab": "Sprawdź historię",
+  "users": "Użytkownicy",
+  "sccenarios": "Scenariusze",
+  "lobbies": "Lobby"
 }
