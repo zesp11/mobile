@@ -460,11 +460,11 @@ class SearchResults extends StatelessWidget {
                                 return AlertDialog(
                                   backgroundColor: theme.colorScheme.primary,
                                   title: Text(
-                                    "Nie można dołączyć do lobby",
+                                    'cant_join_lobby'.tr,
                                     style: TextStyle(color: theme.colorScheme.onSurface),
                                   ),
                                   content: Text(
-                                    "Lobby jest zapełnione",
+                                    'lobby_is_full'.tr,
                                     style: TextStyle(color: theme.colorScheme.onSurface),
                                   ),
                                   actions: [

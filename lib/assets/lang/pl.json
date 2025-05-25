@@ -134,6 +134,26 @@
   "destination_name": "Nazwa celu pojawia się, gdy ten jest widoczny i odpowiednio powiększony",
   "compass_click": "Dotknij kompasu, aby zresetować obrót mapy",
   "distance_label": "Stuknij w etykietę z metrami, aby wyśrodkować mapę na celu",
-  "got_it": "Zrozumiano!"
+  "got_it": "Zrozumiano!",
+  "error_while_loading_data": "Błąd w czasie wczytywania danych",
+  "cant_return_to_lobby": "Nie można powrócić do lobby",
+  "cant_lobby_explanation": "Prawdopodobnie gra została zakończona, albo lobby jest zapełnione",
+  "cant_join_lobby": "Nie można dołączyć do lobby",
+  "lobby_is_full": "Lobby jest zapełnione",
+  "kicked_out_of_the_lobby": "Zostałeś wyrzucony z lobby",
+  "host_kicked_you": "Host wyrzucił Cię z lobby",
+  "lobby_created": "Lobby utworzone!",
+  "players_in_lobby": "Gracze w lobby:",
+  "loading": "Ładowanie...",
+  "return_to_game_button": "Powrót do gry",
+  "start_game_button": "Rozpocznij grę",
+  "history_text": "Twoja histora rozpoczyna się tutaj...\nZapełnij tą stronę swoimi decyzjami",
+  "awaiting_decision": "Oczekiwanie na Twoją decyzję...",
+  "congratulations": "Gratulacje!",
+  "completed_the_game": "Ukończyłeś grę",
+  "play_again": "Zagraj ponownie",
+  "decision_recorded": "Decyzja zapisana",
+  "proceed_to_location": "Udaj się do kolejnej lokalizacji\nby kontynuować swoją przygodę",
+  "navigate_to_location": "Dotrzyj do następnej lokalizacji"
 
 }
