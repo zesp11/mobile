@@ -172,5 +172,7 @@
   "all_fields_are_required": "Wszystkie pola są wymagane",
   "password_do_not_match": "Hasła nie pasują do siebie",
   "error": "Błąd",
-  "setting_reset_success": "Pomyślnie przywrócono ustawienia domyślne"
+  "setting_reset_success": "Pomyślnie przywrócono ustawienia domyślne",
+  "your_journey_has_ended": "Twoja podróż dobiegła końca",
+  "check_story_tab": "Sprawdź historię"
 }
