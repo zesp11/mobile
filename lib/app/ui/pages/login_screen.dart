@@ -187,11 +187,6 @@ class LoginScreen extends GetView<AuthController> {
                                   color: theme.colorScheme.secondary,
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'logging_in'.tr,
-                                style: theme.textTheme.bodyMedium,
-                              ),
                             ],
                           ),
                         );

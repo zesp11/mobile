@@ -199,7 +199,7 @@ class SettingsScreen extends StatelessWidget {
                                 showAppSnackbar(
                                     title: "success".tr,
                                     message: "setting_reset_success".tr,
-                                    type: SnackbarType.error);
+                                    type: SnackbarType.success);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.error,
