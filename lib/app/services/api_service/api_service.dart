@@ -98,4 +98,5 @@ abstract class ApiService {
   Future<Lobby> startGameFromLobby(int lobbyId);
   Future<List<Lobby>> searchLobbies(String query);
   Future<LobbyLight> getLobbyWithIdGame(int gameId);
+  Future<LobbyLight> getLobbyWithId(int id);
 }
