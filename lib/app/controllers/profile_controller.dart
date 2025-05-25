@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/services/user_service.dart';
+import 'package:gotale/app/utils/utils.dart' as utils;
 import 'package:logger/logger.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -120,8 +121,7 @@ class ProfileController extends GetxController with StateMixin<User> {
 
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
-        currentLocation.value =
-            '${place.locality ?? ''}, ${place.country ?? ''}';
+        currentLocation.value = utils.formatPlacemarkAddress(place);
       } else {
         currentLocation.value =
             '${position.latitude.toStringAsFixed(2)}, ${position.longitude.toStringAsFixed(2)}';
