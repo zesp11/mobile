@@ -785,6 +785,9 @@ class _OSMFlutterMapState extends State<MapWidget>
   bool _isMapReady = false;
   final LocationService locationService = Get.find<LocationService>();
   RxString destinationName = ''.obs;
+  bool _showDestinationName = false;
+  Timer? _destinationNameTimer;
+  bool _wasDestinationVisible = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -832,7 +835,7 @@ class _OSMFlutterMapState extends State<MapWidget>
 
   @override
   void dispose() {
-    _positionSubscription.cancel();
+    _destinationNameTimer?.cancel();
     super.dispose();
   }
 
@@ -1036,8 +1039,40 @@ class _OSMFlutterMapState extends State<MapWidget>
             mapController.camera.visibleBounds.contains(
               gamePlayController.waypoints.last,
             );
+
+        // Add this check for programmatic camera moves
+        if (isDestinationVisible && !_wasDestinationVisible) {
+          _wasDestinationVisible = true;
+          _showDestinationName = true;
+          _destinationNameTimer?.cancel();
+          _destinationNameTimer = Timer(const Duration(seconds: 3), () {
+            if (mounted) setState(() => _showDestinationName = false);
+          });
+        }
       } catch (e) {
         debugPrint('Visibility check error: $e');
+      }
+    }
+    final bool shouldShowDestination =
+        isDestinationVisible && currentZoom >= _waypointZoomThreshold;
+
+    if (shouldShowDestination) {
+      if (!_wasDestinationVisible) {
+        // Destination just became visible - start timer
+        _wasDestinationVisible = true;
+        _showDestinationName = true;
+        _destinationNameTimer?.cancel();
+        _destinationNameTimer = Timer(const Duration(seconds: 3), () {
+          if (mounted) setState(() => _showDestinationName = false);
+        });
+      }
+    } else {
+      if (_wasDestinationVisible) {
+        // Destination just left visible area - reset state
+        _wasDestinationVisible = false;
+        _showDestinationName = false;
+        _destinationNameTimer?.cancel();
+        _destinationNameTimer = null;
       }
     }
     return Scaffold(
@@ -1126,40 +1161,72 @@ class _OSMFlutterMapState extends State<MapWidget>
             ],
           ),
           // Show destination name at the top only if the destination is visible and the detailed circle is shown (zoomed in)
-          Obx(() => destinationName.value.isNotEmpty &&
-                  isDestinationVisible &&
-                  currentZoom >= _waypointZoomThreshold
-              ? Positioned(
-                  top: 40,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        destinationName.value,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: colorScheme.secondary,
-                                  fontWeight: FontWeight.bold,
+          Obx(
+            () => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: destinationName.value.isNotEmpty && _showDestinationName
+                  ? Positioned(
+                      key: const ValueKey('destinationName'),
+                      top: 40,
+                      left: 0,
+                      right: 0,
+                      child: AnimatedOpacity(
+                        opacity: _showDestinationName ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 40),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surface.withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.08),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    destinationName.value,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          color: colorScheme.secondary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
-                        textAlign: TextAlign.center,
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                )
-              : const SizedBox.shrink()),
+                    )
+                  : const SizedBox.shrink(key: ValueKey('empty')),
+            ),
+          ),
+          // Tutorial button (only when name isn't showing)
+          if (!_showDestinationName)
+            Positioned(
+              top: 20,
+              right: 20,
+              child: FloatingActionButton.small(
+                heroTag: 'map_tutorial',
+                backgroundColor: colorScheme.surface,
+                foregroundColor: colorScheme.secondary,
+                child: const Icon(Icons.help_outline),
+                onPressed: () => _showMapTutorial(context, colorScheme),
+                tooltip: 'Map tutorial',
+              ),
+            ),
           _buildControlButtons(colorScheme),
           _buildDistanceIndicator(distance, colorScheme),
           // Tutorial/help button - hide when place name is shown
@@ -1254,10 +1321,12 @@ class _OSMFlutterMapState extends State<MapWidget>
           borderRadius: BorderRadius.circular(8),
           onTap: () {
             setState(() {
-              _isTracking =
-                  false; // Disable tracking when focusing on destination
+              _isTracking = false;
               if (gamePlayController.waypoints.isNotEmpty) {
                 _moveCamera(gamePlayController.waypoints.last);
+                _wasDestinationVisible = false;
+                _showDestinationName = false;
+                _destinationNameTimer?.cancel();
               }
             });
           },
