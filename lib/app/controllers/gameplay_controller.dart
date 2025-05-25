@@ -232,6 +232,8 @@ class GamePlayController extends GetxController with StateMixin {
         fetchGameHistory(id),
       ]);
 
+      gameType = GameType.single;
+
       change(null, status: RxStatus.success());
     } catch (e) {
       logger.e("[DEV_DEBUG] Error fetching gamebook: $e");
