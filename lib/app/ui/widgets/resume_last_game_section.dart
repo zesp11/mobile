@@ -41,56 +41,60 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
       final jwtToken = token != null ? 'Bearer $token' : "null";
       
       final scenario = await apiService.getScenarioWithId(lastGame.idScen);
-      final lobby = await apiService.getLobbyWithIdGame(lastGame.idGame);
       
       final isMultiplayer = scenario.limitPlayers > 1;
-      
-      if (isMultiplayer && lobby.status == "Waiting for more players") {
-        Get.to(() => LobbyScreen(
-          gamebook: scenario,
-          jwtToken: jwtToken,
-          type: "rejoin-waiting",
-          id: lobby.idLobby,
-          gameId: lastGame.idGame,
-        ));
-      } else if (isMultiplayer && lobby.status == "Gaming") {
-        Get.to(() => LobbyScreen(
-          gamebook: scenario,
-          jwtToken: jwtToken,
-          type: "rejoin",
-          id: lobby.idLobby,
-          gameId: lastGame.idGame,
-        ));
-      } else if (isMultiplayer) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext dialogContext) {
-            final theme = Theme.of(context);
-            return AlertDialog(
-              backgroundColor: theme.colorScheme.primary,
-              title: Text(
-                'cant_return_to_lobby'.tr,
-                style: TextStyle(color: theme.colorScheme.onSurface),
-              ),
-              content: Text(
-                'cant_lobby_explanation'.tr,
-                style: TextStyle(color: theme.colorScheme.onSurface),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                  },
-                  child: Text(
-                    "OK",
-                    style: TextStyle(color: theme.colorScheme.secondary),
-                  ),
+
+      if(isMultiplayer) {
+        
+        final lobby = await apiService.getLobbyWithIdGame(lastGame.idGame);
+
+        if (lobby.status == "Waiting for more players") {
+          Get.to(() => LobbyScreen(
+            gamebook: scenario,
+            jwtToken: jwtToken,
+            type: "rejoin-waiting",
+            id: lobby.idLobby,
+            gameId: lastGame.idGame,
+          ));
+        } else if (lobby.status == "Gaming") {
+          Get.to(() => LobbyScreen(
+            gamebook: scenario,
+            jwtToken: jwtToken,
+            type: "rejoin",
+            id: lobby.idLobby,
+            gameId: lastGame.idGame,
+          ));
+        } else {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext dialogContext) {
+              final theme = Theme.of(context);
+              return AlertDialog(
+                backgroundColor: theme.colorScheme.primary,
+                title: Text(
+                  'cant_return_to_lobby'.tr,
+                  style: TextStyle(color: theme.colorScheme.onSurface),
                 ),
-              ],
-            );
-          },
-        );
+                content: Text(
+                  'cant_lobby_explanation'.tr,
+                  style: TextStyle(color: theme.colorScheme.onSurface),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    child: Text(
+                      "OK",
+                      style: TextStyle(color: theme.colorScheme.secondary),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       } else {
         Get.toNamed(
           AppRoutes.gameDetail
