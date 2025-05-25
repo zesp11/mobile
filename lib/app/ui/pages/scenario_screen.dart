@@ -201,11 +201,12 @@ class ScenarioScreen extends StatelessWidget {
                           ? () async {
                               if (gamebook.limitPlayers > 1) {
                                 Get.to(() => LobbyScreen(
-                                    gamebook: gamebook,
-                                    jwtToken: jwtToken,
-                                    type: "create",
-                                    id: -1,
-                                    gameId: -1,));
+                                      gamebook: gamebook,
+                                      jwtToken: jwtToken,
+                                      type: "create",
+                                      id: -1,
+                                      gameId: -1,
+                                    ));
                               } else {
                                 final gameController =
                                     Get.find<GamePlayController>();
@@ -596,13 +597,6 @@ class ScenarioScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          Text(
-                            'ID: ${step.id}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  theme.colorScheme.onSurface.withOpacity(0.6),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -675,7 +669,14 @@ class ScenarioScreen extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 8),
-          Text(text, style: TextStyle(color: color)),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(color: color),
+              overflow: TextOverflow.visible,
+              softWrap: true,
+            ),
+          ),
         ],
       ),
     );
