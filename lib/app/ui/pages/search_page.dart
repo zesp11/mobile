@@ -8,6 +8,7 @@ import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/ui/pages/error_screen.dart';
 import 'package:gotale/app/ui/pages/lobby_screen.dart';
@@ -325,6 +326,7 @@ class SearchResults extends StatelessWidget {
   }
 
   final UserService userService = Get.find<UserService>();
+  final ApiService apiService = Get.find<ApiService>();
 
   String _mapStatusToText(String status) {
     switch (status) {
@@ -446,33 +448,71 @@ class SearchResults extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(right: 30),
-              child: ElevatedButton(
-                onPressed: authController.isAuthenticated
-                    ? () {
-                        Get.to(() => LobbyScreen(
-                              gamebook: lobby.scenario,
-                              jwtToken: jwtToken,
-                              type: "join",
-                              id: lobby.idLobby,
-                              gameId: -1,
-                            ));
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-                child: Text(
-                  'lobby_join_button'.tr,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-              ),
+              child: Builder(
+                builder: (BuildContext context) {
+                  return ElevatedButton(
+                    onPressed: authController.isAuthenticated
+                        ? () async {
+                          final fetchedLobby = await apiService.getLobbyWithId(lobby.idLobby);
+
+                          if (fetchedLobby.status != "Max players") {
+                            Get.to(() => LobbyScreen(
+                                  gamebook: lobby.scenario,
+                                  jwtToken: jwtToken,
+                                  type: "join",
+                                  id: lobby.idLobby,
+                                  gameId: -1,
+                                ));
+                          } else {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext dialogContext) {
+                                final theme = Theme.of(context);
+                                return AlertDialog(
+                                  backgroundColor: theme.colorScheme.primary,
+                                  title: Text(
+                                    "Nie można dołączyć do lobby",
+                                    style: TextStyle(color: theme.colorScheme.onSurface),
+                                  ),
+                                  content: Text(
+                                    "Lobby jest zapełnione",
+                                    style: TextStyle(color: theme.colorScheme.onSurface),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop();
+                                      },
+                                      child: Text(
+                                        "OK",
+                                        style: TextStyle(color: theme.colorScheme.secondary),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                    child: Text(
+                      'lobby_join_button'.tr,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
+                  );
+                }
+              )
             )
           ],
         ),
