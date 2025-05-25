@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 
 class OnboardingScreen extends StatefulWidget {
   @override
@@ -62,14 +63,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      Get.snackbar(
-        'location_services_disabled'.tr,
-        'enable_location_services'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.colorScheme.error.withOpacity(0.9),
-        colorText: Get.theme.colorScheme.onError,
-        duration: Duration(seconds: 5),
-      );
+      showAppSnackbar(
+          title: 'location_services_disabled'.tr,
+          message: "enable_location_services".tr,
+          type: SnackbarType.error);
       return false;
     }
 
@@ -77,27 +74,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        Get.snackbar(
-          'permission_denied'.tr,
-          'location_permission_required'.tr,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Get.theme.colorScheme.error.withOpacity(0.9),
-          colorText: Get.theme.colorScheme.onError,
-          duration: Duration(seconds: 5),
-        );
+        showAppSnackbar(
+            title: 'permission_denied'.tr,
+            message: "location_permission_required".tr,
+            type: SnackbarType.error);
         return false;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      Get.snackbar(
-        'permission_denied_forever'.tr,
-        'open_settings_enable_location'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.colorScheme.error.withOpacity(0.9),
-        colorText: Get.theme.colorScheme.onError,
-        duration: Duration(seconds: 5),
-      );
+      showAppSnackbar(
+          title: 'permission_denied_forever'.tr,
+          message: "open_settings_enable_location".tr,
+          type: SnackbarType.error);
       return false;
     }
 

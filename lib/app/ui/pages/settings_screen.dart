@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/settings_controller.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 
 class SettingsScreen extends StatelessWidget {
   final settingsController = Get.find<SettingsController>();
@@ -194,16 +195,11 @@ class SettingsScreen extends StatelessWidget {
                               onPressed: () {
                                 settingsController.resetSettings();
                                 Get.back();
-                                Get.snackbar(
-                                  'success'.tr,
-                                  'settings_reset_success'.tr,
-                                  snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor:
-                                      Colors.green.withOpacity(0.1),
-                                  colorText: Colors.green,
-                                  margin: const EdgeInsets.all(16),
-                                  borderRadius: 12,
-                                );
+
+                                showAppSnackbar(
+                                    title: "success".tr,
+                                    message: "setting_reset_success".tr,
+                                    type: SnackbarType.error);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.error,
