@@ -15,6 +15,7 @@ class LobbyScreen extends StatefulWidget {
   final String jwtToken;
   final String type;
   final int id;
+  final int gameId;
 
   const LobbyScreen({
     Key? key,
@@ -22,6 +23,7 @@ class LobbyScreen extends StatefulWidget {
     required this.jwtToken,
     required this.type,
     required this.id,
+    required this.gameId,
   }) : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
         token: widget.jwtToken,
         type: widget.type,
         lobbyId: widget.id,
+        gameId: widget.gameId,
       );
     });
     Future(() async {
@@ -217,7 +220,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           },
                         ),
                       ),
-                    if (widget.type == "create")
+                    if (widget.type == "create") 
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: SizedBox(
@@ -280,6 +283,29 @@ class _LobbyScreenState extends State<LobbyScreen> {
                               ),
                         ),
                       )
+                      else if (widget.type == "rejoin")
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              controller.joinGame();
+                            },
+                            label: const Text("Return to game"),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              backgroundColor: theme.colorScheme.secondary,
+                              foregroundColor: theme.colorScheme.onSecondary,
+                            ),
+                          )
+                            
+                        ),
+                      )
+
                   ],
               );
             })

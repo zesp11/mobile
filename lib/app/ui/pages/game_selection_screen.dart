@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/scenario_controller.dart';
 import 'package:gotale/app/models/game_in_progress.dart';
+import 'package:gotale/app/models/lobby.dart';
+import 'package:gotale/app/models/lobby_light.dart';
+import 'package:gotale/app/models/scenario.dart';
+import 'package:gotale/app/services/api_service/api_service.dart';
+import 'package:gotale/app/ui/pages/lobby_screen.dart';
 import 'package:gotale/app/ui/widgets/scenario_list.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:intl/intl.dart';
@@ -334,15 +340,28 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
     final startTime = lastGame.startTime.toLocal();
     final location =
         LatLng(lastGame.currentStep.latitude, lastGame.currentStep.longitude);
+    final apiService = Get.find<ApiService>();
+    final authController = Get.find<AuthController>();
+
+    final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
+    late String jwtToken;
+
+    Future<List<dynamic>> _loadAllData() async {
+      final token = await secureStorage.read(key: 'accessToken');
+      jwtToken = token != null ? 'Bearer $token' : "null";
+      final scenario = await apiService.getScenarioWithId(lastGame.idScen);
+      final lobby = await apiService.getLobbyWithIdGame(lastGame.idGame);
+      return [scenario, lobby];
+    }
 
     return Card(
       elevation: 2,
       margin: EdgeInsets.zero,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => Get.toNamed(
+        /*onTap: () => Get.toNamed(
           AppRoutes.gameDetail.replaceFirst(':id', lastGame.idGame.toString()),
-        ),
+        ),*/
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -431,25 +450,65 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                 ),
               ),
               const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.play_arrow, size: 20),
-                  label: Text('continue_playing'.tr),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.colorScheme.secondary,
-                    foregroundColor: theme.colorScheme.onSecondary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                  onPressed: () => Get.toNamed(
-                    AppRoutes.gameDetail
-                        .replaceFirst(':id', lastGame.idGame.toString()),
-                  ),
-                ),
-              ),
+              FutureBuilder<List<dynamic>>(
+                future: _loadAllData(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  if (snapshot.hasError || !snapshot.hasData || snapshot.data!.length != 2) {
+                    return Text('Error while loading data', style: theme.textTheme.bodySmall);
+                  }
+
+                  final scenario = snapshot.data![0] as Scenario;
+                  final lobby = snapshot.data![1] as LobbyLight;
+                  final isMultiplayer = scenario.limitPlayers > 1;
+                  return Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.play_arrow, size: 20),
+                      label: Text('continue_playing'.tr),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: theme.colorScheme.secondary,
+                        foregroundColor: theme.colorScheme.onSecondary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
+                      onPressed: () {
+                        if(isMultiplayer && lobby.status == "Waiting for more players") {
+                          Get.to(() => LobbyScreen(
+                            gamebook: scenario,
+                            jwtToken: jwtToken,
+                            type: "rejoin-waiting",
+                            id: lobby.idLobby,
+                            gameId: lastGame.idGame,
+                          ));
+                            
+                        } else if (isMultiplayer && lobby.status == "gaming"){
+                          Get.to(() => LobbyScreen(
+                            gamebook: scenario,
+                            jwtToken: jwtToken,
+                            type: "rejoin",
+                            id: lobby.idLobby,
+                            gameId: lastGame.idGame,
+                          ));
+                        
+                        }else {
+                          Get.toNamed(
+                          AppRoutes.gameDetail
+                              .replaceFirst(':id', lastGame.idGame.toString()),
+                          );
+                        }
+                        
+                      }
+                    ),
+                  );
+                }
+              
+              )
             ],
           ),
         ),

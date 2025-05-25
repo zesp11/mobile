@@ -5,6 +5,7 @@ import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_in_progress.dart';
+import 'package:gotale/app/models/lobby_light.dart';
 import 'dart:convert';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
@@ -56,6 +57,7 @@ class ProductionApiService extends ApiService {
   static const String createLobbyRoute = '/api/lobby/create/:id';
   static const String searchLobbiesRoute = '/api/lobby';
   static const String startGameFromLobbyRoute = '/api/lobby/start_game/:id';
+  static const String getLobbyWithIdGameRoute = '/api/games/:id/lobby';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -171,6 +173,51 @@ class ProductionApiService extends ApiService {
     } catch (e) {
       Get.find<Logger>().e('Error creating lobby: $e');
       throw Exception('Exception while creating lobby: $e');
+    }
+  }
+
+  @override
+  Future<LobbyLight> getLobbyWithIdGame(int gameId) async {
+    try {
+      final logger = Get.find<Logger>();
+
+      final endpoint =
+          '$name${getLobbyWithIdGameRoute.replaceFirst(':id', gameId.toString())}';
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      logger.d('Getting lobby for game with endpoint: $endpoint');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Got Lobby from game id: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedResponse);
+
+        logger.d('Response body: "${response.body}"');
+        return LobbyLight.fromJson(data);
+      } else {
+        throw Exception(
+            'Failed to get lobby from id game: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error getting lobby from id game: $e');
+      throw Exception('Exception while getting lobby from id game: $e');
     }
   }
 

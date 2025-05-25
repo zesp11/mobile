@@ -8,6 +8,7 @@ import 'package:gotale/app/models/game_created.dart';
 import 'package:gotale/app/models/game.dart';
 import 'package:gotale/app/models/game_history_record.dart';
 import 'package:gotale/app/models/game_in_progress.dart';
+import 'package:gotale/app/models/lobby_light.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/models/game_step.dart';
 import 'package:gotale/app/models/user.dart';
@@ -96,4 +97,5 @@ abstract class ApiService {
   Future<Lobby> createLobby(int scenarioId, String token);
   Future<Lobby> startGameFromLobby(int lobbyId);
   Future<List<Lobby>> searchLobbies(String query);
+  Future<LobbyLight> getLobbyWithIdGame(int gameId);
 }

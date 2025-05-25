@@ -454,6 +454,7 @@ class SearchResults extends StatelessWidget {
                               jwtToken: jwtToken,
                               type: "join",
                               id: lobby.idLobby,
+                              gameId: -1,
                             ));
                       }
                     : null,
