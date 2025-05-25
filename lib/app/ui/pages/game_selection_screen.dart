@@ -487,7 +487,7 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                             gameId: lastGame.idGame,
                           ));
                             
-                        } else if (isMultiplayer && lobby.status == "gaming"){
+                        } else if (isMultiplayer && lobby.status == "Gaming"){
                           Get.to(() => LobbyScreen(
                             gamebook: scenario,
                             jwtToken: jwtToken,
@@ -496,7 +496,37 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                             gameId: lastGame.idGame,
                           ));
                         
-                        }else {
+                        } else if (isMultiplayer) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext dialogContext) {
+                              final theme = Theme.of(context);
+                              return AlertDialog(
+                                backgroundColor: theme.colorScheme.primary,
+                                title: Text(
+                                  "Nie można powrócić do lobby",
+                                  style: TextStyle(color: theme.colorScheme.onSurface),
+                                ),
+                                content: Text(
+                                  "Prawdopodobnie gra została już zakończona, lub lobby jest pełne.",
+                                  style: TextStyle(color: theme.colorScheme.onSurface),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(dialogContext).pop();
+                                    },
+                                    child: Text(
+                                      "OK",
+                                      style: TextStyle(color: theme.colorScheme.secondary),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
                           Get.toNamed(
                           AppRoutes.gameDetail
                               .replaceFirst(':id', lastGame.idGame.toString()),
