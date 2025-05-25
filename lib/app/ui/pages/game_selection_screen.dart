@@ -353,6 +353,15 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
       return [scenario, lobby];
     }
 
+    Future<bool> _checkIfMultiplayer() async {
+      try {
+        final scenario = await apiService.getScenarioWithId(lastGame.idScen);
+        return scenario.limitPlayers > 1;
+      } catch (e) {
+        return false;
+      }
+    }
+
     return Card(
       elevation: 2,
       margin: EdgeInsets.zero,
@@ -449,95 +458,128 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                 ),
               ),
               const SizedBox(height: 12),
-              FutureBuilder<List<dynamic>>(
-                future: _loadAllData(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+              FutureBuilder<bool>(
+                future: _checkIfMultiplayer(),
+                builder: (context, multiplayerSnapshot) {
+                  if(multiplayerSnapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   }
 
-                  if (snapshot.hasError || !snapshot.hasData || snapshot.data!.length != 2) {
+                  if (multiplayerSnapshot.hasError) {
                     return Text('error_while_loading_data'.tr, style: theme.textTheme.bodySmall);
                   }
+                  final isMultiplayer = multiplayerSnapshot.data ?? false;
 
-                  final scenario = snapshot.data![0] as Scenario;
-                  final lobby = snapshot.data![1] as LobbyLight;
-                  final isMultiplayer = scenario.limitPlayers > 1;
-                  return Align(
-                    alignment: Alignment.centerRight,
-                    child: FilledButton.icon(
-                      icon: const Icon(Icons.play_arrow, size: 20),
-                      label: Text('continue_playing'.tr),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: theme.colorScheme.secondary,
-                        foregroundColor: theme.colorScheme.onSecondary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                      ),
-                      onPressed: () {
-                        if(isMultiplayer && lobby.status == "Waiting_for_players") {
-                          Get.to(() => LobbyScreen(
-                            gamebook: scenario,
-                            jwtToken: jwtToken,
-                            type: "rejoin-waiting",
-                            id: lobby.idLobby,
-                            gameId: lastGame.idGame,
-                          ));
-                            
-                        } else if (isMultiplayer && lobby.status == "Gaming"){
-                          Get.to(() => LobbyScreen(
-                            gamebook: scenario,
-                            jwtToken: jwtToken,
-                            type: "rejoin",
-                            id: lobby.idLobby,
-                            gameId: lastGame.idGame,
-                          ));
-                        
-                        } else if (isMultiplayer) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext dialogContext) {
-                              final theme = Theme.of(context);
-                              return AlertDialog(
-                                backgroundColor: theme.colorScheme.primary,
-                                title: Text(
-                                  'cant_return_to_lobby'.tr,
-                                  style: TextStyle(color: theme.colorScheme.onSurface),
-                                ),
-                                content: Text(
-                                  'cant_lobby_explanation'.tr,
-                                  style: TextStyle(color: theme.colorScheme.onSurface),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(dialogContext).pop();
-                                    },
-                                    child: Text(
-                                      "OK",
-                                      style: TextStyle(color: theme.colorScheme.secondary),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } else {
+                  if (!isMultiplayer) {
+                    return Align(
+                      alignment: Alignment.centerRight,
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.play_arrow, size: 20),
+                        label: Text('continue_playing'.tr),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary,
+                          foregroundColor: theme.colorScheme.onSecondary,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onPressed: () {
                           Get.toNamed(
-                          AppRoutes.gameDetail
-                              .replaceFirst(':id', lastGame.idGame.toString()),
+                            AppRoutes.gameDetail
+                                .replaceFirst(':id', lastGame.idGame.toString()),
                           );
-                        }
-                        
+                        },
+                      ),
+                    );
+                  }
+
+                  return FutureBuilder<List<dynamic>>(
+                    future: _loadAllData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
                       }
-                    ),
+
+                      if (snapshot.hasError || !snapshot.hasData || snapshot.data!.length != 2) {
+                        return Text('error_while_loading_data'.tr, style: theme.textTheme.bodySmall);
+                      }
+
+                      final scenario = snapshot.data![0] as Scenario;
+                      final lobby = snapshot.data![1] as LobbyLight;
+                      return Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.play_arrow, size: 20),
+                          label: Text('continue_playing'.tr),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: theme.colorScheme.secondary,
+                            foregroundColor: theme.colorScheme.onSecondary,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                          ),
+                          onPressed: () {
+                            if(lobby.status == "Waiting for more players") {
+                              Get.to(() => LobbyScreen(
+                                gamebook: scenario,
+                                jwtToken: jwtToken,
+                                type: "rejoin-waiting",
+                                id: lobby.idLobby,
+                                gameId: lastGame.idGame,
+                              ));
+                                
+                            } else if (lobby.status == "Gaming"){
+                              Get.to(() => LobbyScreen(
+                                gamebook: scenario,
+                                jwtToken: jwtToken,
+                                type: "rejoin",
+                                id: lobby.idLobby,
+                                gameId: lastGame.idGame,
+                              ));
+                            
+                            } else {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext dialogContext) {
+                                  final theme = Theme.of(context);
+                                  return AlertDialog(
+                                    backgroundColor: theme.colorScheme.primary,
+                                    title: Text(
+                                      'cant_return_to_lobby'.tr,
+                                      style: TextStyle(color: theme.colorScheme.onSurface),
+                                    ),
+                                    content: Text(
+                                      'cant_lobby_explanation'.tr,
+                                      style: TextStyle(color: theme.colorScheme.onSurface),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(dialogContext).pop();
+                                        },
+                                        child: Text(
+                                          "OK",
+                                          style: TextStyle(color: theme.colorScheme.secondary),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            } 
+                            
+                          }
+                        ),
+                      );
+                    }
+                  
                   );
                 }
+                )
               
-              )
             ],
           ),
         ),
