@@ -6,5 +6,9 @@ class UserLocation {
   final String? photoUrl;
   final String login;
 
-  UserLocation({required this.userId, required this.position, this.photoUrl, required this.login});
+  UserLocation(
+      {required this.userId,
+      required this.position,
+      this.photoUrl,
+      required this.login});
 }
