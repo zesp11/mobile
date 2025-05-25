@@ -204,7 +204,8 @@ class ScenarioScreen extends StatelessWidget {
                                     gamebook: gamebook,
                                     jwtToken: jwtToken,
                                     type: "create",
-                                    id: -1));
+                                    id: -1,
+                                    gameId: -1,));
                               } else {
                                 final gameController =
                                     Get.find<GamePlayController>();
