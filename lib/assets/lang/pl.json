@@ -130,7 +130,7 @@
   "zoom_in_out": "Powiększaj/pomniejszaj mapę gestem szczypania lub podwójnym stuknięciem",
   "gps_button": "Dotknij przycisku GPS, aby śledzić swoją lokalizację",
   "navigation_arrow": "Strzałka nawigacyjna pojawia się, gdy cel jest poza ekranem",
-  "pin_or_circle": "Pinezka oznacza aktualny cel", 
+  "pin_or_circle": "Pinezka oznacza aktualny cel",
   "destination_name": "Nazwa celu pojawia się, gdy ten jest widoczny i odpowiednio powiększony",
   "compass_click": "Dotknij kompasu, aby zresetować obrót mapy",
   "distance_label": "Stuknij w etykietę z metrami, aby wyśrodkować mapę na celu",
@@ -154,6 +154,13 @@
   "play_again": "Zagraj ponownie",
   "decision_recorded": "Decyzja zapisana",
   "proceed_to_location": "Udaj się do kolejnej lokalizacji\nby kontynuować swoją przygodę",
-  "navigate_to_location": "Dotrzyj do następnej lokalizacji"
-
+  "navigate_to_location": "Dotrzyj do następnej lokalizacji",
+  "member_since": "Członek od",
+  "enter_username": "nazwa użytkownika",
+  "enter_password": "wprowadź hasło",
+  "username": "Nazwa użytkownika",
+  "enter_email": "Wprowadź adres e-mail",
+  "reenter_password": "Wprowadź ponownie hasło",
+  "enter_name": "Wprowadź swój login",
+  "password": "Hasło"
 }
