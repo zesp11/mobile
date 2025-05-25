@@ -161,6 +161,21 @@
   "play_again": "Play Again",
   "decision_recorded": "Decision Recorded!",
   "proceed_to_location": "Proceed to the next location\nto continue your adventure",
-  "navigate_to_location": "Navigate to Next Location"
-
+  "navigate_to_location": "Navigate to Next Location",
+  "member_since": "Member since",
+  "enter_username": "username",
+  "enter_password": "enter password",
+  "enter_email": "Enter email address",
+  "reenter_password": "Re-enter password",
+  "enter_name": "Enter your login",
+  "login_error": "Login Error",
+  "credentials_required": "Please enter valid login credentials",
+  "success": "Success",
+  "registration_success": "Registration successful! You can now log in and begin your adventure.",
+  "profile_update_success": "Your profile has been updated successfully!",
+  "profile_update_failed": "Failed to update your profile",
+  "all_fields_are_required": "All fields are required",
+  "password_do_not_match": "Passwords do not match",
+  "error": "Error",
+  "setting_reset_success": "Successfully restored default settings"
 }
