@@ -9,11 +9,10 @@ import 'package:logger/logger.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'dart:async';
 
-class SocketService with WidgetsBindingObserver{
+class SocketService with WidgetsBindingObserver {
   Timer? _positionTimer;
   late StompClient _client;
-  late String _sessionId =
-      "bad";
+  late String _sessionId = "bad";
   bool _isConnected = false;
   bool get isConnected => _isConnected;
   bool gameStarted = false;
@@ -39,26 +38,28 @@ class SocketService with WidgetsBindingObserver{
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         logger.d("📱 Aplikacja przeszła w tło");
         _wasConnectedBeforeBackground = _isConnected;
         break;
-        
+
       case AppLifecycleState.resumed:
         logger.d("📱 Aplikacja wróciła na pierwszy plan");
-        if (_wasConnectedBeforeBackground && !_isConnected && _currentLobbyId != null) {
+        if (_wasConnectedBeforeBackground &&
+            !_isConnected &&
+            _currentLobbyId != null) {
           logger.d("🔄 Wykryto potrzebę reconnect po powrocie z tła");
           _handleAppResumeReconnect();
         }
         break;
-        
+
       case AppLifecycleState.inactive:
         // Stan przejściowy, nie robimy nic
         break;
-        
+
       case AppLifecycleState.hidden:
         // Nowy stan w nowszych wersjach Fluttera
         break;
@@ -67,14 +68,15 @@ class SocketService with WidgetsBindingObserver{
 
   void _handleAppResumeReconnect() {
     if (_isReconnecting || _currentLobbyId == null) return;
-    
+
     _isReconnecting = true;
     onLogGlobal("🔄 Wznawianie połączenia po powrocie aplikacji...");
-    
+
     // Czekamy chwilę na ustabilizowanie się aplikacji
     Future.delayed(Duration(milliseconds: 2000), () {
       if (!_isConnected && shouldReconnect) {
-        onLogGlobal("🔄 MANUAL Reconnect: STOMP nie połączył się automatycznie");
+        onLogGlobal(
+            "🔄 MANUAL Reconnect: STOMP nie połączył się automatycznie");
         reconnect(_currentLobbyId!);
       } else if (_isConnected) {
         onLogGlobal("✅ STOMP już się połączył automatycznie");
@@ -87,7 +89,7 @@ class SocketService with WidgetsBindingObserver{
   void _handlePostReconnectActions(String lobbyId) {
     logger.d("🔄 Wykonywanie akcji po reconnect...");
     _receivedSessionId = false;
-    
+
     // Opóźnienie żeby dać czas na pełne połączenie
     Future.delayed(Duration(milliseconds: 1500), () {
       if (_isConnected) {
@@ -113,7 +115,8 @@ class SocketService with WidgetsBindingObserver{
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
         //url: "ws://localhost:8080/websocket/websocket", // na localu
-        url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // na http
+        url:
+            'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // na http
         //url: 'wss://api.gotale.pl:443/websocket/websocket', // na https
         useSockJS: false, //
         reconnectDelay: Duration(seconds: 2),
@@ -141,10 +144,12 @@ class SocketService with WidgetsBindingObserver{
           logger.d("✅ Połączono, sessionId: $_sessionId");
 
           if (_isInitialConnection) {
-            logger.d("✅ INITIAL Connect: Pierwsze połączenie, sessionId: $_sessionId");
+            logger.d(
+                "✅ INITIAL Connect: Pierwsze połączenie, sessionId: $_sessionId");
             _isInitialConnection = false;
           } else {
-            logger.d("✅ AUTO Reconnect (STOMP): Automatyczne połączenie po rozłączeniu, sessionId: $_sessionId");
+            logger.d(
+                "✅ AUTO Reconnect (STOMP): Automatyczne połączenie po rozłączeniu, sessionId: $_sessionId");
             // To jest auto-reconnect od STOMP, więc musimy wykonać akcje jak po reconnect
             _handlePostReconnectActions(lobbyId);
           }
@@ -209,7 +214,6 @@ class SocketService with WidgetsBindingObserver{
               return;
             }
 
-
             final contentRaw = data['content'];
             if (contentRaw is String) {
               final content = jsonDecode(contentRaw);
@@ -241,7 +245,6 @@ class SocketService with WidgetsBindingObserver{
         } catch (e) {
           logger.e("💥 Error parsowania JSONa: $e");
         }
-
       },
     );
 
@@ -268,7 +271,7 @@ class SocketService with WidgetsBindingObserver{
 
             if (body.contains("Lobby created with status: gaming")) {
               onLogGlobal("📥 Dołączanie do gry hosta");
-            } 
+            }
           }
         } catch (e) {
           logger.e("💥 Błąd parsowania listy użytkowników: $e");
@@ -369,7 +372,7 @@ class SocketService with WidgetsBindingObserver{
   }
 
   void disconnect(void Function() onDisconnected) {
-    shouldReconnect = false; 
+    shouldReconnect = false;
     if (_isConnected) {
       _isConnected = false;
       _stopPositionTimer();
@@ -384,10 +387,8 @@ class SocketService with WidgetsBindingObserver{
   bool _locationCheckInProgress = false;
 
   Future<void> sendPosition(String lobbyId) async {
-    
     if (_locationCheckInProgress) return;
     _locationCheckInProgress = true;
-
 
     try {
       if (!_isConnected || !_client.connected) {
@@ -415,8 +416,7 @@ class SocketService with WidgetsBindingObserver{
 
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        logger.e(
-            "📵 Lokalizacja jest wyłączona w ustawieniach systemowych.");
+        logger.e("📵 Lokalizacja jest wyłączona w ustawieniach systemowych.");
         return;
       }
 
