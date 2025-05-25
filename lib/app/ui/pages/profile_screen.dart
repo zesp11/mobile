@@ -64,7 +64,7 @@ class ProfileScreen extends GetView<AuthController> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            userProfile?.email ?? '',
+                            userProfile?.login ?? '',
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
