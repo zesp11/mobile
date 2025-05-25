@@ -13,7 +13,7 @@ class SocketService with WidgetsBindingObserver{
   Timer? _positionTimer;
   late StompClient _client;
   late String _sessionId =
-      "bad"; // = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
+      "bad";
   bool _isConnected = false;
   bool get isConnected => _isConnected;
   bool gameStarted = false;
@@ -131,38 +131,13 @@ class SocketService with WidgetsBindingObserver{
         onConnect: (StompFrame frame) {
           _startSendingPositionLoop(lobbyId);
           _isConnected = true;
-          //final url = frame.headers['sockjs-url'];
           this.onUsersReceived = onUsersReceived;
 
-          //print(url);
           token = jwtToken;
 
-          /*if (url != null) {
-            _sessionId = _extractSessionId(url);
-            onLog("Połączono, sessionId: $_sessionId");
-          }*/
-          //_sessionId = "kjsgsgsglslgds";
-
-          /*final url = frame.headers['sessionId'];
-          if (url != null) {
-            print("sessionId: $url");
-          } else {
-            print("Brak sessionId w headerach...");
-          }
-          print("hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-          _sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';*/
-
-          /*print("🔍 -------------------------------Wszystkie headery:");
-          frame.headers.forEach((key, value) {
-            print("  $key: $value");
-          });
-          print(frame.body);*/
-
-          //_sessionId = 'flutter-${DateTime.now().millisecondsSinceEpoch}';
           onErrorGlobal = onError;
           onLogGlobal = onLog;
 
-          //onLog("✅ Połączono, sessionId: $_sessionId");
           logger.d("✅ Połączono, sessionId: $_sessionId");
 
           if (_isInitialConnection) {
@@ -174,12 +149,8 @@ class SocketService with WidgetsBindingObserver{
             _handlePostReconnectActions(lobbyId);
           }
 
-          //_subscribeToErrors(onError, onLog);
           _subscribeToLobby(lobbyId, onLog);
 
-          //sendMessage(lobbyId, "init-session");
-
-          //_subscribeToErrors(onError, onLog);
           onConnected();
         },
         onWebSocketError: (err) {
@@ -220,22 +191,14 @@ class SocketService with WidgetsBindingObserver{
       destination: '/topic/lobby.$lobbyId',
       headers: {'lobby-id': lobbyId},
       callback: (StompFrame frame) {
-        //final body = frame.body ?? "";
         var body = frame.body ?? "";
         logger.d("📥 Otrzymano: ${frame.body}");
-
-        /*
-        if (_receivedSessionId) {
-          return;
-        }*/
-        print("lobby id here:");
-        print(lobbyId);
 
         try {
           final data = jsonDecode(body);
 
           if (data is Map<String, dynamic>) {
-            // 1. Obsługa sessionId (raz)
+            // Obsługa sessionId (raz)
             if (!_receivedSessionId && data.containsKey('sessionId')) {
               _sessionId = data['sessionId'];
               _receivedSessionId = true;
@@ -246,24 +209,6 @@ class SocketService with WidgetsBindingObserver{
               return;
             }
 
-            /*final type = data['type'];
-
-          switch (type) {
-            case 'start-game':
-              print(data['gameId']);
-              final LobbyController controller = Get.find<LobbyController>();
-              controller.setGameId = data['gameId'];
-              break;
-            /*case 'new-positions':
-              //b();
-              break;
-            case 'new-user':
-              //c();
-              break;*/
-            default:
-              print("❓ Nieznany typ wiadomości: $type");
-            }
-          }*/
 
             final contentRaw = data['content'];
             if (contentRaw is String) {
@@ -271,7 +216,6 @@ class SocketService with WidgetsBindingObserver{
               final type = content['type'];
               switch (type) {
                 case 'start-game':
-                  //print(content['gameId']);
                   final LobbyController controller =
                       Get.find<LobbyController>();
                   controller.setGameId = content['gameId'];
@@ -298,21 +242,6 @@ class SocketService with WidgetsBindingObserver{
           logger.e("💥 Error parsowania JSONa: $e");
         }
 
-        //sendMessage(lobbyId, "init-session");
-        /*body = body.replaceAll('\n', '\\n');
-
-        try {
-          final data = jsonDecode(body);
-          if (data is Map<String, dynamic>) {
-            final message = data['sessionId'];
-            print("🔑 Wiadomość: $message");
-          } else {
-            print("❌");
-          }
-        } catch (e) {
-          print("💥 Error parsowania JSONa: $e");
-        }*/
-        //print(${frame.body});
       },
     );
 
@@ -355,7 +284,6 @@ class SocketService with WidgetsBindingObserver{
     _client?.subscribe(
       destination: "/queue/errors/$_sessionId",
       callback: (frame) {
-        //print("-----------------w error sessionid: ${_sessionId}");
         try {
           final Map<String, dynamic> error = frame.body != null
               ? Map<String, dynamic>.from(jsonDecode(frame.body!))
@@ -364,29 +292,29 @@ class SocketService with WidgetsBindingObserver{
 
           switch (type) {
             case "LOBBY_NOT_FOUND":
-              onError("Lobby nie istnieje.");
+              logger.e("Lobby nie istnieje.");
               disconnect(() => onLog("Rozłączono - brak lobby"));
               break;
             case "LOBBY_FULL":
-              onError("Lobby pełne.");
+              logger.e("Lobby pełne.");
               disconnect(() => onLog("Rozłączono - pełne lobby"));
               break;
             case "AUTH_ERROR":
-              onError("JWT error: ${error['message']}");
+              logger.e("JWT error: ${error['message']}");
               disconnect(() => onLog("JWT problem"));
               break;
             case "DUPLICATE_SESSION":
-              onError("Zduplikowana sesja.");
+              logger.e("Zduplikowana sesja.");
               disconnect(() => onLog("Starsze połączenie zamknięte"));
               break;
             case "NO_LOBBY":
-              onError("Nie podano ID lobby.");
+              logger.e("Nie podano ID lobby.");
               break;
             default:
-              onError("Nieznany błąd: ${error['message'] ?? "brak info"}");
+              logger.e("Nieznany błąd: ${error['message'] ?? "brak info"}");
           }
         } catch (e) {
-          onError("Błąd (nie JSON): ${frame.body}");
+          logger.e("Błąd (nie JSON): ${frame.body}");
         }
       },
     );
@@ -460,14 +388,10 @@ class SocketService with WidgetsBindingObserver{
     if (_locationCheckInProgress) return;
     _locationCheckInProgress = true;
 
-    /*if (!_isConnected || !_client.connected) {
-        onLogGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");
-        return;
-      }*/
 
     try {
       if (!_isConnected || !_client.connected) {
-        onErrorGlobal("❌ Brak połączenia. Nie można wysłać pozycji.");//do usunięcia 
+        logger.e("❌ Brak połączenia. Nie można wysłać pozycji.");
         if (shouldReconnect) {
           reconnect(lobbyId);
         }
@@ -479,19 +403,19 @@ class SocketService with WidgetsBindingObserver{
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          onErrorGlobal("❌ Odmówiono uprawnień do lokalizacji.");
+          logger.e("❌ Odmówiono uprawnień do lokalizacji.");
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        onErrorGlobal("❌ Uprawnienia do lokalizacji na stałe zablokowane.");
+        logger.e("❌ Uprawnienia do lokalizacji na stałe zablokowane.");
         return;
       }
 
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        onErrorGlobal(
+        logger.e(
             "📵 Lokalizacja jest wyłączona w ustawieniach systemowych.");
         return;
       }

@@ -341,7 +341,6 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
     final location =
         LatLng(lastGame.currentStep.latitude, lastGame.currentStep.longitude);
     final apiService = Get.find<ApiService>();
-    final authController = Get.find<AuthController>();
 
     final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
     late String jwtToken;
@@ -458,7 +457,7 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                   }
 
                   if (snapshot.hasError || !snapshot.hasData || snapshot.data!.length != 2) {
-                    return Text('Error while loading data', style: theme.textTheme.bodySmall);
+                    return Text('error_while_loading_data'.tr, style: theme.textTheme.bodySmall);
                   }
 
                   final scenario = snapshot.data![0] as Scenario;
@@ -478,7 +477,7 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                             borderRadius: BorderRadius.circular(20)),
                       ),
                       onPressed: () {
-                        if(isMultiplayer && lobby.status == "Waiting for more players") {
+                        if(isMultiplayer && lobby.status == "Waiting_for_players") {
                           Get.to(() => LobbyScreen(
                             gamebook: scenario,
                             jwtToken: jwtToken,
@@ -505,11 +504,11 @@ class _GamesInProgressTab extends GetView<GameSelectionController> {
                               return AlertDialog(
                                 backgroundColor: theme.colorScheme.primary,
                                 title: Text(
-                                  "Nie można powrócić do lobby",
+                                  'cant_return_to_lobby'.tr,
                                   style: TextStyle(color: theme.colorScheme.onSurface),
                                 ),
                                 content: Text(
-                                  "Prawdopodobnie gra została już zakończona, lub lobby jest pełne.",
+                                  'cant_lobby_explanation'.tr,
                                   style: TextStyle(color: theme.colorScheme.onSurface),
                                 ),
                                 actions: [

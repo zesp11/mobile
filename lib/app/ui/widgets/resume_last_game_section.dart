@@ -70,11 +70,11 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
             return AlertDialog(
               backgroundColor: theme.colorScheme.primary,
               title: Text(
-                "Nie można powrócić do lobby",
+                'cant_return_to_lobby'.tr,
                 style: TextStyle(color: theme.colorScheme.onSurface),
               ),
               content: Text(
-                "Prawdopodobnie gra została już zakończona, lub lobby jest pełne.",
+                'cant_lobby_explanation'.tr,
                 style: TextStyle(color: theme.colorScheme.onSurface),
               ),
               actions: [

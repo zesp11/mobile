@@ -124,41 +124,22 @@ class ProductionApiService extends ApiService {
   @override
   Future<Lobby> createLobby(int scenarioId, String token) async {
     try {
-      print("inside production");
       final logger = Get.find<Logger>();
-      print("after logger");
 
       final endpoint =
           '$name${createLobbyRoute.replaceFirst(':id', scenarioId.toString())}';
 
-      print("before token");
-/*
-      final token =
-          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
-
-      print("after token");
-
-      if (token == null) {
-        throw Exception('No authentication token found');
-      }*/
-
       logger.d('Creating lobby at endpoint: $endpoint');
-
-      print(token);
 
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': token,
       };
 
-      print("after headers");
-
       final response = await http.post(
         Uri.parse(endpoint),
         headers: headers,
       );
-
-      print("after response");
 
       logger.d('Create lobby response status: ${response.statusCode}');
 
@@ -278,30 +259,21 @@ class ProductionApiService extends ApiService {
       final token =
           await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
 
-      print("after token");
-      print(token);
-
       if (token == null) {
         throw Exception('No authentication token found');
       }
 
       logger.d('Starting game in lobby at endpoint: $endpoint');
 
-      //print(token);
-
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
 
-      print("after headers");
-
       final response = await http.post(
         Uri.parse(endpoint),
         headers: headers,
       );
-
-      print("after response");
 
       logger.d('Start game from lobby response status: ${response.statusCode}');
 
