@@ -305,7 +305,7 @@ class ScenarioScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        'Member since $formattedDate',
+                        '${'member_since'.tr} $formattedDate',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.4),
                         ),
