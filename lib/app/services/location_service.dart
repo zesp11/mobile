@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:logger/logger.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:gotale/app/utils/utils.dart' as utils;
 
 class LocationService extends GetxService {
   final logger = Get.find<Logger>();
@@ -114,7 +115,7 @@ class LocationService extends GetxService {
         final place = placemarks.first;
         String locationName;
         try {
-          locationName = _formatAddress(place);
+          locationName = utils.formatPlacemarkAddress(place);
         } catch (e) {
           logger.e('Error formatting address: $e');
           isLoadingLocation.value = false;
@@ -216,40 +217,6 @@ class LocationService extends GetxService {
       'timestamp': DateTime.now().toIso8601String(),
     };
     _storage.write(_cacheKey, cache);*/
-  }
-
-  String _formatAddress(Placemark place) {
-    final List<String> addressParts = [];
-
-    try {
-      if (place.street != null && place.street!.isNotEmpty) {
-        addressParts.add(place.street!);
-      }
-      if (place.locality != null && place.locality!.isNotEmpty) {
-        addressParts.add(place.locality!);
-      }
-      if (place.country != null && place.country!.isNotEmpty) {
-        addressParts.add(place.country!);
-      }
-    } catch (e) {
-      logger.e('Error building address parts: $e');
-    }
-
-    /*try {
-      if (place.street?.isNotEmpty ?? false) {
-        addressParts.add(place.street!);
-      }
-      if (place.locality?.isNotEmpty ?? false) {
-        addressParts.add(place.locality!);
-      }
-      if (place.country?.isNotEmpty ?? false) {
-        addressParts.add(place.country!);
-      }
-    } catch (e) {
-      logger.e('Error building address parts: $e');
-    }*/
-
-    return addressParts.isEmpty ? 'Unknown location' : addressParts.join(', ');
   }
 
   Future<void> clearCache() async {
