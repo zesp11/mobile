@@ -730,54 +730,102 @@ class _DecisionTabState extends State<DecisionTab> {
             ],
           ),
         ),
-        if (decisions.isNotEmpty)
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.linear,
-            bottom: _showButtons ? 0 : -300,
-            left: 0,
-            right: 0,
-            child: GestureDetector(
-              onVerticalDragEnd: (details) {
-                // Swipe down on buttons to hide
-                if (details.primaryVelocity! > 10) {
-                  setState(() => _showButtons = false);
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.only(
-                    bottom: bottomPadding, left: 16, right: 16, top: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 16,
-                      offset: const Offset(0, -4),
+        (decisions.isNotEmpty)
+            ? AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.linear,
+                bottom: _showButtons ? 0 : -300,
+                left: 0,
+                right: 0,
+                child: GestureDetector(
+                  onVerticalDragEnd: (details) {
+                    // Swipe down on buttons to hide
+                    if (details.primaryVelocity! > 10) {
+                      setState(() => _showButtons = false);
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.only(
+                        bottom: bottomPadding, left: 16, right: 16, top: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 16,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                     ),
-                  ],
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildPanelDragHandle(context),
+                        DecisionButtonLayout(
+                          decisions: decisions,
+                          layoutStyle: buttonLayout,
+                          onDecisionMade: (decision) {
+                            // setState(() => _showButtons = True);
+                            controller.hasArrivedAtLocation.value =
+                                false; //important part
+                            controller.makeDecision(decision);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
+              )
+            : Center(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildPanelDragHandle(context),
-                    DecisionButtonLayout(
-                      decisions: decisions,
-                      layoutStyle: buttonLayout,
-                      onDecisionMade: (decision) {
-                        // setState(() => _showButtons = True);
-                        controller.hasArrivedAtLocation.value =
-                            false; //important part
-                        controller.makeDecision(decision);
-                      },
+                    Icon(
+                      Icons.menu_book_rounded,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "your_journey_has_ended".tr,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.find<TabController>().animateTo(1);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 14),
+                        shadowColor: Colors.black.withOpacity(0.1),
+                      ),
+                      child: Text(
+                        "check_story_tab".tr,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer
+                                  .withOpacity(0.9),
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
                   ],
                 ),
               ),
-            ),
-          ),
+
         // Swipe-up detector when buttons are hidden
         if (!_showButtons && decisions.isNotEmpty)
           Positioned(
