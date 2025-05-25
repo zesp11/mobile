@@ -123,7 +123,6 @@ class GamePlayController extends GetxController with StateMixin {
   // Fetch game history
   Future<void> fetchGameHistory(int gameId) async {
     try {
-      // TODO: add typing to history
       isHistoryLoading.value = true;
       logger.i("[DEV_DEBUG] Fetching game history for ID: $gameId");
       final history = await gameService.getGameHistory(gameId);

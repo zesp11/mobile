@@ -27,11 +27,52 @@ import 'package:gotale/app/services/location_service.dart';
 
 bool isMulti = false;
 
-class GamePlayScreen extends StatelessWidget {
+class GamePlayScreen extends StatefulWidget {
+  const GamePlayScreen({super.key});
+
+  @override
+  State<GamePlayScreen> createState() => _GamePlayScreenState();
+}
+
+class _GamePlayScreenState extends State<GamePlayScreen>
+    with TickerProviderStateMixin {
   final GamePlayController controller = Get.find();
   final Logger logger = Get.find<Logger>();
+  late int tabCount;
+  late TabController _tabController;
 
-  GamePlayScreen({super.key});
+  @override
+  void initState() {
+    super.initState();
+    final gamebookId = Get.parameters['id']!;
+    controller.fetchGameWithId(int.parse(gamebookId));
+
+    // Initialize with default values
+    isMulti = controller.gameType == GameType.multi;
+    tabCount = isMulti ? 4 : 3;
+
+    _tabController = TabController(
+      length: tabCount,
+      vsync: this,
+      initialIndex: isMulti ? 1 : 0,
+    );
+
+    _tabController.addListener(_handleTabChange);
+  }
+
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging && _tabController.index == 1) {
+      logger.d("StoryTab entered - refreshing data");
+      controller.fetchGameHistory(controller.currentGame.value!.idGame);
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabChange);
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +105,7 @@ class GamePlayScreen extends StatelessWidget {
           ),
           centerTitle: true,
           bottom: TabBar(
+            controller: _tabController,
             indicatorColor: Theme.of(context).colorScheme.secondary,
             labelColor: Theme.of(context).colorScheme.secondary,
             unselectedLabelColor:
@@ -110,6 +152,7 @@ class GamePlayScreen extends StatelessWidget {
         body: SafeArea(
           child: controller.obx(
             (state) => TabBarView(
+              controller: _tabController,
               children: [
                 DecisionTab(),
                 StoryTab(),
@@ -1162,56 +1205,53 @@ class _OSMFlutterMapState extends State<MapWidget>
             ],
           ),
           // Show destination name at the top only if the destination is visible and the detailed circle is shown (zoomed in)
-          Obx(
-            () => AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: destinationName.value.isNotEmpty && _showDestinationName
-                  ? Positioned(
-                      key: const ValueKey('destinationName'),
-                      top: 40,
-                      left: 0,
-                      right: 0,
-                      child: AnimatedOpacity(
-                        opacity: _showDestinationName ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 40),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surface.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.08),
-                                        blurRadius: 8,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Text(
-                                    destinationName.value,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: colorScheme.secondary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                    textAlign: TextAlign.center,
-                                  ),
+          Positioned(
+            top: 40,
+            left: 0,
+            right: 0,
+            child: Obx(
+              () => AnimatedOpacity(
+                opacity:
+                    destinationName.value.isNotEmpty && _showDestinationName
+                        ? 1.0
+                        : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            destinationName.value,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
-                          ],
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink(key: ValueKey('empty')),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           // Tutorial button (only when name isn't showing)
