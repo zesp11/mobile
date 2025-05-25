@@ -414,8 +414,6 @@ class ScenarioScreen extends StatelessWidget {
                   : theme.colorScheme.onSurface.withOpacity(0.4),
             ),
             textAlign: TextAlign.left,
-            maxLines: 8,
-            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
