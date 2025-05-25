@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/game_controller.dart';
 import 'package:gotale/app/models/game_in_progress.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:gotale/app/services/location_service.dart';
+import 'package:gotale/app/ui/pages/lobby_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:latlong2/latlong.dart';
@@ -27,6 +30,79 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
         ),
       ),
     );
+  }
+  
+  Future<void> _handleGameTap(GameInProgress lastGame, BuildContext context) async {
+    final apiService = Get.find<ApiService>();
+    final secureStorage = Get.find<FlutterSecureStorage>();
+    
+    try {
+      final token = await secureStorage.read(key: 'accessToken');
+      final jwtToken = token != null ? 'Bearer $token' : "null";
+      
+      final scenario = await apiService.getScenarioWithId(lastGame.idScen);
+      final lobby = await apiService.getLobbyWithIdGame(lastGame.idGame);
+      
+      final isMultiplayer = scenario.limitPlayers > 1;
+      
+      if (isMultiplayer && lobby.status == "Waiting for more players") {
+        Get.to(() => LobbyScreen(
+          gamebook: scenario,
+          jwtToken: jwtToken,
+          type: "rejoin-waiting",
+          id: lobby.idLobby,
+          gameId: lastGame.idGame,
+        ));
+      } else if (isMultiplayer && lobby.status == "Gaming") {
+        Get.to(() => LobbyScreen(
+          gamebook: scenario,
+          jwtToken: jwtToken,
+          type: "rejoin",
+          id: lobby.idLobby,
+          gameId: lastGame.idGame,
+        ));
+      } else if (isMultiplayer) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext dialogContext) {
+            final theme = Theme.of(context);
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.primary,
+              title: Text(
+                "Nie można powrócić do lobby",
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
+              content: Text(
+                "Prawdopodobnie gra została już zakończona, lub lobby jest pełne.",
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: Text(
+                    "OK",
+                    style: TextStyle(color: theme.colorScheme.secondary),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        Get.toNamed(
+          AppRoutes.gameDetail
+              .replaceFirst(':id', lastGame.idGame.toString()),
+        );
+      }
+    } catch (e) {
+      // Handle error case
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading game data: $e')),
+      );
+    }
   }
 
   Widget _buildGameSection(GameInProgress lastGame, BuildContext context) {
@@ -57,12 +133,7 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
           ),
           Card(
             child: InkWell(
-              onTap: () {
-                Get.toNamed(
-                  AppRoutes.gameDetail
-                      .replaceFirst(':id', lastGame.idGame.toString()),
-                );
-              },
+              onTap: () => _handleGameTap(lastGame, context),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
