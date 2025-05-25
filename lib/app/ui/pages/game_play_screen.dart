@@ -54,7 +54,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
     _tabController = TabController(
       length: tabCount,
       vsync: this,
-      initialIndex: isMulti ? 1 : 0,
+      initialIndex: 0,
     );
 
     _tabController.addListener(_handleTabChange);
@@ -81,13 +81,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
     isMulti = controller.gameType == GameType.multi;
     final tabCount = isMulti ? 4 : 3;
 
-    final TabController tabController = TabController(
-      length: tabCount,
-      vsync: Navigator.of(context),
-      initialIndex: isMulti ? 1 : 0,
-    );
-
-    Get.put(tabController);
+    Get.put(_tabController);
 
     logger.i("[DEV_DEBUG] GamePlayScreen built with gamebookId: $gamebookId");
     logger.d("Current gamebook: ${controller.currentGame.value}");
@@ -589,17 +583,17 @@ class _DecisionTabState extends State<DecisionTab> {
                   ),
                   const SizedBox(height: 25),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.map,
-                        color: Theme.of(context).colorScheme.onSecondary),
-                    label: Text(
-                      "go_to_map".tr,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
+                      icon: Icon(Icons.map,
+                          color: Theme.of(context).colorScheme.onSecondary),
+                      label: Text(
+                        "go_to_map".tr,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
                       ),
-                    ),
-                    onPressed: () =>
-                        DefaultTabController.of(context).animateTo(2),
-                  ),
+                      onPressed: () {
+                        Get.find<TabController>().animateTo(2);
+                      }),
                   const SizedBox(height: 15),
                   Text(
                     "refresh_message".tr,
@@ -1029,7 +1023,7 @@ class _OSMFlutterMapState extends State<MapWidget>
             gamePlayController.hasArrivedAtLocation.value = true;
             Navigator.of(context).pop();
             if (savedTabContext?.mounted ?? false) {
-              DefaultTabController.of(savedTabContext!).animateTo(0);
+              Get.find<TabController>().animateTo(0);
             }
           },
           child: Text(

@@ -239,8 +239,7 @@ class ProductionApiService extends ApiService {
         logger.d('Response body: "${response.body}"');
         return LobbyLight.fromJson(data);
       } else {
-        throw Exception(
-            'Failed to get lobby: ${response.statusCode}');
+        throw Exception('Failed to get lobby: ${response.statusCode}');
       }
     } catch (e) {
       Get.find<Logger>().e('Error getting lobby: $e');
