@@ -58,6 +58,7 @@ class ProductionApiService extends ApiService {
   static const String searchLobbiesRoute = '/api/lobby';
   static const String startGameFromLobbyRoute = '/api/lobby/start_game/:id';
   static const String getLobbyWithIdGameRoute = '/api/games/:id/lobby';
+  static const String getLobbyWithIdRoute = '/api/lobby/:id';
 
   // @override
   // Future<List<Map<String, dynamic>>> getAvailableGamebooks() async {
@@ -218,6 +219,51 @@ class ProductionApiService extends ApiService {
     } catch (e) {
       Get.find<Logger>().e('Error getting lobby from id game: $e');
       throw Exception('Exception while getting lobby from id game: $e');
+    }
+  }
+
+  @override
+  Future<LobbyLight> getLobbyWithId(int lobbyId) async {
+    try {
+      final logger = Get.find<Logger>();
+
+      final endpoint =
+          '$name${getLobbyWithIdRoute.replaceFirst(':id', lobbyId.toString())}';
+
+      final token =
+          await Get.find<FlutterSecureStorage>().read(key: 'accessToken');
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      logger.d('Getting lobby with endpoint: $endpoint');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(
+        Uri.parse(endpoint),
+        headers: headers,
+      );
+
+      logger.d('Got Lobby: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decodedResponse = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedResponse);
+
+        logger.d('Response body: "${response.body}"');
+        return LobbyLight.fromJson(data);
+      } else {
+        throw Exception(
+            'Failed to get lobby: ${response.statusCode}');
+      }
+    } catch (e) {
+      Get.find<Logger>().e('Error getting lobby: $e');
+      throw Exception('Exception while getting lobby: $e');
     }
   }
 
