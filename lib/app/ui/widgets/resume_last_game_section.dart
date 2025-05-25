@@ -31,39 +31,39 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
       ),
     );
   }
-  
-  Future<void> _handleGameTap(GameInProgress lastGame, BuildContext context) async {
+
+  Future<void> _handleGameTap(
+      GameInProgress lastGame, BuildContext context) async {
     final apiService = Get.find<ApiService>();
     final secureStorage = Get.find<FlutterSecureStorage>();
-    
+
     try {
       final token = await secureStorage.read(key: 'accessToken');
       final jwtToken = token != null ? 'Bearer $token' : "null";
-      
+
       final scenario = await apiService.getScenarioWithId(lastGame.idScen);
-      
+
       final isMultiplayer = scenario.limitPlayers > 1;
 
-      if(isMultiplayer) {
-        
+      if (isMultiplayer) {
         final lobby = await apiService.getLobbyWithIdGame(lastGame.idGame);
 
         if (lobby.status == "Waiting for more players") {
           Get.to(() => LobbyScreen(
-            gamebook: scenario,
-            jwtToken: jwtToken,
-            type: "rejoin-waiting",
-            id: lobby.idLobby,
-            gameId: lastGame.idGame,
-          ));
+                gamebook: scenario,
+                jwtToken: jwtToken,
+                type: "rejoin-waiting",
+                id: lobby.idLobby,
+                gameId: lastGame.idGame,
+              ));
         } else if (lobby.status == "Gaming") {
           Get.to(() => LobbyScreen(
-            gamebook: scenario,
-            jwtToken: jwtToken,
-            type: "rejoin",
-            id: lobby.idLobby,
-            gameId: lastGame.idGame,
-          ));
+                gamebook: scenario,
+                jwtToken: jwtToken,
+                type: "rejoin",
+                id: lobby.idLobby,
+                gameId: lastGame.idGame,
+              ));
         } else {
           showDialog(
             context: context,
@@ -97,8 +97,7 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
         }
       } else {
         Get.toNamed(
-          AppRoutes.gameDetail
-              .replaceFirst(':id', lastGame.idGame.toString()),
+          AppRoutes.gameDetail.replaceFirst(':id', lastGame.idGame.toString()),
         );
       }
     } catch (e) {
@@ -146,9 +145,23 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            '(${lastGame.idGame}) ${lastGame.scenarioName}',
-                            style: Theme.of(context).textTheme.titleMedium,
+                          child: Row(
+                            children: [
+                              Text(
+                                '${lastGame.scenarioName} ',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Spacer(),
+                              Text(
+                                '#${lastGame.idGame}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                              ),
+                            ],
                           ),
                         ),
                         Icon(
@@ -175,7 +188,7 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     FutureBuilder<String>(
                       future: locationService.getPlaceName(location),
                       builder: (context, snapshot) {
