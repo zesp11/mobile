@@ -62,10 +62,10 @@ class SettingsController extends GetxController {
   void resetSettings() {
     // TODO: dry
     // TODO: change those hardcoded values
-    updateTheme(ThemeMode.system);
+    updateTheme(ThemeMode.dark);
     updateLayoutStyle('vertical');
-    updateLanguage('en');
-    toggleNotifications(true);
+    updateLanguage('pl');
+    toggleNotifications(false);
 
     logger.d("Settings reset to defaults");
   }
