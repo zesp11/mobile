@@ -252,10 +252,10 @@ class LobbyController extends GetxController {
   
 
   Future<void> reactToBeingDeleted(BuildContext context, int deletedUserId) async {
-    print("reacting to kicking sbd------------------");
+    //print("reacting to kicking sbd------------------");
     if(deletedUserId == currentUserId)
     {
-      print("im being kicked-------------------------");
+      //print("im being kicked-------------------------");
       showDialog(
         context: context,
         barrierDismissible: false,
