@@ -6,6 +6,7 @@ import 'package:gotale/app/models/user.dart';
 import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/services/auth_service.dart';
 import 'package:gotale/app/services/user_service.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 import 'package:gotale/utils/env_config.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -155,15 +156,11 @@ class AuthController extends GetxController with StateMixin<User> {
       logger.i("Registration successful");
 
       Get.back(); // back to login screen
-      // Show success message
-      Get.snackbar(
-        'Success',
-        'Registration successful! Please login to continue.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: Duration(seconds: 3),
-      );
+      showAppSnackbar(
+          title: "success".tr,
+          message: "registration_success".tr,
+          type: SnackbarType.success);
+
       registerStatus.value = RxStatus.success();
 
       Future.delayed(Duration(milliseconds: 100));

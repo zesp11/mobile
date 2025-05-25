@@ -14,6 +14,7 @@ import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
 import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 import 'package:logger/logger.dart';
 
 class LobbyController extends GetxController {
@@ -77,7 +78,7 @@ class LobbyController extends GetxController {
     try {
       final lobby = await lobbyService.createLobby(scenarioId, jwtToken);
       createdLobby.value = lobby;
-      
+
       return lobby;
     } catch (e) {
       rethrow;
@@ -98,11 +99,10 @@ class LobbyController extends GetxController {
       final lobby = await createLobby(gamebook.id);
       setLobbyId = lobby.idLobby;
 
-      Get.snackbar(
-        'lobby_created'.tr,
-        "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      showAppSnackbar(
+          title: "lobby_created".tr,
+          message: "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
+          type: SnackbarType.info);
 
       if (jwtToken == "") {
         await loadToken();
@@ -118,10 +118,10 @@ class LobbyController extends GetxController {
     try {
       setLobbyId = lobbyId;
 
-      Get.snackbar(
-        "Dołączono do lobby!",
-        "ID Lobby: ${setLobbyId}",
-        snackPosition: SnackPosition.BOTTOM,
+      showAppSnackbar(
+        title: "Dołączono do lobby!",
+        message: "ID Lobby: ${setLobbyId}",
+        type: SnackbarType.info,
       );
 
       if (jwtToken == "") {
@@ -141,8 +141,8 @@ class LobbyController extends GetxController {
       jwtToken: jwtToken,
       lobbyId: setLobbyId.toString(),
       onLog: (msg) => print("🧾 $msg"),
-      onError: (err) => Get.snackbar("Błąd", err,
-          backgroundColor: Get.theme.colorScheme.error),
+      onError: (err) => showAppSnackbar(
+          title: 'Error', message: err.toString(), type: SnackbarType.error),
       onUsersReceived: (userList) {
         users.assignAll(userList);
       },
@@ -215,11 +215,9 @@ class LobbyController extends GetxController {
     }
   }
 
-  
-
-  Future<void> reactToBeingDeleted(BuildContext context, int deletedUserId) async {
-    if(deletedUserId == currentUserId)
-    {
+  Future<void> reactToBeingDeleted(
+      BuildContext context, int deletedUserId) async {
+    if (deletedUserId == currentUserId) {
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -252,7 +250,6 @@ class LobbyController extends GetxController {
         },
       );
     }
-      
   }
 
   @override

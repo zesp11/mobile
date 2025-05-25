@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/controllers/auth_controller.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 
 class LoginScreen extends GetView<AuthController> {
   final usernameController = TextEditingController();
@@ -263,15 +264,10 @@ class LoginScreen extends GetView<AuthController> {
                                 final password = passwordController.text.trim();
 
                                 if (username.isEmpty || password.isEmpty) {
-                                  Get.snackbar(
-                                    'error'.tr,
-                                    'credentials_required'.tr,
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor: theme.colorScheme.error
-                                        .withOpacity(0.1),
-                                    colorText: theme.colorScheme.error,
-                                    margin: const EdgeInsets.all(16),
-                                    borderRadius: 12,
+                                  showAppSnackbar(
+                                    title: "login_error".tr,
+                                    message: "credentials_required".tr,
+                                    type: SnackbarType.error,
                                   );
                                   return;
                                 }

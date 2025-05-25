@@ -306,18 +306,6 @@ class ScenarioCard extends StatelessWidget {
     );
   }
 
-  void _handlePlayRestriction(BuildContext context, bool canPlay) {
-    if (!canPlay) {
-      Get.snackbar(
-        'unavailable'.tr,
-        'no_first_step'.tr,
-        icon: const Icon(Icons.error_outline, color: Colors.red),
-      );
-      return;
-    }
-    _showLoginDialog(context);
-  }
-
   Widget _buildAuthorAvatar(ThemeData theme, Author author) {
     return CircleAvatar(
       radius: 18,

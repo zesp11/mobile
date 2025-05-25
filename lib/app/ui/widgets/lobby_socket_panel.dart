@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gotale/app/services/websocket_service.dart';
+import 'package:gotale/app/utils/snackbar.dart';
 
 // only for testing sockets for now
 
@@ -28,7 +29,7 @@ class _LobbySocketPanelState extends State<LobbySocketPanel> {
 
   void _error(String err) {
     _log("Błąd: $err");
-    Get.snackbar("Błąd", err, snackPosition: SnackPosition.BOTTOM);
+    showAppSnackbar(title: "Error", message: err, type: SnackbarType.error);
   }
 
   void _handleUsersReceived(List<dynamic> users) {
