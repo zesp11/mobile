@@ -15,9 +15,9 @@ class SettingsService extends GetxService {
   static const String _firstLaunchKey = 'firstLaunch';
 
   // Default values
-  final ThemeMode defaultTheme = ThemeMode.system;
+  final ThemeMode defaultTheme = ThemeMode.dark;
   final String defaultLayoutStyle = 'vertical';
-  final String defaultLanguage = 'en';
+  final String defaultLanguage = 'pl';
   final bool defaultNotifications = true;
   final bool defaultFirstLaunch = true;
 
