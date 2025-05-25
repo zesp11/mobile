@@ -40,6 +40,11 @@ class _GamePlayScreenState extends State<GamePlayScreen>
   final Logger logger = Get.find<Logger>();
   late int tabCount;
   late TabController _tabController;
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+
+  String? userId;
+  LobbyController? lobbyController;
+  UserService? userService;
 
   @override
   void initState() {
@@ -58,6 +63,55 @@ class _GamePlayScreenState extends State<GamePlayScreen>
     );
 
     _tabController.addListener(_handleTabChange);
+
+    if (isMulti) {
+      _initializeLobbyFunctionality();
+    }
+  }
+
+  Future<void> _initializeLobbyFunctionality() async {
+    try {
+      // Get controllers
+      lobbyController = Get.find<LobbyController>();
+      userService = Get.find<UserService>();
+      
+      // Get current user ID
+      await _getCurrentUserId();
+      
+      // Set up listener for user updates
+      if (lobbyController != null) {
+        ever(lobbyController!.users, (_) {
+          _updateUserMarkers();
+        });
+      }
+    } catch (e) {
+      logger.e("Error initializing lobby functionality: $e");
+    }
+  }
+
+  Future<void> _getCurrentUserId() async {
+    final id = await secureStorage.read(key: 'userId');
+    setState(() {
+      userId = id;
+    });
+  }
+
+  void _updateUserMarkers() {
+    if (lobbyController == null || userId == null) return;
+    
+    Map<String, LatLng> coords = {};
+
+    for (var user in lobbyController!.users) {
+      final id = user['id_user'].toString();
+      if (id == userId) continue;
+      final lat = double.tryParse(user['latitude'].toString());
+      final lng = double.tryParse(user['longitude'].toString());
+      if (lat != null && lng != null) {
+        coords[id] = LatLng(lat, lng);
+      }
+    }
+
+    controller.displayUserMarkers(coords);
   }
 
   void _handleTabChange() {
@@ -135,8 +189,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
               ),
               if (isMulti)
                 Tab(
-                  //TODO: add translations here
-                  text: 'lobby',
+                  text: 'Lobby',
                   icon: Icon(Icons.groups,
                       color: Theme.of(context).colorScheme.secondary),
                 ),
@@ -189,33 +242,14 @@ class _LobbyTabState extends State<LobbyTab> {
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   String? userId;
-
+  
   @override
   void initState() {
     super.initState();
     getCurrentUserId();
-    ever(lobbyController.users, (_) {
-      updateUserMarkers();
-    });
   }
 
-  void updateUserMarkers() {
-    final gamePlayController = Get.find<GamePlayController>();
-
-    Map<String, LatLng> coords = {};
-
-    for (var user in lobbyController.users) {
-      final id = user['id_user'].toString();
-      if (id == userId) continue;
-      final lat = double.tryParse(user['latitude'].toString());
-      final lng = double.tryParse(user['longitude'].toString());
-      if (lat != null && lng != null) {
-        coords[id] = LatLng(lat, lng);
-      }
-    }
-
-    gamePlayController.displayUserMarkers(coords);
-  }
+  
 
   Future<void> getCurrentUserId() async {
     final id = await secureStorage.read(key: 'userId');
