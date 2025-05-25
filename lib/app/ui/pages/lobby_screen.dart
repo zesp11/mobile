@@ -9,6 +9,7 @@ import 'package:gotale/app/routes/app_routes.dart';
 import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/controllers/lobby_controller.dart';
 import 'package:gotale/app/services/user_service.dart';
+import 'package:logger/logger.dart';
 
 class LobbyScreen extends StatefulWidget {
   final Scenario gamebook;
@@ -36,11 +37,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
   final UserService userService = Get.find<UserService>();
   bool isAlreadyStarted = false;
   String? currentUserId;
+  final logger = Get.find<Logger>();
 
   @override
   void initState() {
     super.initState();
-    //controller.init(scenario: widget.gamebook, token: widget.jwtToken, type: widget.type, lobbyId: widget.id);
     Future.microtask(() {
       controller.init(
         scenario: widget.gamebook,
@@ -56,10 +57,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
         currentUserId = currentUser.id.toString();
       });
     });
-    /*final gameController = Get.find<GamePlayController>();
-    await gameController.createGameFromScenario(widget.gamebook.id);
-    final bool isMulti = widget.gamebook.limitPlayers > 1;
-    gameController.gameType = isMulti ? GameType.multi : GameType.single;*/
   }
 
   @override
@@ -71,9 +68,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("LobbyScreen build");
-    print(controller.users);
-    print(widget.gamebook.name);
+    logger.d("LobbyScreen built");
+    logger.d(controller.users);
+    logger.d(widget.gamebook.name);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -84,9 +81,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
               controller.disconnect();
-              /*Future.delayed(Duration(milliseconds: 200), () {
-                Get.back();
-              });*/
               Navigator.of(context).pop();
                   Get.back();
             },
@@ -105,12 +99,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Gracze w lobby:",
+                      'players_in_lobby'.tr,
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 12),
                     if (controller.users.isEmpty)
-                      const Expanded(
+                      Expanded(
                         child: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -118,7 +112,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                               CircularProgressIndicator(),
                               SizedBox(height: 12),
                               Text(
-                                "Ładowanie...",
+                                'loading'.tr,
                                 style: TextStyle(fontSize: 16),
                               ),
                             ],
@@ -204,13 +198,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                         ),
-                                        if (widget.type == "create" && user.id.toString() != currentUserId)
-                                          IconButton(
-                                            icon: const Icon(Icons.close, color: Colors.red),
-                                            onPressed: () {
-                                              controller.deleteUser(user.id);
-                                            },
-                                          ),
+                                        if (widget.type == "create")
+                                          user.id.toString() != currentUserId
+                                              ? IconButton(
+                                                  icon: const Icon(Icons.close, color: Colors.red),
+                                                  onPressed: () {
+                                                    controller.deleteUser(user.id);
+                                                  },
+                                                )
+                                              : const SizedBox(width: 48),
                                       ],
                                     ),
                                   ),
@@ -230,7 +226,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                 onPressed: () {
                                   controller.joinGame();
                                 },
-                                label: const Text("Return to game"),
+                                label: Text('return_to_game_button'.tr),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
@@ -247,7 +243,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                   final gameController = Get.find<GamePlayController>();
 
                                   Lobby lobby = await controller.startGame();
-                                  print("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
+                                  logger.d("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
 
                                   final bool isMulti = widget.gamebook.limitPlayers > 1;
                                   gameController.gameType = isMulti ? GameType.multi : GameType.single;
@@ -263,7 +259,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                 },
                                 icon: const Icon(Icons.play_arrow_rounded),
                                 label: Text(
-                                  "Rozpocznij grę",
+                                  'start_game_button'.tr,
                                   style: TextStyle(
                                     color: controller.users.length < widget.gamebook.limitPlayers
                                         ? Colors.grey.shade300
@@ -292,7 +288,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             onPressed: () {
                               controller.joinGame();
                             },
-                            label: const Text("Return to game"),
+                            label: Text('return_to_game_button'.tr),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(

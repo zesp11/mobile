@@ -202,10 +202,10 @@ class _LobbyTabState extends State<LobbyTab> {
       return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Text(
-                'Gracze w lobby:',
+                'players_in_lobby'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -217,21 +217,6 @@ class _LobbyTabState extends State<LobbyTab> {
               itemCount: sortedUsers.length,
               itemBuilder: (context, index) {
                 final id = sortedUsers[index]['id_user'];
-                //final gamePlayController = Get.find<GamePlayController>();
-
-                /*Map<String, LatLng> coords = {};
-
-              for (var user in lobbyController.users) {
-                final id = user['id_user'].toString();
-                if (id == userId) continue;
-                final lat = double.tryParse(user['latitude'].toString());
-                final lng = double.tryParse(user['longitude'].toString());
-                if (lat != null && lng != null) {
-                  coords[id] = LatLng(lat, lng);
-                }
-              }
-
-              gamePlayController.displayUserMarkers(coords);*/
 
                 return FutureBuilder<User>(
                   future: userService.fetchUserProfile(id.toString()),
@@ -310,56 +295,6 @@ class _LobbyTabState extends State<LobbyTab> {
   }
 }
 
-/*return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          ),
-          onPressed: () async {
-            try {
-              Lobby lobby = await controller.createLobby(controller.currentGame.value!.idScen);
-              Get.snackbar(
-                "Lobby stworzone!",
-                "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
-                snackPosition: SnackPosition.BOTTOM,
-              );
-
-              if (controller.jwtToken.value == null) {
-                await controller.loadToken();
-              }
-
-              if (controller.jwtToken.value != null) {
-                Get.to(() => LobbySocketPanel(
-                      jwtToken: controller.jwtToken.value!,
-                      lobbyId: lobby.idLobby.toString(),
-                    ));
-              } else {
-                Get.snackbar(
-                    "Błąd", "Token JWT jest pusty! Nie można utworzyć lobby.",
-                    snackPosition: SnackPosition.BOTTOM);
-              }
-            } catch (e) {
-              Get.snackbar(
-                "Błąd",
-                "Nie udało się stworzyć lobby: $e",
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            }
-          },
-          child: const Text("Stwórz Lobby"),
-        ),
-        SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            // Inny kod tutaj
-          },
-          child: Text('Another Button'),
-        ),
-      ],
-    );*/
 
 class GameTitle extends StatelessWidget {
   const GameTitle({
@@ -505,14 +440,14 @@ class _DecisionTabState extends State<DecisionTab> {
           ),
           const SizedBox(height: 20),
           Text(
-            "Decision Recorded!",
+            'decision_recorded'.tr,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
           ),
           const SizedBox(height: 15),
           Text(
-            "Proceed to the next location\nto continue your adventure",
+            'proceed_to_location'.tr,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -521,7 +456,7 @@ class _DecisionTabState extends State<DecisionTab> {
             icon: Icon(Icons.map,
                 color: Theme.of(context).colorScheme.onSecondary),
             label: Text(
-              "Navigate to Next Location",
+              'navigate_to_location'.tr,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
@@ -545,14 +480,14 @@ class _DecisionTabState extends State<DecisionTab> {
           ),
           const SizedBox(height: 20),
           Text(
-            "Congratulations!",
+            'congratulations'.tr,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
           ),
           const SizedBox(height: 15),
           Text(
-            "You have completed the game",
+            'completed_the_game'.tr,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -561,7 +496,7 @@ class _DecisionTabState extends State<DecisionTab> {
             icon: Icon(Icons.replay,
                 color: Theme.of(context).colorScheme.onSecondary),
             label: Text(
-              "Play Again",
+              'play_again'.tr,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
@@ -1462,7 +1397,7 @@ class StoryTab extends StatelessWidget {
         if (filteredHistory.isEmpty && !hasCurrentStep) {
           return Center(
             child: Text(
-              "Your story begins here...\nMake choices to fill this page.",
+              'history_text'.tr,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -1708,7 +1643,7 @@ class StoryTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              currentStep.text ?? "Awaiting your next decision...",
+              currentStep.text ?? 'awaiting_decision'.tr,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                     height: 1.5,

@@ -14,6 +14,7 @@ import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
 import 'package:gotale/app/ui/widgets/lobby_socket_panel.dart';
+import 'package:logger/logger.dart';
 
 class LobbyController extends GetxController {
   final SocketService socketService = Get.find<SocketService>();
@@ -21,6 +22,7 @@ class LobbyController extends GetxController {
   final FlutterSecureStorage secureStorage = Get.find<FlutterSecureStorage>();
   SocketService get socket => socketService;
   final userService = Get.find<UserService>();
+  final logger = Get.find<Logger>();
 
   late Scenario gamebook;
   late String jwtToken = "";
@@ -46,20 +48,20 @@ class LobbyController extends GetxController {
 
     switch (type) {
       case 'create':
-        print("wybrano utworzenie lobby");
+        logger.d("wybrano utworzenie lobby");
         _createAndOpenLobby();
         break;
       case 'join':
-        print("wybrano dołączenie do lobby");
+        logger.d("wybrano dołączenie do lobby");
         _joinLobby(lobbyId);
         break;
       case 'rejoin':
-        print("wybrano powrót do lobby");
+        logger.d("wybrano powrót do lobby");
         _joinLobby(lobbyId);
         setGameId = gameId;
         break;
       case 'rejoin-waiting':
-        print("wybrano powrót do lobby");
+        logger.d("wybrano powrót do lobby");
         _joinLobby(lobbyId);
         setGameId = gameId;
         break;
@@ -75,11 +77,7 @@ class LobbyController extends GetxController {
     try {
       final lobby = await lobbyService.createLobby(scenarioId, jwtToken);
       createdLobby.value = lobby;
-      /*print(lobby);
-      print("powyzej lobby?");
-      print(createdLobby.value?.idLobby);
-      print(createdLobby.value);
-      print("powyżej jest lobbyyy^");*/
+      
       return lobby;
     } catch (e) {
       rethrow;
@@ -97,17 +95,11 @@ class LobbyController extends GetxController {
 
   Future<void> _createAndOpenLobby() async {
     try {
-      //final gameController = Get.find<GamePlayController>();
-      //final game = gameController.currentGame.value;
-      //if (game == null) throw Exception("Brak aktywnej gry!");
-      //print("tworzy lobby---------------");
-      //print(createdLobby.value?.idLobby);
       final lobby = await createLobby(gamebook.id);
       setLobbyId = lobby.idLobby;
-      print("utworzono");
 
       Get.snackbar(
-        "Lobby stworzone!",
+        'lobby_created'.tr,
         "ID Lobby: ${lobby.idLobby}, Status: ${lobby.status}",
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -116,53 +108,35 @@ class LobbyController extends GetxController {
         await loadToken();
       }
 
-      /*if (jwtToken != null) {
-        // przechodzimy do widoku socketowego
-        Get.to(() => LobbySocketPanel(
-              jwtToken: jwtToken,
-              lobbyId: lobby.idLobby.toString(),
-            ));
-      } else {
-        Get.snackbar("Błąd", "Token JWT jest pusty! Nie można utworzyć lobby.",
-            snackPosition: SnackPosition.BOTTOM);
-      }*/
       _connectToLobby(onConnected: () {});
-      //_connectToLobby();
     } catch (e) {
-      print("Błąd - Nie udało się stworzyć lobby: $e");
+      logger.e("Błąd - Nie udało się stworzyć lobby: $e");
     }
   }
 
   Future<void> _joinLobby(int lobbyId) async {
     try {
       setLobbyId = lobbyId;
-      print("utworzono");
 
       Get.snackbar(
         "Dołączono do lobby!",
         "ID Lobby: ${setLobbyId}",
         snackPosition: SnackPosition.BOTTOM,
       );
-      print("aftersnackbar");
 
-      //print("token in join: ${jwtToken}");
       if (jwtToken == "") {
-        print("pusty");
         await loadToken();
       }
-
-      print("connect się wykona");
 
       _connectToLobby(onConnected: () {
         sendJoin();
       });
     } catch (e) {
-      print("Błąd - Nie udało się dołączyć do lobby: $e");
+      logger.e("Błąd - Nie udało się dołączyć do lobby: $e");
     }
   }
 
   void _connectToLobby({required VoidCallback onConnected}) {
-    print("inside connect");
     socketService.connect(
       jwtToken: jwtToken,
       lobbyId: setLobbyId.toString(),
@@ -177,8 +151,6 @@ class LobbyController extends GetxController {
         onConnected();
       },
     );
-    print("after connect");
-    //sendJoin();
     isConnected.value = socketService.isConnected;
   }
 
@@ -209,7 +181,7 @@ class LobbyController extends GetxController {
         "type": "start-game",
         "gameId": lobby.idGame,
       }));
-      print("sending gameId");
+      logger.d("sending gameId");
       socketService.gameStarted = true;
       return lobby;
     } catch (e) {
@@ -218,14 +190,10 @@ class LobbyController extends GetxController {
   }
 
   void joinGame() {
-    print("Otrzymane gameId do rozpoczęcia gry:");
-    print(setGameId);
+    logger.d("Otrzymane gameId do rozpoczęcia gry:");
+    logger.d(setGameId);
 
     final gameController = Get.find<GamePlayController>();
-
-    //Lobby lobby = await controller.startGame();
-    //print("🟢 Gra wystartowała z ID: ${lobby.idLobby}, Status: ${lobby.status}");
-    //lobby.idGame;
 
     gameController.gameType = GameType.multi;
     socketService.gameStarted = true;
@@ -233,7 +201,6 @@ class LobbyController extends GetxController {
     Get.toNamed(AppRoutes.gameDetail.replaceFirst(
       ":id",
       setGameId.toString(),
-      //gameController.currentGame.value!.idGame.toString(),
     ));
   }
 
@@ -243,7 +210,6 @@ class LobbyController extends GetxController {
         "type": "delete",
         "deleted-user": id,
       }));
-      print("deleting user");
     } catch (e) {
       rethrow;
     }
@@ -252,10 +218,8 @@ class LobbyController extends GetxController {
   
 
   Future<void> reactToBeingDeleted(BuildContext context, int deletedUserId) async {
-    //print("reacting to kicking sbd------------------");
     if(deletedUserId == currentUserId)
     {
-      //print("im being kicked-------------------------");
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -264,11 +228,11 @@ class LobbyController extends GetxController {
           return AlertDialog(
             backgroundColor: theme.colorScheme.primary,
             title: Text(
-              "Wyrzucono cię z lobby",
+              'kicked_out_of_the_lobby'.tr,
               style: TextStyle(color: theme.colorScheme.onSurface),
             ),
             content: Text(
-              "Zostałeś wyrzucony przez hosta.",
+              'host_kicked_you'.tr,
               style: TextStyle(color: theme.colorScheme.onSurface),
             ),
             actions: [

@@ -141,5 +141,26 @@
   "destination_name": "Destination name appears when it is visible and zoomed in enough",
   "compass_click": "Tap the compass to reset map rotation",
   "distance_label": "Tap the meters label to center the map on destination",
-  "got_it": "Got it!"
+  "got_it": "Got it!",
+  "error_while_loading_data": "Error while loading data",
+  "cant_return_to_lobby": "Cannot return to lobby",
+  "cant_lobby_explanation": "The game might have ended or the lobby is already full.",
+  "cant_join_lobby": "Cannot join to lobby",
+  "lobby_is_full": "Lobby is already full",
+  "kicked_out_of_the_lobby": "You were kicked out of the lobby",
+  "host_kicked_you": "The host kicked you out of the lobby",
+  "lobby_created": "Lobby created!",
+  "players_in_lobby": "Players in lobby:",
+  "loading": "Loading...",
+  "return_to_game_button": "Return to game",
+  "start_game_button": "Start game",
+  "history_text": "Your story begins here...\nMake choices to fill this page.",
+  "awaiting_decision": "Awaiting your next decision...",
+  "congratulations": "Congratulations!",
+  "completed_the_game": "You have completed the game",
+  "play_again": "Play Again",
+  "decision_recorded": "Decision Recorded!",
+  "proceed_to_location": "Proceed to the next location\nto continue your adventure",
+  "navigate_to_location": "Navigate to Next Location"
+
 }
