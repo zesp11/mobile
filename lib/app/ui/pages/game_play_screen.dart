@@ -74,10 +74,10 @@ class _GamePlayScreenState extends State<GamePlayScreen>
       // Get controllers
       lobbyController = Get.find<LobbyController>();
       userService = Get.find<UserService>();
-      
+
       // Get current user ID
       await _getCurrentUserId();
-      
+
       // Set up listener for user updates
       if (lobbyController != null) {
         ever(lobbyController!.users, (_) {
@@ -98,7 +98,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
 
   void _updateUserMarkers() {
     if (lobbyController == null || userId == null) return;
-    
+
     Map<String, LatLng> coords = {};
 
     for (var user in lobbyController!.users) {
@@ -242,14 +242,12 @@ class _LobbyTabState extends State<LobbyTab> {
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   String? userId;
-  
+
   @override
   void initState() {
     super.initState();
     getCurrentUserId();
   }
-
-  
 
   Future<void> getCurrentUserId() async {
     final id = await secureStorage.read(key: 'userId');
@@ -812,51 +810,59 @@ class _DecisionTabState extends State<DecisionTab> {
                   ),
                 ),
               )
-            : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.menu_book_rounded,
-                      size: 48,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      "your_journey_has_ended".tr,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.find<TabController>().animateTo(1);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 14),
-                        shadowColor: Colors.black.withOpacity(0.1),
+            : SizedBox(
+                height: double.infinity,
+                width: double.infinity,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(
+                        Icons.menu_book_rounded,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
-                      child: Text(
-                        "check_story_tab".tr,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer
-                                  .withOpacity(0.9),
+                      const SizedBox(height: 16),
+                      Text(
+                        "your_journey_has_ended".tr,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
                             ),
-                        textAlign: TextAlign.center,
                       ),
-                    )
-                  ],
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          Get.find<TabController>().animateTo(1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 14),
+                          shadowColor: Colors.black.withOpacity(0.1),
+                        ),
+                        child: Text(
+                          "check_story_tab".tr,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer
+                                        .withOpacity(0.9),
+                                  ),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
 
