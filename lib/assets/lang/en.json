@@ -142,7 +142,7 @@
   "compass_click": "Tap the compass to reset map rotation",
   "distance_label": "Tap the meters label to center the map on destination",
   "got_it": "Got it!",
-  "error_while_loading_data": "Error while loading data",
+  "error_while_loading_data": "Cannot return to the game",
   "cant_return_to_lobby": "Cannot return to lobby",
   "cant_lobby_explanation": "The game might have ended or the lobby is already full.",
   "cant_join_lobby": "Cannot join to lobby",
