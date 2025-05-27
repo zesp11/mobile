@@ -135,7 +135,7 @@
   "compass_click": "Dotknij kompasu, aby zresetować obrót mapy",
   "distance_label": "Stuknij w etykietę z metrami, aby wyśrodkować mapę na celu",
   "got_it": "Zrozumiano!",
-  "error_while_loading_data": "Błąd w czasie wczytywania danych",
+  "error_while_loading_data": "Nie można powrócić do gry",
   "cant_return_to_lobby": "Nie można powrócić do lobby",
   "cant_lobby_explanation": "Prawdopodobnie gra została zakończona, albo lobby jest zapełnione",
   "cant_join_lobby": "Nie można dołączyć do lobby",
