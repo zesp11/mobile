@@ -10,6 +10,7 @@ import 'package:gotale/app/controllers/gameplay_controller.dart';
 import 'package:gotale/app/models/lobby.dart';
 import 'package:gotale/app/models/scenario.dart';
 import 'package:gotale/app/routes/app_routes.dart';
+import 'package:gotale/app/services/api_service/api_service.dart';
 import 'package:gotale/app/services/lobby_service.dart';
 import 'package:gotale/app/services/user_service.dart';
 import 'package:gotale/app/services/websocket_service.dart';
@@ -215,14 +216,18 @@ class LobbyController extends GetxController {
     }
   }
 
-  Future<void> reactToBeingDeleted(
-      BuildContext context, int deletedUserId) async {
-    if (deletedUserId == currentUserId) {
+  Future<void> reactToBeingDeleted(int deletedUserId) async {
+  if (deletedUserId == currentUserId) {
+    disconnect();
+
+    Get.toNamed(AppRoutes.search);
+
+    Future.delayed(Duration(milliseconds: 300), () {
       showDialog(
-        context: context,
+        context: Get.context!,
         barrierDismissible: false,
         builder: (BuildContext dialogContext) {
-          final theme = Theme.of(context);
+          final theme = Theme.of(dialogContext);
           return AlertDialog(
             backgroundColor: theme.colorScheme.primary,
             title: Text(
@@ -236,9 +241,7 @@ class LobbyController extends GetxController {
             actions: [
               TextButton(
                 onPressed: () {
-                  disconnect();
                   Navigator.of(dialogContext).pop();
-                  Get.back();
                 },
                 child: Text(
                   "OK",
@@ -249,8 +252,10 @@ class LobbyController extends GetxController {
           );
         },
       );
-    }
+    });
   }
+}
+
 
   @override
   void onClose() {

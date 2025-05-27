@@ -232,7 +232,7 @@ class SocketService with WidgetsBindingObserver {
                   final lobbyController = Get.find<LobbyController>();
                   final context = Get.context;
                   if (context != null) {
-                    lobbyController.reactToBeingDeleted(context, deletedUserId);
+                    lobbyController.reactToBeingDeleted(deletedUserId);
                   }
                   break;
                 default:
