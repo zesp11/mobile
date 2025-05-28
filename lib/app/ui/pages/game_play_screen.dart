@@ -746,10 +746,61 @@ class _DecisionTabState extends State<DecisionTab> {
                       Expanded(
                         flex: 3,
                         child: SingleChildScrollView(
-                          child: Text(
-                            currentStep.text ?? "Game End",
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            textAlign: TextAlign.center,
+                          child: Column(
+                            children: [
+                              Text(
+                                currentStep.text ?? "Game End",
+                                style: Theme.of(context).textTheme.bodyLarge,
+                                textAlign: TextAlign.center,
+                              ),
+                              if (decisions.isEmpty) ...[
+                                const SizedBox(height: 32),
+                                Icon(
+                                  Icons.menu_book_rounded,
+                                  size: 48,
+                                  color: Theme.of(context).colorScheme.secondary,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  "your_journey_has_ended".tr,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        color: Theme.of(context).colorScheme.secondary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.find<TabController>().animateTo(1);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.secondaryContainer,
+                                    foregroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 14),
+                                    shadowColor: Colors.black.withOpacity(0.1),
+                                  ),
+                                  child: Text(
+                                    "check_story_tab".tr,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondaryContainer
+                                                  .withOpacity(0.9),
+                                            ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),
@@ -810,61 +861,7 @@ class _DecisionTabState extends State<DecisionTab> {
                   ),
                 ),
               )
-            : SizedBox(
-                height: double.infinity,
-                width: double.infinity,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Icon(
-                        Icons.menu_book_rounded,
-                        size: 48,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "your_journey_has_ended".tr,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          Get.find<TabController>().animateTo(1);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                          foregroundColor: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 14),
-                          shadowColor: Colors.black.withOpacity(0.1),
-                        ),
-                        child: Text(
-                          "check_story_tab".tr,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondaryContainer
-                                        .withOpacity(0.9),
-                                  ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+            : const SizedBox.shrink(),
 
         // Swipe-up detector when buttons are hidden
         if (!_showButtons && decisions.isNotEmpty)
