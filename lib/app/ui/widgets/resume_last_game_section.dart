@@ -150,8 +150,11 @@ class ResumeLastGameSection extends GetView<GameSelectionController> {
                               Text(
                                 '${lastGame.scenarioName} ',
                                 style: Theme.of(context).textTheme.titleMedium,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                              Spacer(),
+                              const SizedBox(width: 8),
+                              //Spacer(),
                               Text(
                                 '#${lastGame.idGame}',
                                 style: Theme.of(context)

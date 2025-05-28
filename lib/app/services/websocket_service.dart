@@ -115,9 +115,8 @@ class SocketService with WidgetsBindingObserver {
       config: StompConfig(
         //url: "ws://10.0.2.2:8080/websocket/websocket", // na localu na emulatorze
         //url: "ws://localhost:8080/websocket/websocket", // na localu
-        url:
-            'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // na http
-        //url: 'wss://api.gotale.pl:443/websocket/websocket', // na https
+        //url: 'ws://squid-app-p63zw.ondigitalocean.app:8080/websocket/websocket', // na http
+        url: 'wss://api.gotale.pl:443/websocket/websocket', // na https
         useSockJS: false, //
         reconnectDelay: Duration(seconds: 2),
         heartbeatIncoming: Duration(seconds: 10),
